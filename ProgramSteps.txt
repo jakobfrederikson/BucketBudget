@@ -1,0 +1,25 @@
+BucketBudget
+>> Ultimate goal:
+> Create/download/upload style website. No user accounts.
+> Create a budget.
+> Download the budget as a JSON file.
+> Upload the JSON file to edit your budget.
+
+>> MVP
+> Create a budget.
+> Income(s) (something/someone that earns money for the budget).
+> Expense (something that takes money out of the budget).
+> Frequency (is this a weekly, fortnightly, monthly or yearly budget).
+> Bucket (Net income, after expenses, divided into buckets).
+-> Buckets know to say '$X.XX into [X] Bucket per [Frequency]'.
+-> Buckets always add to the net income.
+
+>> Nice to have(s)
+> Expected savings. Show how much will be saved in each bucket in 6 months, then 1 year.
+> Budget Check Ins. Save your current amount in each bucket. You can then view how well your savings have gone.
+>? Budget goals.
+>? Site keeps cookies about an ID associated with the session?
+>? Knows to automatically load the last budget that was being created from the last visit?
+
+>> Helpful referances:
+> Understanding the language around budgets: https://moneybucket.org/budgeting/budgeting-glossary/

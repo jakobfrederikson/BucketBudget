@@ -1,0 +1,1 @@
+# pytest throws no module named bucketbudget wihtout havinv this __init__.py file in tests
