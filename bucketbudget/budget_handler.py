@@ -1,0 +1,88 @@
+from decimal import Decimal
+from enum import Enum
+
+class Frequency(Enum):
+    WEEKLY = 1
+    FORTNIGHTLY = 2
+    FOUR_WEEKLY = 3
+    YEARLY = 4
+
+class MoneyItem():
+    __name: str
+    __amount: Decimal
+    __frequency: Frequency
+
+    def __init__(self, name: str, amount: Decimal, frequency: Frequency):
+        self.__name = name
+        self.__amount = amount
+        self.__frequency = frequency
+
+    def get_name(self) -> str:
+        return self.__name
+    
+    def get_amount(self) -> Decimal:
+        return Decimal(format(self.__amount, ".2f"))
+
+    def get_frequency(self) -> Frequency:
+        return self.__frequency
+
+    def convert_frequency_to(self, new_frequency: Frequency):
+        if self.__frequency == new_frequency:
+            return
+        
+        # WEEKLY
+        if self.__frequency == Frequency.WEEKLY:
+            if new_frequency == Frequency.FORTNIGHTLY:
+                self.__amount = Decimal(self.__amount * 2)
+            elif new_frequency == Frequency.FOUR_WEEKLY:
+                self.__amount = Decimal(self.__amount * 4)
+            elif new_frequency == Frequency.YEARLY:
+                self.__amount = Decimal(self.__amount * 52)
+
+        # FORTNIGHTLY
+        elif self.__frequency == Frequency.FORTNIGHTLY:
+            if new_frequency == Frequency.WEEKLY:
+                self.__amount = Decimal(self.__amount / 1)
+            elif new_frequency == Frequency.FOUR_WEEKLY:
+                self.__amount = Decimal(self.__amount * 2)
+            elif new_frequency == Frequency.YEARLY:
+                self.__amount = Decimal(self.__amount * 26)
+
+        # FOUR WEEKLY
+        elif self.__frequency == Frequency.FOUR_WEEKLY:
+            if new_frequency == Frequency.WEEKLY:
+                self.__amount = Decimal(self.__amount / 4)
+            elif new_frequency == Frequency.FORTNIGHTLY:
+                self.__amount = Decimal(self.__amount / 2)
+            elif new_frequency == Frequency.YEARLY:
+                self.__amount = Decimal(self.__amount * 13)
+            
+        # YEARLY
+        elif self.__frequency == Frequency.YEARLY:
+            if new_frequency == Frequency.WEEKLY:
+                self.__amount = Decimal(self.__amount / 52)
+            elif new_frequency == Frequency.FORTNIGHTLY:
+                self.__amount = Decimal(self.__amount / 26)
+            elif new_frequency == Frequency.FOUR_WEEKLY:
+                self.__amount = Decimal(self.__amount / 13)
+
+        self.__frequency = new_frequency
+        
+
+# p1_income = MoneyItem("p1", Decimal(500.67), Frequency.FORTNIGHTLY)
+# p2_income = MoneyItem("p2", Decimal(500.21), Frequency.FORTNIGHTLY)
+
+# print(p1_income.get_amount())
+# print(p2_income.get_amount())
+
+# p1_income.convert_frequency_to(Frequency.FOUR_WEEKLY)
+# print(p1_income.get_amount())
+
+# p1_income.convert_frequency_to(Frequency.YEARLY)
+# print(p1_income.get_amount())
+
+# p1_income.convert_frequency_to(Frequency.WEEKLY)
+# print(p1_income.get_amount())
+
+# p1_income.convert_frequency_to(Frequency.FORTNIGHTLY)
+# print(p1_income.get_amount())
