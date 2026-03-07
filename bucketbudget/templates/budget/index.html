@@ -6,7 +6,16 @@
 
 {% block content %}
 <button>Upload JSON file</button>
-<button>Download budget</button>
+<button>Download budget as JSON file</button>
+<hr/>
+
+<h2>Intro</h2>
+<p>BucketBudget will help you divide your income into 3 different bucket types: normal buckets, savings buckets, and expense buckets.</p>
+<p>Buckets are seen as bank accounts, like everyday use or savings accounts. You will need to declare the frequency of your budget, the income sources, any expenses, and lastly the buckets. BucketBudget will then take your income, subtract it by the expenses, and then allocate your remaining income into the buckets.</p>
+<p><code>Normal Buckets</code> are general purpose percentage based buckets. Some use cases of a normal bucket are: allocating 40% towards a daily expenses bank account used for petrol/groceries, and 10% towards a 'fun' bank account used for non-essentials like pizza, coffees, games etc.</p>
+<p><code>Savings Buckets</code> work the same way as normal buckets, just with an <strong>S</strong> infront of them to indicate you shouldn't be dipping into these accounts without a good reason. For example, you might want to save 40% of your income for emergencies and 10% for holidays.</p>
+<p><code>Expense Buckets</code> work a little differently than the other two. They are fixed amount buckets that are just a normal expense. The difference is that you might have an important bill that you need to pay each month, so you want to allocate a fixed amount of your pay into the expense bucket so that you will always have enough to pay the bill.</p>
+<p>Here's an example: You earn $500 a week and have a $200 power bill every month that <em>must</em> be paid. In your banking app, you decide to create an everyday use bank account called 'Power bill'. You did the math and found out you can put $50 into this account every pay so that you always have enough to pay the power bill. You then found out you can tick 'Expense Bucket' on any important expenses like this in BucketBudget, and the app will do all of that work for you.</p>
 <hr/>
 
 <h2>Budget Frequency</h2>
@@ -22,13 +31,13 @@
 
 <h2>Expenses</h2>
 <p>Provide ability to add multiple expenses into the budget here.</p>
-<p>Each item will have a name, amount, and frequency.</p>
+<p>Each item will have a name, amount, frequency, and can be grouped to form a 'bucket'.</p>
 <p>For example: rent, phone, internet, power, travel</p>
 <hr/>
 
 <h2>Buckets</h2>
-<p>Provide ability to add buckets. Buckets are akin to accounts. You might have an everyday use account, splurge account, savings account, and holiday account.</p>
-<p>Each bucket will have a name, and percentage. This percentage will be the percent of net income that gets put into the bucket.</p>
+<p>Provide ability to add savings buckets. Buckets are akin to accounts. You might have an everyday use account, splurge account, savings account, and holiday account.</p>
+<p>Each bucket will have a name, and percentage or amount (depends if the bucket is a savings/everday or expense bucket). This percentage will be the percent of net income that gets put into the bucket.</p>
 <p>Buckets should always equal to 100% of the net income.</p>
 <hr/>
 {% endblock %}
