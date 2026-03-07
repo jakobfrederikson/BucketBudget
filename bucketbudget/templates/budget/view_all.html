@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}All Budgets{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    {% if budgets %}
+        {% for budget in budgets %}
+            <p>{{ budget.title }}</p>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
