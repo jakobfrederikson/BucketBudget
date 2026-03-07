@@ -5,5 +5,30 @@
 {% endblock %}
 
 {% block content %}
-<p>Display links to creating budget items, and the empty budget.</p>
+<button>Upload JSON file</button>
+<button>Download budget</button>
+<hr/>
+
+<h2>Budget Frequency</h2>
+<p>This will tell you how often to put money into your buckets.</p>
+<p>This frequency should probably be in line with how often your pay is.</p>
+<hr/>
+
+<h2>Income</h2>
+<p>Provide ability to add multiple income sources into the budget here.</p>
+<p>Each item will have name, amount, and frequency</p>
+<p>For example: work salary, side hustle</p>
+<hr/>
+
+<h2>Expenses</h2>
+<p>Provide ability to add multiple expenses into the budget here.</p>
+<p>Each item will have a name, amount, and frequency.</p>
+<p>For example: rent, phone, internet, power, travel</p>
+<hr/>
+
+<h2>Buckets</h2>
+<p>Provide ability to add buckets. Buckets are akin to accounts. You might have an everyday use account, splurge account, savings account, and holiday account.</p>
+<p>Each bucket will have a name, and percentage. This percentage will be the percent of net income that gets put into the bucket.</p>
+<p>Buckets should always equal to 100% of the net income.</p>
+<hr/>
 {% endblock %}
