@@ -16,6 +16,7 @@ CREATE TABLE budget (
     owner_id INTEGER NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     title TEXT NOT NULL,
+    frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Yearly')) NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES user (id)
 );
 
@@ -24,7 +25,8 @@ CREATE TABLE budget_member (
     budget_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY (budget_id) REFERENCES budget (id),
-    FOREIGN KEY (user_id) REFERENCES user (id)
+    FOREIGN KEY (user_id) REFERENCES user (id),
+    UNIQUE(budget_id, user_id)
 );
 
 CREATE TABLE income_item (
