@@ -15,7 +15,7 @@ Here's an example of an expense bucket: You earn $500 a week and have a $200 pow
 ## An easy way to figure out what to do with your money
 ![Simple flow diagram of bucket budget](readme_images/SimpleFlow.png "Simple Flow Diagram")
 
-## The full flow
+## Example flow
 ![Full diagram of bucket budget](readme_images/BucketBudgetFlow.drawio.png "Full Digram")
 
 Looking at the flow above, you can see that BucketBudget will automatically tell you how much money is allocated into each bucket. All you have to do is enter your income, expenses and decide the percentages.
