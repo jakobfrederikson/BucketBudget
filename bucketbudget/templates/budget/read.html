@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ budget.title }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<button>Download budget as JSON file</button>
+<hr/>
+
+<h2>Budget Frequency</h2>
+<p>{{ budget['frequency'] }} - <a href="">edit</a></p>
+<hr/>
+
+<h2>Income</h2>
+<p>Display each income in the budget.</p>
+<hr/>
+
+<h2>Expenses</h2>
+<p>Display each expense in the budget.</p>
+<hr/>
+
+<h2>Buckets</h2>
+<p>Display each bucket and their percentages.</p>
+<hr/>
+
+<h2>Result</h2>
+<p>Once the budget has an income, expenses and buckets created, the budget result will show here.</p>
+<hr/>
+{% endblock %}
