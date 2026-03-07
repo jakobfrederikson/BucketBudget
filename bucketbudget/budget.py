@@ -17,21 +17,16 @@ bp = Blueprint("budget", __name__)
 @bp.route("/")
 def index():
     """Dislay an empty budget."""
-    print(f"Attempting to get session id: {session['user_id']}")
-    return render_template("budget/index.html")
 
-@bp.route('/budgets')
-@login_required
-def view_all_budgets():
-    db = get_db()
-    user_id = session.get('user_id')
-    if user_id is not None:
+    budgets = None
+    if g.user is not None:
+        db = get_db()
         budgets = db.execute(
-                'SELECT * FROM budget WHERE owner_id is ?', (user_id,)
+                'SELECT * FROM budget WHERE id IN'
+                 '(SELECT budget_id FROM budget_member WHERE user_id IS ?)', (g.user['id'],)
             ).fetchall()
-    else:
-        budgets = None
-    return render_template('budget/view_all.html', budgets=budgets)
+        print(budgets)
+    return render_template("budget/index.html", budgets=budgets)
 
 
 @bp.route('/budget/create', methods=('GET', 'POST'))
@@ -53,6 +48,18 @@ def create_budget():
                 'INSERT INTO budget (owner_id, title)'
                 'VALUES (?, ?)',
                 (g.user['id'], title),
+            )
+            db.commit()
+
+            just_created_budget = db.execute(
+                'SELECT * FROM budget WHERE owner_id IS ? AND title IS ?', 
+                (g.user['id'], title),
+            ).fetchone()
+
+            db.execute(
+                'INSERT INTO budget_member (user_id, budget_id)'
+                'VALUES (?, ?)',
+                (g.user['id'], just_created_budget['id']),
             )
             db.commit()
             return redirect(url_for('index'))

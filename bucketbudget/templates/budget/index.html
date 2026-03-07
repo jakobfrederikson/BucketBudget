@@ -9,6 +9,16 @@
 <button>Download budget as JSON file</button>
 <hr/>
 
+{% if budgets %}
+<h2>All budgets</h2>
+<ul>
+{% for budget in budgets %}
+    <li>{{ budget.title }}</li>
+{% endfor %}
+</ul>
+<hr/>
+{% endif %}
+
 <h2>Intro</h2>
 <p>BucketBudget will help you divide your income into 3 different bucket types: normal buckets, savings buckets, and expense buckets.</p>
 <p>Buckets are seen as bank accounts, like everyday use or savings accounts. You will need to declare the frequency of your budget, the income sources, any expenses, and lastly the buckets. BucketBudget will then take your income, subtract it by the expenses, and then allocate your remaining income into the buckets.</p>
