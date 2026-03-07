@@ -14,6 +14,21 @@ BucketBudget
 -> Buckets know to say '$X.XX into [X] Bucket per [Frequency]'.
 -> Buckets always add to the net income.
 
+Budgets can have:
+- One frequency
+- One owner
+- One created date
+- One title
+- Many members
+- Many incomes
+- Many expenses
+- Many buckets
+
+Users can have:
+- One username
+- One password
+- Many budgets
+
 >> Nice to have(s)
 > Expected savings. Show how much will be saved in each bucket in 6 months, then 1 year.
 > Budget Check Ins. Save your current amount in each bucket. You can then view how well your savings have gone.
