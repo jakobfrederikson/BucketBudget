@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}{{ budget.title }}{% endblock %}</h1>
+  <h1>{% block title %}{{ context['budget']['title'] }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -9,10 +9,18 @@
 <hr/>
 
 <h2>Budget Frequency</h2>
-<p>{{ budget['frequency'] }} - <a href="">edit</a></p>
+<p>{{ context['budget']['frequency'] }} - <a href="">edit</a></p>
 <hr/>
 
 <h2>Income</h2>
+<a href="{{ url_for('budget.create_income_item', id=context['budget']['id']) }}">Add an income item</a>
+{% if context['income_items'] %}
+    {% for item in context['income_items'] %}
+        <p><strong>{{ item['title'] }} | ${{ item['amount'] }} | {{ item['frequency'] }}</strong></p>
+    {% endfor %}
+{% else %}
+    <p>No income items found.</p>
+{% endif %}
 <p>Display each income in the budget.</p>
 <hr/>
 

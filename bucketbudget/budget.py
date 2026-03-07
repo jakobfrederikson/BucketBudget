@@ -11,6 +11,8 @@ from werkzeug.exceptions import abort
 from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
 
+from decimal import Decimal
+
 bp = Blueprint("budget", __name__)
 
 
@@ -77,7 +79,20 @@ def create():
 def read(id):
     """View a budget."""
     budget = get_budget(id)
-    return render_template('budget/read.html', budget=budget)
+    db = get_db()
+    income_items = db.execute(
+        'SELECT * FROM income_item WHERE budget_id IS ?',
+        (budget['id'],),
+    ).fetchall()
+
+    context = {
+        "budget": budget,
+        "income_items": income_items,
+        "expense_items": "expense_items",
+        "buckets": "buckets",
+        "result": "result"
+    }
+    return render_template('budget/read.html', context=context)
 
 
 def get_budget(id):
@@ -92,3 +107,39 @@ def get_budget(id):
         abort(404, f"Budget id {id} doesn't exist.")
 
     return budget
+
+@bp.route("/budget/<int:id>/income/create", methods=('GET', 'POST'))
+@login_required
+def create_income_item(id):
+    if request.method == 'POST':
+        budget = get_budget(id)
+        title = request.form['title']
+        amount = request.form['amount']
+        frequency= request.form['frequency']
+
+        errors = []
+
+        if not title:
+            errors.append('Title is required')
+        if not amount:
+            errors.append('Amount is required')
+        if not frequency:
+            errors.append('Frequency is required')
+
+        print(f"{title}, {amount}, {frequency}")
+            
+        if errors:
+            for error in errors:
+                flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'INSERT INTO income_item (budget_id, title, amount, frequency)'
+                'VALUES (?, ?, ?, ?)',
+                (budget['id'], title, amount, frequency,),
+            )
+            db.commit()
+            return redirect(url_for('budget.read', id=budget['id']))
+
+
+    return render_template("budget/income_item_create.html")

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Add income item{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    <label for="title">Title</label>
+    <input name="title" id="title" value="{{ request.form['title'] }}" required>
+
+    <label for="amount">Amount</label>
+    <input name="amount" id="amount" type="number" value="{{ request.form['amount'] }}" required>
+
+    <label for="frequency">Frequency</label>
+    <select name="frequency" id="frequency">
+      <option value="Weekly">Weekly</option>
+      <option value="Fortnightly">Fortnightly</option>
+      <option value="Four-Weekly">Four-Weekly</option>
+      <option value="Yearly">Yearly</option>
+    </select>
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}
