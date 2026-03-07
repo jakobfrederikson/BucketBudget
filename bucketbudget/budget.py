@@ -25,7 +25,6 @@ def index():
                 'SELECT * FROM budget WHERE id IN'
                  '(SELECT budget_id FROM budget_member WHERE user_id IS ?)', (g.user['id'],)
             ).fetchall()
-        print(budgets)
     return render_template("budget/index.html", budgets=budgets)
 
 
@@ -71,3 +70,25 @@ def create():
             return redirect(url_for('index'))
         
     return render_template('budget/create.html')
+
+
+@bp.route('/budget/<int:id>')
+@login_required
+def read(id):
+    """View a budget."""
+    budget = get_budget(id)
+    return render_template('budget/read.html', budget=budget)
+
+
+def get_budget(id):
+    budget = get_db().execute(
+        'SELECT * FROM budget b WHERE b.id = '
+        '(SELECT budget_id FROM budget_member bm ' \
+        'WHERE bm.budget_id = ? AND bm.user_id = ?)',
+        (id, g.user['id'],)
+    ).fetchone()
+
+    if budget is None:
+        abort(404, f"Budget id {id} doesn't exist.")
+
+    return budget
