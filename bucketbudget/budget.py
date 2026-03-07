@@ -31,29 +31,35 @@ def index():
 
 @bp.route('/budget/create', methods=('GET', 'POST'))
 @login_required
-def create_budget():
+def create():
     if request.method == 'POST':
         title = request.form['title']
+        frequency = request.form['frequency']
         
         error = None
         
         if not title:
             error = 'Title is required'
+        if not frequency:
+            error = 'Frequency is required'
 
         if error is not None:
             flash(error)
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO budget (owner_id, title)'
-                'VALUES (?, ?)',
-                (g.user['id'], title),
+                'INSERT INTO budget (owner_id, title, frequency)'
+                'VALUES (?, ?, ?)',
+                (g.user['id'], title, frequency),
             )
             db.commit()
 
             just_created_budget = db.execute(
-                'SELECT * FROM budget WHERE owner_id IS ? AND title IS ?', 
-                (g.user['id'], title),
+                'SELECT * FROM budget ' \
+                'WHERE owner_id IS ?' \
+                'AND title IS ?' \
+                'AND frequency IS ?', 
+                (g.user['id'], title, frequency),
             ).fetchone()
 
             db.execute(
