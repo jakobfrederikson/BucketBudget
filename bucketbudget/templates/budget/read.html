@@ -16,20 +16,34 @@
 <a href="{{ url_for('budget.create_income_item', id=context['budget']['id']) }}">Add an income item</a>
 {% if context['income_items'] %}
     {% for item in context['income_items'] %}
-        <p><strong>{{ item['title'] }} | ${{ item['amount'] }} | {{ item['frequency'] }}</strong></p>
+        <p><strong>{{ item['title'] }}</strong> | ${{ item['amount'] }} | {{ item['frequency'] }} - <a href="">edit</a></p>
     {% endfor %}
 {% else %}
     <p>No income items found.</p>
 {% endif %}
-<p>Display each income in the budget.</p>
 <hr/>
 
 <h2>Expenses</h2>
-<p>Display each expense in the budget.</p>
+<a href="{{ url_for('budget.create_expense_item', id=context['budget']['id']) }}">Add an expense item</a>
+{% if context['expense_items'] %}
+    {% for item in context['expense_items'] %}
+        <p><strong>{{ item['title'] }}</strong> | ${{ item['amount'] }} | {{ item['frequency'] }} | Expense Bucket? {{ item['expense_bucket'] }} - <a href="">edit</a></p>
+    {% endfor %}
+{% else %}
+    <p>No expense items found.</p>
+{% endif %}
 <hr/>
 
 <h2>Buckets</h2>
-<p>Display each bucket and their percentages.</p>
+<a href="{{ url_for('budget.create_expense_item', id=context['budget']['id']) }}">Add a bucket (change this URL) (Re-init DB to add the 'title' variable to bucket)</a>
+{% if context['bucket'] %}
+    {% for item in context['bucket'] %}
+        <p><strong>{{ item['title'] }}</strong> | {{ item['percent'] }}% of net income.</p>
+    {% endfor %}
+{% else %}
+    <p>No buckets created yet.</p>
+{% endif %}
+<p>Display each bucket in the budget.</p>
 <hr/>
 
 <h2>Result</h2>

@@ -85,11 +85,21 @@ def read(id):
         (budget['id'],),
     ).fetchall()
 
+    expense_items = db.execute(
+        'SELECT * FROM expense_item WHERE budget_id IS ?',
+        (budget['id'],),
+    ).fetchall()
+
+    buckets = db.execute(
+        'SELECT * FROM bucket WHERE budget_id IS ?',
+        (budget['id'],),
+    ).fetchall()
+
     context = {
         "budget": budget,
         "income_items": income_items,
-        "expense_items": "expense_items",
-        "buckets": "buckets",
+        "expense_items": expense_items,
+        "buckets": buckets,
         "result": "result"
     }
     return render_template('budget/read.html', context=context)
@@ -108,14 +118,14 @@ def get_budget(id):
 
     return budget
 
-@bp.route("/budget/<int:id>/income/create", methods=('GET', 'POST'))
+@bp.route("/budget/<int:id>/income_item/create", methods=('GET', 'POST'))
 @login_required
 def create_income_item(id):
     if request.method == 'POST':
         budget = get_budget(id)
         title = request.form['title']
         amount = request.form['amount']
-        frequency= request.form['frequency']
+        frequency = request.form['frequency']
 
         errors = []
 
@@ -125,8 +135,6 @@ def create_income_item(id):
             errors.append('Amount is required')
         if not frequency:
             errors.append('Frequency is required')
-
-        print(f"{title}, {amount}, {frequency}")
             
         if errors:
             for error in errors:
@@ -143,3 +151,80 @@ def create_income_item(id):
 
 
     return render_template("budget/income_item_create.html")
+
+
+@bp.route("/budget/<int:id>/expense_item/create", methods=('GET', 'POST'))
+@login_required
+def create_expense_item(id):
+    if request.method == 'POST':
+        budget = get_budget(id)
+        title = request.form['title']
+        amount = request.form['amount']
+        frequency = request.form['frequency']
+        expense_bucket_decision = request.form.getlist('expense_bucket')
+
+        expense_bucket = None
+
+        if not expense_bucket_decision:
+            expense_bucket = 0
+        else:
+            expense_bucket = 1
+
+        errors = []
+
+        if not title:
+            errors.append('Title is required.')
+        if not amount:
+            errors.append('Amount is required.')
+        if not frequency:
+            errors.append('Frequency is required.')
+        if expense_bucket is None:
+            errors.append('Declare if this is an expense bucket or not.')
+            
+        if errors:
+            for error in errors:
+                flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'INSERT INTO expense_item (budget_id, title, amount, frequency, expense_bucket)'
+                'VALUES (?, ?, ?, ?, ?)',
+                (budget['id'], title, amount, frequency, expense_bucket,),
+            )
+            db.commit()
+            return redirect(url_for('budget.read', id=budget['id']))
+
+
+    return render_template("budget/expense_item_create.html")
+
+
+@bp.route("/budget/<int:id>/bucket/create", methods=('GET', 'POST'))
+@login_required
+def create_bucket(id):
+    if request.method == 'POST':
+        budget = get_budget(id)
+        title = request.form['title']
+        percent = request.form['percent']
+
+        errors = []
+
+        if not title:
+            errors.append('Title is required.')
+        if not percent:
+            errors.append('Percent is required.')
+            
+        if errors:
+            for error in errors:
+                flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'INSERT INTO bucket (budget_id, title, percent)'
+                'VALUES (?, ?, ?)',
+                (budget['id'], title, percent,),
+            )
+            db.commit()
+            return redirect(url_for('budget.read', id=budget['id']))
+
+
+    return render_template("budget/expense_item_create.html")

@@ -51,6 +51,7 @@ CREATE TABLE expense_item (
 CREATE TABLE bucket (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     budget_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
     percent DECIMAL NOT NULL,
     FOREIGN KEY (budget_id) REFERENCES budget (id)
 );
