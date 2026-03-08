@@ -245,6 +245,61 @@ def _get_frequency(frequency: str) -> Frequency:
         return Frequency.YEARLY
 
 
+@bp.route('/budget/<int:id>/update', methods=('GET', 'POST'))
+@login_required
+def update(id):
+    budget = get_budget(id)
+
+    if request.method == 'POST':
+        title = request.form['title']
+        frequency = request.form['frequency']
+        errors = []
+
+        if not title:
+            errors.append("Title is required.")
+        if not frequency:
+            errors.append("Frequency is required")
+
+        if errors:
+            for error in errors:
+                flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'UPDATE budget SET title = ?, frequency = ?'
+                'WHERE id = ?',
+                (title, frequency, id,)
+            )
+            db.commit()
+            return redirect(url_for('budget.read', id=id))
+
+    return render_template('budget/update.html', budget=budget)
+
+
+@bp.route('/budget/<int:id>/delete', methods=('POST',))
+@login_required
+def delete(id):
+    """Delete a BucketBudget and all associated items."""
+    get_budget(id)
+    db = get_db()
+    db.execute('DELETE FROM budget WHERE id = ?', (id,))
+    db.commit()
+
+    db.execute('DELETE FROM budget_member WHERE budget_id =?', (id,))
+    db.commit()
+
+    db.execute('DELETE FROM income_item WHERE budget_id =?', (id,))
+    db.commit()
+
+    db.execute('DELETE FROM expense_item WHERE budget_id =?', (id,))
+    db.commit()
+
+    db.execute('DELETE FROM bucket WHERE budget_id =?', (id,))
+    db.commit()
+
+    return redirect(url_for('budget.index'))
+
+
 # ----------------------------
 #           GETTERS
 # ----------------------------
@@ -262,6 +317,31 @@ def get_budget(id):
 
     return budget
 
+
+def get_income_item(id):
+    income_item = get_db().execute(
+        'SELECT * FROM income_item WHERE id = ?',
+        (id,)
+    ).fetchone()
+
+    if income_item is None:
+        abort(404, f"Income item id {id} doesn't exist.")
+
+    return income_item
+
+
+def get_expense_item(id):
+    expense_item = get_db().execute(
+        'SELECT * FROM expense_item WHERE id = ?',
+        (id,)
+    ).fetchone()
+
+    if expense_item is None:
+        abort(404, f"Expense item id {id} doesn't exist.")
+
+    return expense_item
+
+
 def get_bucket(id):
     bucket = get_db().execute(
         'SELECT * FROM bucket WHERE id = ?',
@@ -278,6 +358,9 @@ def get_bucket(id):
 #                 CRUD operations for budget items
 # ---------------------------------------------------------------------
 
+# ------------
+# INCOME ITEMS
+# ------------
 
 @bp.route("/budget/<int:id>/income_item/create", methods=('GET', 'POST'))
 @login_required
@@ -310,8 +393,56 @@ def create_income_item(id):
             db.commit()
             return redirect(url_for('budget.read', id=budget['id']))
 
-
     return render_template("budget/income_item_create.html")
+
+
+@bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/update', methods=('GET', 'POST'))
+@login_required
+def update_income_item(budget_id, income_item_id):
+    income_item = get_income_item(income_item_id)
+
+    if request.method == 'POST':
+        title = request.form['title']
+        amount = request.form['amount']
+        frequency = request.form['frequency']
+        errors = []
+
+        if not title:
+            errors.append("Title is required.")
+        if not amount:
+            errors.append("Amount is required")
+        if not frequency:
+            errors.append("Frequency is required")
+
+        if errors:
+            for error in errors:
+                flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'UPDATE income_item SET title = ?, amount = ?, frequency = ?'
+                'WHERE id = ?',
+                (title, amount, frequency, income_item_id,)
+            )
+            db.commit()
+            return redirect(url_for('budget.read', id=budget_id))
+
+    return render_template('budget/income_item_update.html', budget_id=budget_id, income_item=income_item)
+
+
+@bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/delete', methods=('POST',))
+@login_required
+def delete_income_item(budget_id, income_item_id):
+    get_income_item(income_item_id)
+    db = get_db()
+    db.execute('DELETE FROM income_item WHERE id = ?', (income_item_id,))
+    db.commit()
+    return redirect(url_for('budget.read', id=budget_id))
+
+
+# -------------
+# EXPENSE ITEMS
+# -------------
 
 
 @bp.route("/budget/<int:id>/expense_item/create", methods=('GET', 'POST'))
@@ -355,8 +486,62 @@ def create_expense_item(id):
             db.commit()
             return redirect(url_for('budget.read', id=budget['id']))
 
-
     return render_template("budget/expense_item_create.html")
+
+
+@bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/update', methods=('GET', 'POST'))
+@login_required
+def update_expense_item(budget_id, expense_item_id):
+    expense_item = get_expense_item(expense_item_id)
+
+    if request.method == 'POST':
+        title = request.form['title']
+        amount = request.form['amount']
+        frequency = request.form['frequency']
+        expense_bucket_decision = request.form.getlist('expense_bucket')
+
+        expense_bucket = None
+
+        if not expense_bucket_decision:
+            expense_bucket = 0
+        else:
+            expense_bucket = 1
+
+        errors = []
+
+        if not title:
+            errors.append("Title is required.")
+        if not amount:
+            errors.append("Amount is required")
+        if not frequency:
+            errors.append("Frequency is required")
+        if expense_bucket is None:
+            errors.append('Declare if this is an expense bucket or not.')
+
+        if errors:
+            for error in errors:
+                flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'UPDATE expense_item SET title = ?, amount = ?, frequency = ?, expense_bucket = ?'
+                'WHERE id = ?',
+                (title, amount, frequency, expense_bucket, expense_item_id,)
+            )
+            db.commit()
+            return redirect(url_for('budget.read', id=budget_id))
+
+    return render_template('budget/expense_item_update.html', budget_id=budget_id, expense_item=expense_item)
+
+
+@bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/delete', methods=('POST',))
+@login_required
+def delete_expense_item(budget_id, expense_item_id):
+    get_expense_item(expense_item_id)
+    db = get_db()
+    db.execute('DELETE FROM expense_item WHERE id = ?', (expense_item_id,))
+    db.commit()
+    return redirect(url_for('budget.read', id=budget_id))
 
 
 # -------
@@ -422,4 +607,14 @@ def bucket_update(budget_id, bucket_id):
             db.commit()
             return redirect(url_for('budget.read', id=budget_id))
 
-    return render_template('budget/bucket_update.html', bucket=bucket)
+    return render_template('budget/bucket_update.html', budget_id=budget_id, bucket=bucket)
+
+
+@bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/delete', methods=('POST',))
+@login_required
+def delete_bucket_item(budget_id, bucket_id):
+    get_bucket(bucket_id)
+    db = get_db()
+    db.execute('DELETE FROM bucket WHERE id = ?', (bucket_id,))
+    db.commit()
+    return redirect(url_for('budget.read', id=budget_id))
