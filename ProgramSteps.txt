@@ -24,6 +24,18 @@ Budgets can have:
 - Many expenses
 - Many buckets
 
+Incomes can have:
+- a title
+- an amount
+- a frequency
+- the ability to distuinguish if the buckets should be split for this income
+
+Expenses can have:
+- a title
+- an amount
+- a frequency
+- the ability to distuinguish if the expense is an important bill or not 
+
 Users can have:
 - One username
 - One password
