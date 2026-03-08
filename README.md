@@ -1,5 +1,7 @@
 # BucketBudget
 
+This is still being developed! Everything you read is subject to change.
+
 BucketBudget will help you divide your income into 3 different bucket types: normal buckets, savings buckets, and expense buckets. 
 
 Buckets can be specific bank accounts, or just a way to help you understand what's happening with your income. You will need to declare the frequency of your budget, the income sources, any expenses, and lastly the buckets. BucketBudget will then take your income, subtract it by the expenses, and allocate your remaining income into the buckets.
