@@ -262,6 +262,23 @@ def get_budget(id):
 
     return budget
 
+def get_bucket(id):
+    bucket = get_db().execute(
+        'SELECT * FROM bucket WHERE id = ?',
+        (id,)
+    ).fetchone()
+
+    if bucket is None:
+        abort(404, f"Budget id {id} doesn't exist.")
+
+    return bucket
+
+
+# ---------------------------------------------------------------------
+#                 CRUD operations for budget items
+# ---------------------------------------------------------------------
+
+
 @bp.route("/budget/<int:id>/income_item/create", methods=('GET', 'POST'))
 @login_required
 def create_income_item(id):
@@ -342,6 +359,10 @@ def create_expense_item(id):
     return render_template("budget/expense_item_create.html")
 
 
+# -------
+# BUCKETS
+#--------
+
 @bp.route("/budget/<int:id>/bucket/create", methods=('GET', 'POST'))
 @login_required
 def create_bucket(id):
@@ -371,4 +392,34 @@ def create_bucket(id):
             return redirect(url_for('budget.read', id=budget['id']))
 
 
-    return render_template("budget/expense_item_create.html")
+    return render_template("budget/bucket_create.html")
+
+@bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
+@login_required
+def bucket_update(budget_id, bucket_id):
+    bucket = get_bucket(bucket_id)
+
+    if request.method == 'POST':
+        title = request.form['title']
+        percent = request.form['percent']
+        errors = []
+
+        if not title:
+            errors.append("Title is required.")
+        if not percent:
+            errors.append("Percent is required")
+
+        if errors:
+            for error in errors:
+                flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'UPDATE bucket SET title = ?, percent = ?'
+                ' WHERE id = ?',
+                (title, percent, bucket_id)
+            )
+            db.commit()
+            return redirect(url_for('budget.read', id=budget_id))
+
+    return render_template('budget/bucket_update.html', bucket=bucket)
