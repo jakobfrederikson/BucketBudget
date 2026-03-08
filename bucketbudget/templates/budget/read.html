@@ -35,18 +35,52 @@
 <hr/>
 
 <h2>Buckets</h2>
-<a href="{{ url_for('budget.create_expense_item', id=context['budget']['id']) }}">Add a bucket (change this URL) (Re-init DB to add the 'title' variable to bucket)</a>
-{% if context['bucket'] %}
-    {% for item in context['bucket'] %}
-        <p><strong>{{ item['title'] }}</strong> | {{ item['percent'] }}% of net income.</p>
+<a href="{{ url_for('budget.create_bucket', id=context['budget']['id']) }}">Add a bucket</a>
+{% if context['buckets'] %}
+    {% for item in context['buckets'] %}
+        <p><strong>{{ item['title'] }}</strong> | {{ item['percent'] }}% of net income. - <a href="{{ url_for('budget.bucket_update', budget_id=context['budget']['id'], bucket_id=item['id']) }}">edit</a></p>
     {% endfor %}
 {% else %}
     <p>No buckets created yet.</p>
 {% endif %}
-<p>Display each bucket in the budget.</p>
 <hr/>
 
-<h2>Result</h2>
-<p>Once the budget has an income, expenses and buckets created, the budget result will show here.</p>
+<h2>Result (Split the totals and buckets into two different tables later)</h2>
+{% if context['result'] %}
+    <table>
+        <tr>
+            <td>Total {{ context['budget']['frequency'] }} Income</td>
+            <td>{{ context['result']['total_income'] }}</td>
+        </tr>
+        <tr>
+            <td>Total {{ context['budget']['frequency'] }} Expenses</td>
+            <td>{{ context['result']['total_expenses'] }}</td>
+        </tr>
+        <tr>
+            <td>Total {{ context['budget']['frequency'] }} Net Income</td>
+            <td>{{ context['result']['net_income'] }}</td>
+        </tr>
+        {% if context['result']['leftover_income'] %}
+            <tr>
+                <td>Leftover income (money not allocated toward a bucket)</td>
+                <td>{{ context['result']['leftover_income'] }}</td>
+            </tr>
+        {% endif %}
+        {% if context['result']['buckets'] %}
+            <tr>
+                <td><strong>--- BUCKETS ---</strong></td>
+            </tr>
+            {% for bucket in context['result']['buckets'] %}
+                <tr>
+                    <td>{{ bucket['title'] }} ({{ bucket['percent'] }})</td>
+                    <td>{{ bucket['amount'] }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        
+    </table>
+{% else %}
+    <p>Could not produce result.</p>
+{% endif %}
 <hr/>
 {% endblock %}

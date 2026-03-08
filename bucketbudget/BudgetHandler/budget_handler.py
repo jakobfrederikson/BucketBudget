@@ -67,22 +67,3 @@ class MoneyItem():
                 self.__amount = Decimal(self.__amount / 13)
 
         self.__frequency = new_frequency
-        
-
-# p1_income = MoneyItem("p1", Decimal(500.67), Frequency.FORTNIGHTLY)
-# p2_income = MoneyItem("p2", Decimal(500.21), Frequency.FORTNIGHTLY)
-
-# print(p1_income.get_amount())
-# print(p2_income.get_amount())
-
-# p1_income.convert_frequency_to(Frequency.FOUR_WEEKLY)
-# print(p1_income.get_amount())
-
-# p1_income.convert_frequency_to(Frequency.YEARLY)
-# print(p1_income.get_amount())
-
-# p1_income.convert_frequency_to(Frequency.WEEKLY)
-# print(p1_income.get_amount())
-
-# p1_income.convert_frequency_to(Frequency.FORTNIGHTLY)
-# print(p1_income.get_amount())
