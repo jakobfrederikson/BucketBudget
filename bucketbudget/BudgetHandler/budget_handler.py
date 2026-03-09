@@ -49,6 +49,7 @@ class MoneyItem():
             elif new_frequency == Frequency.FOUR_WEEKLY:
                 self.__amount = Decimal(self.__amount * 2)
             elif new_frequency == Frequency.MONTHLY:
+                print(f"In budget handler, new amount: {(self.__amount * 26) / 12}")
                 self.__amount = Decimal((self.__amount * 26) / 12)
             elif new_frequency == Frequency.YEARLY:
                 self.__amount = Decimal(self.__amount * 26)
@@ -65,7 +66,7 @@ class MoneyItem():
                 self.__amount = Decimal(self.__amount * 13)
 
         # MONTHLY
-        elif self.__frequency == Frequency.FOUR_WEEKLY:
+        elif self.__frequency == Frequency.MONTHLY:
             if new_frequency == Frequency.WEEKLY:
                 self.__amount = Decimal((self.__amount * 12) / 52)
             elif new_frequency == Frequency.FORTNIGHTLY:

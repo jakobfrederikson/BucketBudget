@@ -137,7 +137,11 @@ def create_result(
     # Get total income, all amounts converted to the budget frequency
     total_income = 0
     for item in income_money_items:
+        print(f"Income prior to conversion: {item.get_amount()}")
+        print(f"Current income freq: {item.get_frequency()}")
+        print(f"New freq: {budget_frequency}")
         item.convert_frequency_to(budget_frequency)
+        print(f"Converting income to budget freq: {item.get_amount()}")
         total_income += item.get_amount()
 
     # Get total expenses, all amounts converted to the budget frequency
@@ -241,6 +245,8 @@ def _get_frequency(frequency: str) -> Frequency:
         return Frequency.FORTNIGHTLY
     elif frequency == 'Four-Weekly':
         return Frequency.FOUR_WEEKLY
+    elif frequency == 'Monthly':
+        return Frequency.MONTHLY
     else:
         return Frequency.YEARLY
 
