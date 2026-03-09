@@ -16,7 +16,7 @@ CREATE TABLE budget (
     owner_id INTEGER NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     title TEXT NOT NULL,
-    frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Yearly')) NOT NULL,
+    frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Monthly', 'Yearly')) NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES user (id)
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE income_item (
     budget_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     amount DECIMAL NOT NULL,
-    frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Yearly')) NOT NULL,
+    frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Monthly', 'Yearly')) NOT NULL,
     FOREIGN KEY (budget_id) REFERENCES budget (id)
 );
 
@@ -43,7 +43,7 @@ CREATE TABLE expense_item (
     budget_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     amount DECIMAL NOT NULL,
-    frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Yearly')) NOT NULL,
+    frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Monthly', 'Yearly')) NOT NULL,
     expense_bucket BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (budget_id) REFERENCES budget (id)
 );
