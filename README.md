@@ -1,10 +1,28 @@
 # BucketBudget
 
-This is still being developed! Everything you read is subject to change.
+**AI is not being used in this project.**
 
-BucketBudget will help you divide your income into 3 different bucket types: normal buckets, savings buckets, and expense buckets. 
+This is still being developed! Everything below is subject to change.
 
-Buckets can be specific bank accounts, or just a way to help you understand what's happening with your income. You will need to declare the frequency of your budget, the income sources, any expenses, and lastly the buckets. BucketBudget will then take your income, subtract it by the expenses, and allocate your remaining income into the buckets.
+## Install and run
+BucketBudget is being developed on Python 3.12.3.
+
+
+- run `git clone https://github.com/jakobfrederikson/BucketBudget.git`
+- create a venv in the repository (`python -m venv .venv`)
+- run the venv (`.venv/Source/activate` or `source .venv/bin/activate`)
+- run `pip install flask`
+- run `flask --app bucketbudget init-db`
+- run `flask --app bucketbudget run`
+
+
+## What's this app about?
+
+BucketBudget will help people divide their income into 3 different bucket types: normal buckets, savings buckets, and expense buckets. 
+
+Buckets can be specific bank accounts, or even important bills. To put it simply, they are where your income goes.
+
+In BucketBudget, users will declare the frequency of their budget, their income sources, any expenses, and lastly the buckets. BucketBudget will then take the income and expenses, convert them to the budget frequency, and then subtract the income by expenses to get the net income. It will then generate a result. The result is how the net-income gets divided into its buckets.
 
 Normal Buckets are general purpose percentage based buckets. Some use cases of a normal bucket are: allocating 40% towards a daily expenses bank account used for petrol/groceries, and 10% towards a 'fun' bank account used for non-essentials like pizza, coffees, games etc.
 
