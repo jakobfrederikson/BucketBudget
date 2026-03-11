@@ -376,6 +376,14 @@ def create_income_item(id):
         title = request.form['title']
         amount = request.form['amount']
         frequency = request.form['frequency']
+        split_income_decision = request.form.getlist('split_income')
+
+        split_income = None
+
+        if not split_income_decision:
+            split_income = 0
+        else:
+            split_income = 1
 
         errors = []
 
@@ -392,9 +400,9 @@ def create_income_item(id):
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO income_item (budget_id, title, amount, frequency)'
-                'VALUES (?, ?, ?, ?)',
-                (budget['id'], title, amount, frequency,),
+                'INSERT INTO income_item (budget_id, title, amount, frequency, split_income)'
+                'VALUES (?, ?, ?, ?, ?)',
+                (budget['id'], title, amount, frequency, split_income,),
             )
             db.commit()
             return redirect(url_for('budget.read', id=budget['id']))
@@ -411,6 +419,15 @@ def update_income_item(budget_id, income_item_id):
         title = request.form['title']
         amount = request.form['amount']
         frequency = request.form['frequency']
+        split_income_decision = request.form.getlist('split_income')
+
+        split_income = None
+
+        if not split_income_decision:
+            split_income = 0
+        else:
+            split_income = 1
+
         errors = []
 
         if not title:
@@ -426,9 +443,9 @@ def update_income_item(budget_id, income_item_id):
         else:
             db = get_db()
             db.execute(
-                'UPDATE income_item SET title = ?, amount = ?, frequency = ?'
+                'UPDATE income_item SET title = ?, amount = ?, frequency = ?, split_income = ?'
                 'WHERE id = ?',
-                (title, amount, frequency, income_item_id,)
+                (title, amount, frequency, split_income, income_item_id,)
             )
             db.commit()
             return redirect(url_for('budget.read', id=budget_id))

@@ -16,7 +16,7 @@
 <a href="{{ url_for('budget.create_income_item', id=context['budget']['id']) }}">Add an income item</a>
 {% if context['income_items'] %}
     {% for item in context['income_items'] %}
-        <p><strong>{{ item['title'] }}</strong> | ${{ item['amount'] }} | {{ item['frequency'] }} - <a href="{{ url_for('budget.update_income_item', budget_id=context['budget']['id'], income_item_id=item['id']) }}">edit</a></p>
+        <p><strong>{{ item['title'] }}</strong> | ${{ item['amount'] }} | {{ item['frequency'] }} | Split budget? {{ item['split_income'] }} - <a href="{{ url_for('budget.update_income_item', budget_id=context['budget']['id'], income_item_id=item['id']) }}">edit</a></p>
     {% endfor %}
 {% else %}
     <p>No income items found.</p>

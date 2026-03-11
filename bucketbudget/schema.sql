@@ -35,6 +35,7 @@ CREATE TABLE income_item (
     title TEXT NOT NULL,
     amount DECIMAL NOT NULL,
     frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Monthly', 'Yearly')) NOT NULL,
+    split_income BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (budget_id) REFERENCES budget (id)
 );
 
