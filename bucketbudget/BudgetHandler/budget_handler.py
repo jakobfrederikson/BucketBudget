@@ -10,11 +10,13 @@ class Frequency(Enum):
 
 class MoneyItem():
     __name: str
+    __user_id: int
     __amount: Decimal
     __frequency: Frequency
 
-    def __init__(self, name: str, amount: Decimal, frequency: Frequency):
+    def __init__(self, name: str, user_id: int, amount: Decimal, frequency: Frequency):
         self.__name = name
+        self.__user_id = user_id
         self.__amount = amount
         self.__frequency = frequency
 
@@ -26,6 +28,9 @@ class MoneyItem():
 
     def get_frequency(self) -> Frequency:
         return self.__frequency
+
+    def get_user_id(self) -> int:
+        return self.__user_id
 
     def convert_frequency_to(self, new_frequency: Frequency):
         if self.__frequency == new_frequency:
@@ -88,3 +93,31 @@ class MoneyItem():
                 self.__amount = Decimal(self.__amount / 12)
 
         self.__frequency = new_frequency
+
+
+class ExpenseItem(MoneyItem):
+    __is_expense_bucket: bool
+
+    def __init__(self, name: str, user_id: int, amount: Decimal, frequency: Frequency, is_expense_bucket: bool):
+        super().__init__(name, user_id, amount, frequency)
+        self.__is_expense_bucket = is_expense_bucket
+
+    def is_expense_bucket(self) -> bool:
+        if self.__is_expense_bucket:
+            return True
+
+        return False
+
+
+class IncomeItem(MoneyItem):
+    __is_split_income: bool
+
+    def __init__(self, name: str, user_id: int, amount: Decimal, frequency: Frequency, is_split_income: bool):
+        super().__init__(name, user_id, amount, frequency)
+        self.__is_split_income = is_split_income
+
+    def is_split_income(self) -> bool:
+        if self.__is_split_income:
+            return True
+
+        return False
