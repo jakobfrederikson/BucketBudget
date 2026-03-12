@@ -88,3 +88,22 @@ class MoneyItem():
                 self.__amount = Decimal(self.__amount / 12)
 
         self.__frequency = new_frequency
+
+
+class ExpenseItem(MoneyItem):
+    __is_expense_bucket: bool
+
+    def __init__(self, name: str, amount: Decimal, frequency: Frequency, is_expense_bucket: bool):
+        super().__init__(name, amount, frequency)
+        self.__is_expense_bucket = is_expense_bucket
+
+    def is_expense_bucket(self) -> bool:
+        if self.__is_expense_bucket:
+            return True
+
+        return False
+
+
+class IncomeItem(MoneyItem):
+    def __init__(self, name: str, amount: Decimal, frequency: Frequency):
+        super().__init__(name, amount, frequency)

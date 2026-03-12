@@ -12,7 +12,7 @@ from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
 
 from decimal import Decimal
-from bucketbudget.BudgetHandler.budget_handler import MoneyItem, Frequency
+from bucketbudget.BudgetHandler.budget_handler import IncomeItem, ExpenseItem, Frequency
 
 bp = Blueprint("budget", __name__)
 
@@ -109,14 +109,12 @@ def read(id):
 
 
 def get_result(budget, income_items, expense_items, buckets) -> dict:
-    income_money_items: list[MoneyItem] = _get_income_money_items(income_items)
-    expense_money_items = _get_expense_money_items(expense_items)
-    expense_bucket_money_items = _get_expense_bucket_money_items(expense_items)
+    income_money_items: list[IncomeItem] = _get_income_money_items(income_items)
+    expense_money_items: list[ExpenseItem] = _get_expense_money_items(expense_items)
     result = create_result(
         budget, 
         income_money_items, 
-        expense_money_items, 
-        expense_bucket_money_items, 
+        expense_money_items,
         buckets
     )
     
@@ -125,115 +123,91 @@ def get_result(budget, income_items, expense_items, buckets) -> dict:
 
 def create_result(
         budget, 
-        income_money_items: list[MoneyItem], 
-        expense_money_items: list[MoneyItem], 
-        expense_bucket_money_items: list[MoneyItem],
+        income_money_items: list[IncomeItem], 
+        expense_money_items: list[ExpenseItem],
         buckets
         ) -> dict:
     
     # Get the budget frequency
     budget_frequency: Frequency = _get_frequency(budget['frequency'])
 
-    # Get total income, all amounts converted to the budget frequency
-    total_income = 0
-    for item in income_money_items:
-        print(f"Income prior to conversion: {item.get_amount()}")
-        print(f"Current income freq: {item.get_frequency()}")
-        print(f"New freq: {budget_frequency}")
-        item.convert_frequency_to(budget_frequency)
-        print(f"Converting income to budget freq: {item.get_amount()}")
-        total_income += item.get_amount()
+    all_income_buckets = []
+    for income in income_money_items:
+        income.convert_frequency_to(budget_frequency)
+        net_income = income.get_amount()
+        total_expenses = 0
+        for expense in expense_money_items:
+            expense.convert_frequency_to(budget_frequency)
+            net_income -= expense.get_amount()
+            total_expenses += expense.get_amount()
 
-    # Get total expenses, all amounts converted to the budget frequency
-    total_expenses = 0
-    for item in expense_money_items:
-        item.convert_frequency_to(budget_frequency)
-        total_expenses += item.get_amount()
+        income_to_buckets = []
+        expense_buckets = []
+        for item in expense_money_items:
+            if item.is_expense_bucket():
+                expense_buckets.append(item)
+        for bucket in expense_buckets:
+            bucket_item = {
+                "title": bucket.get_name(),
+                "amount": bucket.get_amount(),
+                "percent": "(fixed amount)",
+            }
+            income_to_buckets.append(bucket_item)
 
-    # Convert all expense bucket money items to the budget frequency
-    for item in expense_bucket_money_items:
-        item.convert_frequency_to(budget_frequency)
-        total_expenses += item.get_amount()
+        for bucket in buckets:
+            percent_to_decimal = Decimal(bucket['percent'] / 100)
 
-    net_income = total_income - total_expenses
+            bucket_item = {
+                "title": bucket['title'],
+                "amount": Decimal(percent_to_decimal * net_income).quantize(Decimal('0.01')),
+                "percent": bucket['percent'],
+            }
+            income_to_buckets.append(bucket_item)
 
-    all_buckets = []
-
-    # Convert each expense bucket to a bucket item
-    for item in expense_bucket_money_items:
-        bucket_item = {
-            "title": item.get_name(),
-            "amount": item.get_amount(),
-            "percent": "(fixed amount)",
-        }
-        all_buckets.append(bucket_item)
-
-    # Get the percentage of net income for each bucket item
-    # And get the total percentages of all buckets
-    total_bucket_percentage = Decimal(0)
-    for bucket in buckets:
-        total_bucket_percentage += bucket['percent']
-
-        percent_to_decimal = Decimal(bucket['percent'] / 100)
-
-        bucket_item = {
-            "title": bucket['title'],
-            "amount": Decimal(percent_to_decimal * net_income).quantize(Decimal('0.01')),
-            "percent": f"{bucket['percent']}%"
-        }
-
-        all_buckets.append(bucket_item)
-
-    leftover_income = None
-    leftover_bucket_percentage = Decimal(100 - total_bucket_percentage)
-    if leftover_bucket_percentage != 0:
-        decimal_from_percent = Decimal(leftover_bucket_percentage / 100)
-        leftover_income = Decimal(decimal_from_percent * net_income).quantize(Decimal('0.01'))
+        all_income_buckets.append({
+            "income_name": income.get_name(),
+            "net_income": net_income,
+            "total_expenses": total_expenses,
+            "buckets": income_to_buckets,
+        })
+    
 
     result = {
-        "total_income": total_income,
-        "total_expenses": total_expenses,
-        "net_income": net_income,
-        "total_bucket_percentage": total_bucket_percentage,
-        "leftover_income": leftover_income,
-        "buckets": all_buckets
+        "all_income_buckets": all_income_buckets
     }
 
     print(result)
 
     return result
-    
-
-def _get_expense_bucket_money_items(expense_items) -> list[MoneyItem]:
-    expense_buckets: list[MoneyItem] = []
-
-    for item in expense_items:
-        if item['expense_bucket'] == 1:
-            frequency = _get_frequency(item['frequency'])
-            expense_buckets.append(
-                MoneyItem(item['title'], Decimal(item['amount']), frequency)
-            )
-    
-    return expense_buckets
 
 
-def _get_expense_money_items(expense_items) -> list[MoneyItem]:
+def _get_expense_money_items(expense_items) -> list[ExpenseItem]:
     expense_money_items = []
     for item in expense_items:
-        if item['expense_bucket'] == 0:
-            frequency = _get_frequency(item['frequency'])
-            expense_money_items.append(
-                MoneyItem(item['title'], Decimal(item['amount']), frequency)
+        frequency = _get_frequency(item['frequency'])
+
+        expense_money_items.append(
+            ExpenseItem(
+                item['title'],
+                Decimal(item['amount']), 
+                frequency,
+                item['expense_bucket']
             )
+        )
     return expense_money_items
 
 
-def _get_income_money_items(income_items) -> list[MoneyItem]:
+def _get_income_money_items(income_items) -> list[IncomeItem]:
     income_money_items = []
     for item in income_items:
         frequency = _get_frequency(item['frequency'])
+
         income_money_items.append(
-            MoneyItem(item['title'], Decimal(item['amount']), frequency)
+            IncomeItem(
+                item['title'],
+                Decimal(item['amount']), 
+                frequency
+            )
         )
     return income_money_items
 
@@ -324,6 +298,19 @@ def get_budget(id):
     return budget
 
 
+def get_budget_members(id):
+    budget_members = get_db().execute(
+        'SELECT * FROM user u WHERE u.id IN',
+        '(SELECT user_id FROM budget_member bm WHERE bm.budget_id = ?)',
+        (id,),
+    ).fetchall()
+
+    if budget_members is None:
+        abort(404, f"Budget id {id} doesn't exist.")
+    
+    return budget_members
+
+
 def get_income_item(id):
     income_item = get_db().execute(
         'SELECT * FROM income_item WHERE id = ?',
@@ -355,7 +342,7 @@ def get_bucket(id):
     ).fetchone()
 
     if bucket is None:
-        abort(404, f"Budget id {id} doesn't exist.")
+        abort(404, f"Bucket id {id} doesn't exist.")
 
     return bucket
 
@@ -399,6 +386,7 @@ def create_income_item(id):
             db.commit()
             return redirect(url_for('budget.read', id=budget['id']))
 
+    
     return render_template("budget/income_item_create.html")
 
 
@@ -411,6 +399,7 @@ def update_income_item(budget_id, income_item_id):
         title = request.form['title']
         amount = request.form['amount']
         frequency = request.form['frequency']
+
         errors = []
 
         if not title:

@@ -11,9 +11,9 @@ INSERT INTO budget_member (budget_id, user_id)
 VALUES
   ('1', '1');
 
-INSERT INTO income_item (budget_id, title, amount, frequency)
+INSERT INTO income_item (budget_id, title, amount, frequency, split_income)
 VALUES
-  ('1', 'test income', '1000.00', 'Weekly');
+  ('1', 'test income', '1000.00', 'Weekly', '1');
 
 INSERT INTO expense_item (budget_id, title, amount, frequency, expense_bucket)
 VALUES
