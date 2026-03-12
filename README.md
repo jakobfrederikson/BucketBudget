@@ -17,7 +17,7 @@ BucketBudget is being developed on Python 3.12.3.
 
 
 ### To Do
-- [ ] Add ability to split budget between multiple earners
+- [x] Add ability to split budget between multiple earners
 - [ ] Add ability to split expenses with the other earners, using 50/50 or income percentage split
 - [ ] Update 'read' UI to split totals from buckets.
 - [ ] Make difference between expense and normal buckets more obvious.
