@@ -32,25 +32,20 @@ CREATE TABLE budget_member (
 CREATE TABLE income_item (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     budget_id INTEGER NOT NULL,
-    user_id INTEGER,
     title TEXT NOT NULL,
     amount DECIMAL NOT NULL,
     frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Monthly', 'Yearly')) NOT NULL,
-    split_income BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (budget_id) REFERENCES budget (id),
-    FOREIGN KEY (user_id) REFERENCES user (id)
+    FOREIGN KEY (budget_id) REFERENCES budget (id)
 );
 
 CREATE TABLE expense_item (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     budget_id INTEGER NOT NULL,
-    user_id INTEGER,
     title TEXT NOT NULL,
     amount DECIMAL NOT NULL,
     frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Monthly', 'Yearly')) NOT NULL,
     expense_bucket BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (budget_id) REFERENCES budget (id),
-    FOREIGN KEY (user_id) REFERENCES user (id)
+    FOREIGN KEY (budget_id) REFERENCES budget (id)
 );
 
 CREATE TABLE bucket (

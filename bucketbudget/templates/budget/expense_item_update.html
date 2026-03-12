@@ -6,15 +6,6 @@
 
 {% block content %}
   <form method="post">
-    <label for="user_id">Select the name of a user if this expense relates only to them.</label>
-    <select name="user_id" id="user_id">
-      <option value="-1" selected>General Income</option>
-      {% for member in budget_members %}
-        <option value="{{ member.id }}">{{ member.username }}</option>
-      {% endfor %}
-    </select>
-
-
     <label for="title">Title</label>
     <input name="title" id="title"
       value="{{ request.form['title'] or expense_item['title'] }}" required>

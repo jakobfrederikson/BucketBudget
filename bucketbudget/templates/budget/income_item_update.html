@@ -6,14 +6,6 @@
 
 {% block content %}
   <form method="post">
-    <label for="user_id">Select the name of a user if you would like this income to receive it's own bucket split.</label>
-    <select name="user_id" id="user_id">
-      <option value="-1" selected>General Income</option>
-    {% for member in budget_members %}
-      <option value="{{ member.id }}">{{ member.username }}</option>
-    {% endfor %}
-  </select>
-
     <label for="title">Title</label>
     <input name="title" id="title"
       value="{{ request.form['title'] or income_item['title'] }}" required>
@@ -29,9 +21,6 @@
       <option value="Monthly">Monthly</option>
       <option value="Yearly">Yearly</option>
     </select>
-
-    <label for="split_income">Split this income?</label>
-    <input name="split_income" id="split_income" type="checkbox"> 
 
     <input type="submit" value="Save">
   </form>
