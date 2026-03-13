@@ -11,7 +11,7 @@ BucketBudget is being developed on Python 3.12.3.
 - run `git clone https://github.com/jakobfrederikson/BucketBudget.git`
 - create a venv in the repository (`python -m venv .venv`)
 - run the venv (`.venv/Source/activate` or `source .venv/bin/activate`)
-- run `pip install flask`
+- run `pip install -r requirements.txt`
 - run `flask --app bucketbudget init-db`
 - run `flask --app bucketbudget run`
 
