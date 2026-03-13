@@ -5,7 +5,7 @@ BucketBudget
 > Download the budget as a JSON file.
 > Upload the JSON file to edit your budget.
 
->> MVP
+>> MVP - Finished.
 > Create a budget.
 > Income(s) (something/someone that earns money for the budget).
 > Expense (something that takes money out of the budget).
@@ -41,6 +41,19 @@ Users can have:
 - One password
 - Many budgets
 
+>> To Dos:
+> Doing: Update form validation
+    - https://refactoring.guru/design-patterns/chain-of-responsibility
+    - Use Chain of responsibility to validate forms
+> To Do: User update
+    - Add email to user
+    - Add ability to reset password
+    - Add user constraints - password must be 8 characters long with characters etc.
+> To Do: Add budget collaboration.
+    - Add ability to invite users to a budget
+    - Users must accept an invite first
+    - Once accepted, users can see this new budget on their 'budget dashboard' area?
+
 >> Nice to have(s)
 > Expected savings. Show how much will be saved in each bucket in 6 months, then 1 year.
 > Budget Check Ins. Save your current amount in each bucket. You can then view how well your savings have gone.
@@ -48,5 +61,5 @@ Users can have:
 >? Site keeps cookies about an ID associated with the session?
 >? Knows to automatically load the last budget that was being created from the last visit?
 
->> Helpful referances:
+>> Helpful references:
 > Understanding the language around budgets: https://moneybucket.org/budgeting/budgeting-glossary/
