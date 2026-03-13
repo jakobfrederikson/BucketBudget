@@ -16,7 +16,7 @@
 <a href="{{ url_for('budget.create_income_item', id=context['budget']['id']) }}">Add an income item</a>
 {% if context['income_items'] %}
     {% for item in context['income_items'] %}
-        <p><strong>{{ item['title'] }}</strong> | ${{ item['amount'] }} | {{ item['frequency'] }} | Split budget? {{ item['split_income'] }} - <a href="{{ url_for('budget.update_income_item', budget_id=context['budget']['id'], income_item_id=item['id']) }}">edit</a></p>
+        <p><strong>{{ item['title'] }}</strong> | ${{ item['amount'] }} | {{ item['frequency'] }} - <a href="{{ url_for('budget.update_income_item', budget_id=context['budget']['id'], income_item_id=item['id']) }}">edit</a></p>
     {% endfor %}
 {% else %}
     <p>No income items found.</p>
@@ -49,16 +49,10 @@
 {% if context['result'] %}
     <table>
         {% if context['result']['all_income_buckets'] %}
-            <tr>
-                <td><strong>--- BUCKETS ---</strong></td>
-            </tr>
             {% for item in context['result']['all_income_buckets'] %}
-                <tr><strong>
-                    <td><strong>{{ item["income_name"] }}</strong></td>
-                    <td><strong>Net: {{ item["net_income"] }}</strong></td>
-                    <td><strong>Total Expenses: {{ item["total_expenses"] }}</strong></td>
-                    </strong>
-                </tr>
+            <h3>Bucket split for income item "{{ item['income_name'] }}"</h3>
+            <h4>Total net income: {{ item['net_income'] }}</h4>
+            <h4>Total expenses: {{ item['total_expenses'] }}</h4>
                 {% for bucket in item["buckets"] %}
                 <tr>
                     <td>{{ bucket['title'] }} {{ bucket['percent'] }}</td>
