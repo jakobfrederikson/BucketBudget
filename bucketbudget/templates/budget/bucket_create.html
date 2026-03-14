@@ -5,13 +5,13 @@
 {% endblock %}
 
 {% block content %}
-<form method="post">
-    <label for="title">Title</label>
-    <input name="title" id="title" value="{{ request.form['title'] }}" required>
-
-    <label for="percent">Percent</label>
-    <input name="percent" id="percent" type="number" value="{{ request.form['percent'] }}" required>
-
+{% from "_formhelpers.html" import render_field %}
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <dl>
+      {{ render_field(form.title) }}
+      {{ render_field(form.percent) }}
+    </dl>
     <input type="submit" value="Save">
   </form>
 {% endblock %}

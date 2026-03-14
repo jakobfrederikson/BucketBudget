@@ -10,7 +10,8 @@ from werkzeug.exceptions import abort
 
 from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
-from bucketbudget.forms import CreateBudgetForm
+from bucketbudget.forms import (CreateBudgetForm, CreateIncomeItemForm, 
+CreateExpenseItemForm, CreateBucketForm)
 
 from decimal import Decimal
 from bucketbudget.BudgetHandler.budget_handler import IncomeItem, ExpenseItem, Frequency
@@ -360,36 +361,25 @@ def get_bucket(id):
 @bp.route("/budget/<int:id>/income_item/create", methods=('GET', 'POST'))
 @login_required
 def create_income_item(id):
+    form = CreateIncomeItemForm(request.form)
     if request.method == 'POST':
         budget = get_budget(id)
-        title = request.form['title']
-        amount = request.form['amount']
-        frequency = request.form['frequency']
-
-        errors = []
-
-        if not title:
-            errors.append('Title is required')
-        if not amount:
-            errors.append('Amount is required')
-        if not frequency:
-            errors.append('Frequency is required')
+        title = form.title.data
+        amount = form.amount.data
+        frequency = form.frequency.data
             
-        if errors:
-            for error in errors:
-                flash(error)
-        else:
+        if form.validate():
             db = get_db()
             db.execute(
                 'INSERT INTO income_item (budget_id, title, amount, frequency)'
                 'VALUES (?, ?, ?, ?)',
-                (budget['id'], title, amount, frequency,),
+                (budget['id'], title, float(amount), frequency,),
             )
             db.commit()
             return redirect(url_for('budget.read', id=budget['id']))
 
     
-    return render_template("budget/income_item_create.html")
+    return render_template("budget/income_item_create.html", form=form)
 
 
 @bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/update', methods=('GET', 'POST'))
@@ -445,45 +435,25 @@ def delete_income_item(budget_id, income_item_id):
 @bp.route("/budget/<int:id>/expense_item/create", methods=('GET', 'POST'))
 @login_required
 def create_expense_item(id):
+    form = CreateExpenseItemForm(request.form)
     if request.method == 'POST':
         budget = get_budget(id)
-        title = request.form['title']
-        amount = request.form['amount']
-        frequency = request.form['frequency']
-        expense_bucket_decision = request.form.getlist('expense_bucket')
+        title = form.title.data
+        amount = form.amount.data
+        frequency = form.frequency.data
+        expense_bucket = form.expense_bucket.data
 
-        expense_bucket = None
-
-        if not expense_bucket_decision:
-            expense_bucket = 0
-        else:
-            expense_bucket = 1
-
-        errors = []
-
-        if not title:
-            errors.append('Title is required.')
-        if not amount:
-            errors.append('Amount is required.')
-        if not frequency:
-            errors.append('Frequency is required.')
-        if expense_bucket is None:
-            errors.append('Declare if this is an expense bucket or not.')
-            
-        if errors:
-            for error in errors:
-                flash(error)
-        else:
+        if form.validate():
             db = get_db()
             db.execute(
                 'INSERT INTO expense_item (budget_id, title, amount, frequency, expense_bucket)'
                 'VALUES (?, ?, ?, ?, ?)',
-                (budget['id'], title, amount, frequency, expense_bucket,),
+                (budget['id'], title, float(amount), frequency, expense_bucket,),
             )
             db.commit()
             return redirect(url_for('budget.read', id=budget['id']))
 
-    return render_template("budget/expense_item_create.html")
+    return render_template("budget/expense_item_create.html", form=form)
 
 
 @bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/update', methods=('GET', 'POST'))
@@ -548,33 +518,24 @@ def delete_expense_item(budget_id, expense_item_id):
 @bp.route("/budget/<int:id>/bucket/create", methods=('GET', 'POST'))
 @login_required
 def create_bucket(id):
+    form = CreateBucketForm(request.form)
     if request.method == 'POST':
         budget = get_budget(id)
-        title = request.form['title']
-        percent = request.form['percent']
+        title = form.title.data
+        percent = form.percent.data
 
-        errors = []
-
-        if not title:
-            errors.append('Title is required.')
-        if not percent:
-            errors.append('Percent is required.')
-            
-        if errors:
-            for error in errors:
-                flash(error)
-        else:
+        if form.validate():
             db = get_db()
             db.execute(
                 'INSERT INTO bucket (budget_id, title, percent)'
                 'VALUES (?, ?, ?)',
-                (budget['id'], title, percent,),
+                (budget['id'], title, float(percent),),
             )
             db.commit()
             return redirect(url_for('budget.read', id=budget['id']))
 
 
-    return render_template("budget/bucket_create.html")
+    return render_template("budget/bucket_create.html", form=form)
 
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
 @login_required
