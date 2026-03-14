@@ -10,6 +10,7 @@ from werkzeug.exceptions import abort
 
 from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
+from bucketbudget.forms import CreateBudgetForm
 
 from decimal import Decimal
 from bucketbudget.BudgetHandler.budget_handler import IncomeItem, ExpenseItem, Frequency
@@ -34,9 +35,10 @@ def index():
 @bp.route('/budget/create', methods=('GET', 'POST'))
 @login_required
 def create():
+    form = CreateBudgetForm(request.form)
     if request.method == 'POST':
-        title = request.form['title']
-        frequency = request.form['frequency']
+        title = form.title.data
+        frequency = form.frequency.data
         
         error = None
         
@@ -45,7 +47,7 @@ def create():
         if not frequency:
             error = 'Frequency is required'
 
-        if error is not None:
+        if error is not None or not form.validate():
             flash(error)
         else:
             db = get_db()
@@ -72,7 +74,7 @@ def create():
             db.commit()
             return redirect(url_for('index'))
         
-    return render_template('budget/create.html')
+    return render_template('budget/create.html', form=form)
 
 
 @bp.route('/budget/<int:id>')
