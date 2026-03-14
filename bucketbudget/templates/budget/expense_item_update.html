@@ -5,26 +5,15 @@
 {% endblock %}
 
 {% block content %}
+{% from "_formhelpers.html" import render_field %}
   <form method="post">
-    <label for="title">Title</label>
-    <input name="title" id="title"
-      value="{{ request.form['title'] or expense_item['title'] }}" required>
-
-    <label for="amount">Amount</label>
-    <input name="amount" id="amount" type="number" value="{{ request.form['amount'] or expense_item['amount'] }}" required>
-
-    <label for="frequency">Frequency</label>
-    <select name="frequency" id="frequency" value="{{ request.form['frequency'] or expense_item['frequency'] }}">
-      <option value="Weekly">Weekly</option>
-      <option value="Fortnightly">Fortnightly</option>
-      <option value="Four-Weekly">Four-Weekly</option>
-      <option value="Monthly">Monthly</option>
-      <option value="Yearly">Yearly</option>
-    </select>
-
-    <label for="expense_bucket">Is this an expense bucket?</label>
-    <input name="expense_bucket" id="expense_bucket" type="checkbox">
-
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <dl>
+      {{ render_field(form.title) }}
+      {{ render_field(form.amount) }}
+      {{ render_field(form.frequency) }}
+      {{ render_field(form.expense_bucket) }}
+    </dl>
     <input type="submit" value="Save">
   </form>
   <hr>
