@@ -42,17 +42,22 @@ Users can have:
 - Many budgets
 
 >> To Dos:
-> Doing: Update form validation
+> Done: Update form validation
     - https://refactoring.guru/design-patterns/chain-of-responsibility
     - Use Chain of responsibility to validate forms
+> Doing: Add budget collaboration.
+    - Add ability to invite users to a budget
+    - Users must accept an invite first
+    - Once accepted, users can see this new budget on their 'budget dashboard' area?
 > To Do: User update
     - Add email to user
     - Add ability to reset password
     - Add user constraints - password must be 8 characters long with characters etc.
-> To Do: Add budget collaboration.
-    - Add ability to invite users to a budget
-    - Users must accept an invite first
-    - Once accepted, users can see this new budget on their 'budget dashboard' area?
+> To Do: Create tests
+    - Test CRUD with all forms.
+    - Test user creation and deletion.
+    - Test budget collaboration.
+    - Test password reset. 
 
 >> Nice to have(s)
 > Expected savings. Show how much will be saved in each bucket in 6 months, then 1 year.
