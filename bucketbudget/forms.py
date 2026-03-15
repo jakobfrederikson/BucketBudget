@@ -1,10 +1,14 @@
-from wtforms import Form, BooleanField, StringField, DecimalField, SelectField, PasswordField, validators
-
+from wtforms import (Form, BooleanField, StringField, DecimalField, 
+    SelectField, PasswordField, EmailField, validators)
 
 class RegistrationForm(Form):
     username = StringField('Username', [
         validators.DataRequired(),
         validators.Length(min=3, max=25),
+    ])
+    email = EmailField('Email Address', [validators.DataRequired(),
+        validators.Length(min=6, max=35),
+        validators.Email()
     ])
     password = PasswordField('New Password', [
         validators.DataRequired(),

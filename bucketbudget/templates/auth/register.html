@@ -11,6 +11,7 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <dl>
       {{ render_field(form.username) }}
+      {{ render_field(form.email) }}
       {{ render_field(form.password) }}
       {{ render_field(form.confirm) }}
     </dl>

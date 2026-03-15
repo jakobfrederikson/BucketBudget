@@ -43,14 +43,12 @@ Users can have:
 
 >> To Dos:
 > Done: Update form validation
-    - https://refactoring.guru/design-patterns/chain-of-responsibility
-    - Use Chain of responsibility to validate forms
+    - Used WTForms
 > Doing: Add budget collaboration.
     - Add ability to invite users to a budget
     - Users must accept an invite first
     - Once accepted, users can see this new budget on their 'budget dashboard' area?
 > To Do: User update
-    - Add email to user
     - Add ability to reset password
     - Add user constraints - password must be 8 characters long with characters etc.
 > To Do: Create tests

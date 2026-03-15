@@ -15,13 +15,14 @@ def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
         username = form.username.data
+        email = form.email.data
         password = form.password.data
         db = get_db()
         
         try:
             db.execute(
-                "INSERT INTO user (username, password) VALUES (?, ?)",
-                (username, generate_password_hash(password)),
+                "INSERT INTO user (username, email, password) VALUES (?, ?, ?)",
+                (username, email, generate_password_hash(password)),
             )
             db.commit()
         except db.IntegrityError:
