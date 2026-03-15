@@ -12,6 +12,7 @@ from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
 from bucketbudget.forms import (CreateBudgetForm, CreateIncomeItemForm, 
 CreateExpenseItemForm, CreateBucketForm)
+from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
 from decimal import Decimal
 from bucketbudget.BudgetHandler.budget_handler import IncomeItem, ExpenseItem, Frequency
@@ -37,43 +38,33 @@ def index():
 @login_required
 def create():
     form = CreateBudgetForm(request.form)
-    if request.method == 'POST':
+    if request.method == 'POST' and form.validate():
         title = form.title.data
         frequency = form.frequency.data
-        
-        error = None
-        
-        if not title:
-            error = 'Title is required'
-        if not frequency:
-            error = 'Frequency is required'
 
-        if error is not None or not form.validate():
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO budget (owner_id, title, frequency)'
-                'VALUES (?, ?, ?)',
-                (g.user['id'], title, frequency),
-            )
-            db.commit()
+        db = get_db()
+        db.execute(
+            'INSERT INTO budget (owner_id, title, invite_code, frequency)'
+            'VALUES (?, ?, ?, ?)',
+            (g.user['id'], title, generate_unique_budget_name(title), frequency),
+        )
+        db.commit()
 
-            just_created_budget = db.execute(
-                'SELECT * FROM budget ' \
-                'WHERE owner_id IS ?' \
-                'AND title IS ?' \
-                'AND frequency IS ?', 
-                (g.user['id'], title, frequency),
-            ).fetchone()
+        just_created_budget = db.execute(
+            'SELECT * FROM budget ' \
+            'WHERE owner_id IS ?' \
+            'AND title IS ?' \
+            'AND frequency IS ?', 
+            (g.user['id'], title, frequency),
+        ).fetchone()
 
-            db.execute(
-                'INSERT INTO budget_member (user_id, budget_id)'
-                'VALUES (?, ?)',
-                (g.user['id'], just_created_budget['id']),
-            )
-            db.commit()
-            return redirect(url_for('index'))
+        db.execute(
+            'INSERT INTO budget_member (user_id, budget_id)'
+            'VALUES (?, ?)',
+            (g.user['id'], just_created_budget['id']),
+        )
+        db.commit()
+        return redirect(url_for('index'))
         
     return render_template('budget/create.html', form=form)
 

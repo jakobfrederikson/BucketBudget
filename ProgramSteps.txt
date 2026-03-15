@@ -57,6 +57,11 @@ Users can have:
     - Test budget collaboration.
     - Test password reset. 
 
+
+Budget Collaboration:
+- add invite_code stringfield to budget
+- upon budget creation, generate a uuid for the invite_code
+
 >> Nice to have(s)
 > Expected savings. Show how much will be saved in each bucket in 6 months, then 1 year.
 > Budget Check Ins. Save your current amount in each bucket. You can then view how well your savings have gone.

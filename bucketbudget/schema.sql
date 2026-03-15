@@ -17,6 +17,7 @@ CREATE TABLE budget (
     owner_id INTEGER NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     title TEXT NOT NULL,
+    invite_code TEXT UNIQUE NOT NULL,
     frequency TEXT CHECK( frequency IN ('Weekly', 'Fortnightly', 'Four-Weekly', 'Monthly', 'Yearly')) NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES user (id)
 );
