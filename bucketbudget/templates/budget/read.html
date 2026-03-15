@@ -8,6 +8,9 @@
 <button>Download budget as JSON file</button>
 <hr/>
 
+<h2>Invite Code</h2>
+<input type="text" value="{{ context['budget']['invite_code'] }}" id="invite_code"></input><span><button onclick="copyInviteCode()">Copy Code</button></span> 
+
 <h2>Budget Frequency</h2>
 <p>{{ context['budget']['frequency'] }} - <a href="{{ url_for('budget.update', id=context['budget']['id']) }}">edit</a></p>
 <hr/>
@@ -66,4 +69,18 @@
     <p>Could not produce result.</p>
 {% endif %}
 <hr/>
+
+<script>
+
+    function copyInviteCode() {
+    var copyText = document.getElementById("invite_code");
+
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+
+    navigator.clipboard.writeText(copyText.value);
+
+    alert("Copied the text: " + copyText.value);
+}
+</script>
 {% endblock %}
