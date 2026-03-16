@@ -94,3 +94,9 @@ class CreateBucketForm(Form):
         validators.NumberRange(min=0, max=100)],
         places=2,
     )
+
+
+class JoinBudgetForm(Form):
+    invite_code = StringField('Invite Code', [
+        validators.DataRequired(),
+    ])

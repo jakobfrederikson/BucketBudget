@@ -11,7 +11,7 @@ from werkzeug.exceptions import abort
 from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
 from bucketbudget.forms import (CreateBudgetForm, CreateIncomeItemForm, 
-CreateExpenseItemForm, CreateBucketForm)
+CreateExpenseItemForm, CreateBucketForm, JoinBudgetForm)
 from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
 from decimal import Decimal
@@ -20,9 +20,40 @@ from bucketbudget.BudgetHandler.budget_handler import IncomeItem, ExpenseItem, F
 bp = Blueprint("budget", __name__)
 
 
-@bp.route("/")
+@bp.route("/", methods=('GET', 'POST'))
 def index():
-    """Dislay an empty budget."""
+    form = JoinBudgetForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        db = get_db()
+
+        invite_code = form.invite_code.data
+        budget = db.execute(
+            'SELECT * FROM budget WHERE invite_code = ?',
+            (invite_code,),
+        ).fetchone()
+
+        flash_message = None
+
+        if budget is None:
+            flash_message = f'No budget exists with invite code "{invite_code}"'
+        else:
+            bm_iem = db.execute(
+                'SELECT * FROM budget_member WHERE budget_id = ? AND user_id = ?',
+                (budget['id'], g.user['id'],),
+            ).fetchone()
+            if not bm_iem:
+                db.execute(
+                    'INSERT INTO budget_member (budget_id, user_id)'
+                    'VALUES (?, ?)',
+                    (budget['id'], g.user['id'],),
+                )
+                db.commit()
+                flash_message = f'Successfully joined "{budget['title']}"'
+            else:
+                flash_message = f'You are already a member of "{budget['title']}"'
+        
+        flash(flash_message)
 
     budgets = None
     if g.user is not None:
@@ -31,7 +62,7 @@ def index():
                 'SELECT * FROM budget WHERE id IN'
                  '(SELECT budget_id FROM budget_member WHERE user_id IS ?)', (g.user['id'],)
             ).fetchall()
-    return render_template("budget/index.html", budgets=budgets)
+    return render_template("budget/index.html", budgets=budgets, form=form)
 
 
 @bp.route('/budget/create', methods=('GET', 'POST'))
