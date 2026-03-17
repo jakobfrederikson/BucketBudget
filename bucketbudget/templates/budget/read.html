@@ -6,6 +6,7 @@
 
 {% block content %}
 <button>Download budget as JSON file</button>
+<a href="{{ url_for('budget.view_budget_members', id=context['budget']['id']) }}">View budget members</a>
 <hr/>
 
 <h2>Invite Code</h2>

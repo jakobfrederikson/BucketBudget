@@ -1,5 +1,5 @@
 from wtforms import (Form, BooleanField, StringField, DecimalField, 
-    SelectField, PasswordField, EmailField, validators)
+    SelectField, PasswordField, EmailField, HiddenField, validators)
 
 class RegistrationForm(Form):
     username = StringField('Username', [
@@ -100,3 +100,7 @@ class JoinBudgetForm(Form):
     invite_code = StringField('Invite Code', [
         validators.DataRequired(),
     ])
+
+
+class DeleteBudgetMemberForm(Form):
+    member_id = HiddenField(validators=[validators.DataRequired()])

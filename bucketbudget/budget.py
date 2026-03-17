@@ -11,7 +11,7 @@ from werkzeug.exceptions import abort
 from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
 from bucketbudget.forms import (CreateBudgetForm, CreateIncomeItemForm, 
-CreateExpenseItemForm, CreateBucketForm, JoinBudgetForm)
+CreateExpenseItemForm, CreateBucketForm, JoinBudgetForm, DeleteBudgetMemberForm)
 from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
 from decimal import Decimal
@@ -318,7 +318,7 @@ def get_budget(id):
 
 def get_budget_members(id):
     budget_members = get_db().execute(
-        'SELECT * FROM user u WHERE u.id IN',
+        'SELECT * FROM user u WHERE u.id IN'
         '(SELECT user_id FROM budget_member bm WHERE bm.budget_id = ?)',
         (id,),
     ).fetchall()
@@ -368,6 +368,48 @@ def get_bucket(id):
 # ---------------------------------------------------------------------
 #                 CRUD operations for budget items
 # ---------------------------------------------------------------------
+
+# --------------
+# BUDGET MEMBERS
+# --------------
+@bp.route("/budget/<int:id>/budget_members", methods=("GET", "POST"))
+@login_required
+def view_budget_members(id):
+    budget = get_budget(id)
+    budget_members = get_budget_members(id)
+    form = DeleteBudgetMemberForm(request.form)
+    if request.method == 'POST' and form.validate():
+        error = False
+        if g.user['id'] != budget['owner_id']:
+            flash('You cannot remove members.')
+            error = True
+        if form.member_id.data == g.user['id']:
+            flash('You cannot remove yourself.')
+            error = True
+
+        print(f"Test. Error? {error}")
+        print(f"Member Id: {form.member_id.data}")
+        print(f"Current user ID: {g.user['id']}")
+
+    return render_template("budget/budget_members.html", budget=budget, budget_members=budget_members, form=form)
+
+# remove budget member
+# - check if current user is budget owner
+# > if yes, then remove user and flash user removed
+# -- if no, then do nothing and flash you must be the onwer
+
+# change budget owner
+# - check if current user is budget owner
+# > if yes, then change the budget owner to whoever the selected user is
+# > if selected user doesn't exist, stop and flash user not exist
+# -- if no, then do nothing and flash you must be the owner
+
+# leave budget
+# - check if current user is budget owner
+# > if yes, have they selected a user to transfer ownership
+# > > if yes, then change budget owner and remove user from budget
+# > - if no, flash that a user must selected as owner
+# -- if not user selected for transfer, then flash user must be selected
 
 # ------------
 # INCOME ITEMS
