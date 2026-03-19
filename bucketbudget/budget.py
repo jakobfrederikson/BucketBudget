@@ -379,17 +379,38 @@ def view_budget_members(id):
     budget_members = get_budget_members(id)
     form = DeleteBudgetMemberForm(request.form)
     if request.method == 'POST' and form.validate():
-        error = False
-        if g.user['id'] != budget['owner_id']:
+        error = None
+        member_id = int(form.member_id.data)
+
+        if g.user['id'] != int(budget['owner_id']):
             flash('You cannot remove members.')
             error = True
-        if form.member_id.data == g.user['id']:
+
+        if int(member_id) == g.user['id']:
             flash('You cannot remove yourself.')
             error = True
 
         print(f"Test. Error? {error}")
         print(f"Member Id: {form.member_id.data}")
         print(f"Current user ID: {g.user['id']}")
+        
+        # error = True
+
+        if not error:
+            db = get_db()
+            user = db.execute(
+                'SELECT * FROM user WHERE id = ?',
+                (member_id,),
+            ).fetchone()
+
+            db.execute(
+                'DELETE FROM budget_member WHERE user_id = ?',
+                (member_id,),
+            )
+            db.commit()
+            flash(f"{user['username']} has been removed from the budget.")
+            return redirect(url_for('budget.view_budget_members', id=id))
+
 
     return render_template("budget/budget_members.html", budget=budget, budget_members=budget_members, form=form)
 
