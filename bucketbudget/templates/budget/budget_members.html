@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+    <a href="{{ url_for('budget.change_budget_owner', id=budget['id']) }}">Change budget ownership</a>
     <ul>
         {% for member in budget_members %}
             <li>

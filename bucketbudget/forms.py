@@ -102,5 +102,11 @@ class JoinBudgetForm(Form):
     ])
 
 
+class ChangeBudgetOwnershipForm(Form):
+    members = SelectField('Budget Members', [validators.DataRequired()])
+
+
 class DeleteBudgetMemberForm(Form):
     member_id = HiddenField(validators=[validators.DataRequired()])
+
+

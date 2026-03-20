@@ -11,7 +11,8 @@ from werkzeug.exceptions import abort
 from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
 from bucketbudget.forms import (CreateBudgetForm, CreateIncomeItemForm, 
-CreateExpenseItemForm, CreateBucketForm, JoinBudgetForm, DeleteBudgetMemberForm)
+CreateExpenseItemForm, CreateBucketForm, JoinBudgetForm, DeleteBudgetMemberForm,
+ChangeBudgetOwnershipForm)
 from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
 from decimal import Decimal
@@ -90,8 +91,8 @@ def create():
         ).fetchone()
 
         db.execute(
-            'INSERT INTO budget_member (user_id, budget_id)'
-            'VALUES (?, ?)',
+            'INSERT INTO budget_member (user_id, budget_id, is_budget_owner)'
+            'VALUES (?, ?, 1)',
             (g.user['id'], just_created_budget['id']),
         )
         db.commit()
@@ -302,6 +303,18 @@ def delete(id):
 #           GETTERS
 # ----------------------------
 
+def get_user(id):
+    user = get_db().execute(
+        'SELECT * FROM user WHERE id = ?',
+        (id,),
+    ).fetchone()
+
+    if user is None:
+        abort(404, f"User id {id} doesn't exist.")
+
+    return user
+
+
 def get_budget(id):
     budget = get_db().execute(
         'SELECT * FROM budget b WHERE b.id = '
@@ -327,6 +340,18 @@ def get_budget_members(id):
         abort(404, f"Budget id {id} doesn't exist.")
     
     return budget_members
+
+
+def get_budget_member(budget_id, user_id):
+    budget_member = get_db().execute(
+        'SELECT * FROM budget_member bm WHERE bm.budget_id = ? AND bm.user_id = ?',
+        (budget_id, user_id,),
+    ).fetchone()
+
+    if budget_member is None:
+        abort(404, f"Budget member in budget {budget_id} with ID {user_id} doesn't exist.")
+
+    return budget_member
 
 
 def get_income_item(id):
@@ -390,12 +415,6 @@ def view_budget_members(id):
             flash('You cannot remove yourself.')
             error = True
 
-        print(f"Test. Error? {error}")
-        print(f"Member Id: {form.member_id.data}")
-        print(f"Current user ID: {g.user['id']}")
-        
-        # error = True
-
         if not error:
             db = get_db()
             user = db.execute(
@@ -414,10 +433,46 @@ def view_budget_members(id):
 
     return render_template("budget/budget_members.html", budget=budget, budget_members=budget_members, form=form)
 
-# remove budget member
-# - check if current user is budget owner
-# > if yes, then remove user and flash user removed
-# -- if no, then do nothing and flash you must be the onwer
+
+@bp.route("/budget/<int:id>/budget_members/change_owner", methods=('GET', 'POST'))
+@login_required
+def change_budget_owner(id):
+    budget = get_budget(id)
+    budget_members = get_budget_members(id)
+    form = ChangeBudgetOwnershipForm(request.form)
+    form.members.choices = [(bm['id'], bm['username']) for bm in budget_members]
+    
+    if request.method == 'POST' and form.validate():
+        error = None
+        user_id = form.members.data
+        chosen_user = get_user(user_id)
+
+        if g.user['id'] != int(budget['owner_id']):
+            flash('You cannot remove members.')
+            error = True
+
+        if int(chosen_user['id']) == g.user['id']:
+            flash('You cannot choose yourself.')
+            error = True
+
+        if not error:
+            db = get_db()
+            user = db.execute(
+                'SELECT * FROM user WHERE id = ?',
+                (int(chosen_user['id']),),
+            ).fetchone()
+
+            db.execute(
+                'UPDATE budget SET owner_id = ?'
+                'WHERE id = ?',
+                (user['id'], id,),
+            )
+            db.commit()
+            flash(f"{user['username']} is now the onwer of the budget.")
+            return redirect(url_for('budget.view_budget_members', id=id))
+    
+
+    return render_template("budget/budget_member_change_owner.html", budget=budget, form=form)
 
 # change budget owner
 # - check if current user is budget owner

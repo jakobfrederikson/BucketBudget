@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}"{{ budget['title'] }}" members{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    {% from "_formhelpers.html" import render_field %}
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <dl>
+            {{ render_field(form.members) }}
+        </dl>
+        <input type="submit" value="Save">
+    </form>
+{% endblock %}
