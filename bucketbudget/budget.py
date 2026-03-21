@@ -256,12 +256,10 @@ def _get_frequency(frequency: str) -> Frequency:
 def update(id):
     budget = get_budget(id)
     form = CreateBudgetForm(request.form)
-    form.title.data = budget['title']
-    form.frequency.data = budget['frequency']
 
     if request.method == 'POST' and form.validate():
-        title = request.form['title']
-        frequency = request.form['frequency']
+        title = form.title.data
+        frequency = form.frequency.data
 
         db = get_db()
         db.execute(
@@ -272,6 +270,9 @@ def update(id):
         db.commit()
         return redirect(url_for('budget.read', id=id))
 
+    form.title.data = budget['title']
+    form.frequency.data = budget['frequency']
+
     return render_template('budget/update.html', budget=budget, form=form)
 
 
@@ -281,18 +282,24 @@ def delete(id):
     """Delete a BucketBudget and all associated items."""
     get_budget(id)
     db = get_db()
+
+    # Delete budget
     db.execute('DELETE FROM budget WHERE id = ?', (id,))
     db.commit()
 
+    # Delete associated budget_member rows with budget
     db.execute('DELETE FROM budget_member WHERE budget_id =?', (id,))
     db.commit()
 
+    # Delete associated income_item rows with budget
     db.execute('DELETE FROM income_item WHERE budget_id =?', (id,))
     db.commit()
 
+    # Delete associated expense_item rows with budget
     db.execute('DELETE FROM expense_item WHERE budget_id =?', (id,))
     db.commit()
 
+    # Delete associated bucket rows with budget
     db.execute('DELETE FROM bucket WHERE budget_id =?', (id,))
     db.commit()
 
@@ -520,9 +527,6 @@ def create_income_item(id):
 def update_income_item(budget_id, income_item_id):
     income_item = get_income_item(income_item_id)
     form = CreateIncomeItemForm(request.form)
-    form.title.data = income_item['title']
-    form.amount.data = income_item['amount']
-    form.frequency.data = income_item['frequency']
 
     if request.method == 'POST' and form.validate():
         title = form.title.data
@@ -533,10 +537,15 @@ def update_income_item(budget_id, income_item_id):
         db.execute(
             'UPDATE income_item SET title = ?, amount = ?, frequency = ?'
             'WHERE id = ?',
-            (title, amount, frequency, income_item_id,)
+            (title, float(amount), frequency, income_item_id,)
         )
         db.commit()
         return redirect(url_for('budget.read', id=budget_id))
+
+    # Pre-populate form data
+    form.title.data = income_item['title']
+    form.amount.data = income_item['amount']
+    form.frequency.data = income_item['frequency']
 
     return render_template('budget/income_item_update.html', budget_id=budget_id, income_item=income_item, form=form)
 
@@ -585,10 +594,6 @@ def create_expense_item(id):
 def update_expense_item(budget_id, expense_item_id):
     expense_item = get_expense_item(expense_item_id)
     form = CreateExpenseItemForm(request.form)
-    form.title.data = expense_item['title']
-    form.amount.data = expense_item['amount']
-    form.frequency.data = expense_item['frequency']
-    form.expense_bucket.data = expense_item['expense_bucket']
 
     if request.method == 'POST' and form.validate():
         title = form.title.data
@@ -600,10 +605,16 @@ def update_expense_item(budget_id, expense_item_id):
         db.execute(
             'UPDATE expense_item SET title = ?, amount = ?, frequency = ?, expense_bucket = ?'
             'WHERE id = ?',
-            (title, amount, frequency, expense_bucket, expense_item_id,)
+            (title, float(amount), frequency, expense_bucket, expense_item_id,)
         )
         db.commit()
         return redirect(url_for('budget.read', id=budget_id))
+
+    # Pre-populate form data
+    form.title.data = expense_item['title']
+    form.amount.data = expense_item['amount']
+    form.frequency.data = expense_item['frequency']
+    form.expense_bucket.data = expense_item['expense_bucket']
 
     return render_template('budget/expense_item_update.html', budget_id=budget_id, expense_item=expense_item, form=form)
 
@@ -649,8 +660,6 @@ def create_bucket(id):
 def bucket_update(budget_id, bucket_id):
     bucket = get_bucket(bucket_id)
     form = CreateBucketForm(request.form)
-    form.title.data = bucket['title']
-    form.percent.data = bucket['percent']
 
     if request.method == 'POST' and form.validate():
         title = form.title.data
@@ -660,10 +669,14 @@ def bucket_update(budget_id, bucket_id):
         db.execute(
             'UPDATE bucket SET title = ?, percent = ?'
             ' WHERE id = ?',
-            (title, percent, bucket_id)
+            (title, float(percent), bucket_id)
         )
         db.commit()
         return redirect(url_for('budget.read', id=budget_id))
+
+    # Pre-populate form data
+    form.title.data = bucket['title']
+    form.percent.data = bucket['percent']
 
     return render_template('budget/bucket_update.html', budget_id=budget_id, bucket=bucket, form=form)
 
