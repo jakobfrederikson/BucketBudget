@@ -11,7 +11,9 @@ from werkzeug.exceptions import abort
 from bucketbudget.auth import login_required
 from bucketbudget.db import get_db
 from bucketbudget.forms import (CreateBudgetForm, CreateIncomeItemForm, 
-CreateExpenseItemForm, CreateBucketForm)
+CreateExpenseItemForm, CreateBucketForm, JoinBudgetForm, DeleteBudgetMemberForm,
+ChangeBudgetOwnershipForm)
+from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
 from decimal import Decimal
 from bucketbudget.BudgetHandler.budget_handler import IncomeItem, ExpenseItem, Frequency
@@ -19,9 +21,40 @@ from bucketbudget.BudgetHandler.budget_handler import IncomeItem, ExpenseItem, F
 bp = Blueprint("budget", __name__)
 
 
-@bp.route("/")
+@bp.route("/", methods=('GET', 'POST'))
 def index():
-    """Dislay an empty budget."""
+    form = JoinBudgetForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        db = get_db()
+
+        invite_code = form.invite_code.data
+        budget = db.execute(
+            'SELECT * FROM budget WHERE invite_code = ?',
+            (invite_code,),
+        ).fetchone()
+
+        flash_message = None
+
+        if budget is None:
+            flash_message = f'No budget exists with invite code "{invite_code}"'
+        else:
+            bm_iem = db.execute(
+                'SELECT * FROM budget_member WHERE budget_id = ? AND user_id = ?',
+                (budget['id'], g.user['id'],),
+            ).fetchone()
+            if not bm_iem:
+                db.execute(
+                    'INSERT INTO budget_member (budget_id, user_id)'
+                    'VALUES (?, ?)',
+                    (budget['id'], g.user['id'],),
+                )
+                db.commit()
+                flash_message = f'Successfully joined "{budget['title']}"'
+            else:
+                flash_message = f'You are already a member of "{budget['title']}"'
+        
+        flash(flash_message)
 
     budgets = None
     if g.user is not None:
@@ -30,50 +63,40 @@ def index():
                 'SELECT * FROM budget WHERE id IN'
                  '(SELECT budget_id FROM budget_member WHERE user_id IS ?)', (g.user['id'],)
             ).fetchall()
-    return render_template("budget/index.html", budgets=budgets)
+    return render_template("budget/index.html", budgets=budgets, form=form)
 
 
 @bp.route('/budget/create', methods=('GET', 'POST'))
 @login_required
 def create():
     form = CreateBudgetForm(request.form)
-    if request.method == 'POST':
+    if request.method == 'POST' and form.validate():
         title = form.title.data
         frequency = form.frequency.data
-        
-        error = None
-        
-        if not title:
-            error = 'Title is required'
-        if not frequency:
-            error = 'Frequency is required'
 
-        if error is not None or not form.validate():
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO budget (owner_id, title, frequency)'
-                'VALUES (?, ?, ?)',
-                (g.user['id'], title, frequency),
-            )
-            db.commit()
+        db = get_db()
+        db.execute(
+            'INSERT INTO budget (owner_id, title, invite_code, frequency)'
+            'VALUES (?, ?, ?, ?)',
+            (g.user['id'], title, generate_unique_budget_name(title), frequency),
+        )
+        db.commit()
 
-            just_created_budget = db.execute(
-                'SELECT * FROM budget ' \
-                'WHERE owner_id IS ?' \
-                'AND title IS ?' \
-                'AND frequency IS ?', 
-                (g.user['id'], title, frequency),
-            ).fetchone()
+        just_created_budget = db.execute(
+            'SELECT * FROM budget ' \
+            'WHERE owner_id IS ?' \
+            'AND title IS ?' \
+            'AND frequency IS ?', 
+            (g.user['id'], title, frequency),
+        ).fetchone()
 
-            db.execute(
-                'INSERT INTO budget_member (user_id, budget_id)'
-                'VALUES (?, ?)',
-                (g.user['id'], just_created_budget['id']),
-            )
-            db.commit()
-            return redirect(url_for('index'))
+        db.execute(
+            'INSERT INTO budget_member (user_id, budget_id)'
+            'VALUES (?, ?)',
+            (g.user['id'], just_created_budget['id']),
+        )
+        db.commit()
+        return redirect(url_for('index'))
         
     return render_template('budget/create.html', form=form)
 
@@ -233,12 +256,10 @@ def _get_frequency(frequency: str) -> Frequency:
 def update(id):
     budget = get_budget(id)
     form = CreateBudgetForm(request.form)
-    form.title.data = budget['title']
-    form.frequency.data = budget['frequency']
 
     if request.method == 'POST' and form.validate():
-        title = request.form['title']
-        frequency = request.form['frequency']
+        title = form.title.data
+        frequency = form.frequency.data
 
         db = get_db()
         db.execute(
@@ -249,6 +270,9 @@ def update(id):
         db.commit()
         return redirect(url_for('budget.read', id=id))
 
+    form.title.data = budget['title']
+    form.frequency.data = budget['frequency']
+
     return render_template('budget/update.html', budget=budget, form=form)
 
 
@@ -258,18 +282,24 @@ def delete(id):
     """Delete a BucketBudget and all associated items."""
     get_budget(id)
     db = get_db()
+
+    # Delete budget
     db.execute('DELETE FROM budget WHERE id = ?', (id,))
     db.commit()
 
+    # Delete associated budget_member rows with budget
     db.execute('DELETE FROM budget_member WHERE budget_id =?', (id,))
     db.commit()
 
+    # Delete associated income_item rows with budget
     db.execute('DELETE FROM income_item WHERE budget_id =?', (id,))
     db.commit()
 
+    # Delete associated expense_item rows with budget
     db.execute('DELETE FROM expense_item WHERE budget_id =?', (id,))
     db.commit()
 
+    # Delete associated bucket rows with budget
     db.execute('DELETE FROM bucket WHERE budget_id =?', (id,))
     db.commit()
 
@@ -279,6 +309,18 @@ def delete(id):
 # ----------------------------
 #           GETTERS
 # ----------------------------
+
+def get_user(id):
+    user = get_db().execute(
+        'SELECT * FROM user WHERE id = ?',
+        (id,),
+    ).fetchone()
+
+    if user is None:
+        abort(404, f"User id {id} doesn't exist.")
+
+    return user
+
 
 def get_budget(id):
     budget = get_db().execute(
@@ -296,7 +338,7 @@ def get_budget(id):
 
 def get_budget_members(id):
     budget_members = get_db().execute(
-        'SELECT * FROM user u WHERE u.id IN',
+        'SELECT * FROM user u WHERE u.id IN'
         '(SELECT user_id FROM budget_member bm WHERE bm.budget_id = ?)',
         (id,),
     ).fetchall()
@@ -305,6 +347,18 @@ def get_budget_members(id):
         abort(404, f"Budget id {id} doesn't exist.")
     
     return budget_members
+
+
+def get_budget_member(budget_id, user_id):
+    budget_member = get_db().execute(
+        'SELECT * FROM budget_member bm WHERE bm.budget_id = ? AND bm.user_id = ?',
+        (budget_id, user_id,),
+    ).fetchone()
+
+    if budget_member is None:
+        abort(404, f"Budget member in budget {budget_id} with ID {user_id} doesn't exist.")
+
+    return budget_member
 
 
 def get_income_item(id):
@@ -347,6 +401,105 @@ def get_bucket(id):
 #                 CRUD operations for budget items
 # ---------------------------------------------------------------------
 
+# --------------
+# BUDGET MEMBERS
+# --------------
+@bp.route("/budget/<int:id>/budget_members", methods=("GET", "POST"))
+@login_required
+def view_budget_members(id):
+    budget = get_budget(id)
+    budget_members = get_budget_members(id)
+    form = DeleteBudgetMemberForm(request.form)
+    current_user_is_owner = (g.user['id'] == int(budget['owner_id']))
+
+    if request.method == 'POST' and form.validate():
+        error = None
+        member_id = int(form.member_id.data)
+
+        if g.user['id'] != int(budget['owner_id']):
+            flash('You cannot remove members.')
+            error = True
+
+        if int(member_id) == g.user['id']:
+            flash('You cannot remove yourself.')
+            error = True
+
+        if not error:
+            db = get_db()
+            user = db.execute(
+                'SELECT * FROM user WHERE id = ?',
+                (member_id,),
+            ).fetchone()
+
+            db.execute(
+                'DELETE FROM budget_member WHERE user_id = ?',
+                (member_id,),
+            )
+            db.commit()
+            flash(f"{user['username']} has been removed from the budget.")
+            return redirect(url_for('budget.view_budget_members', id=id))
+
+
+    return render_template("budget/budget_members.html", budget=budget, budget_members=budget_members, current_user_is_owner=current_user_is_owner, form=form)
+
+
+@bp.route("/budget/<int:id>/budget_members/change_owner", methods=('GET', 'POST'))
+@login_required
+def change_budget_owner(id):
+    budget = get_budget(id)
+    budget_members = get_budget_members(id)
+    form = ChangeBudgetOwnershipForm(request.form)
+    form.members.choices = [(bm['id'], bm['username']) for bm in budget_members]
+    
+    if request.method == 'POST' and form.validate():
+        error = None
+        user_id = form.members.data
+        chosen_user = get_user(user_id)
+
+        if g.user['id'] != int(budget['owner_id']):
+            flash('You cannot remove members.')
+            error = True
+
+        if int(chosen_user['id']) == g.user['id']:
+            flash('You cannot choose yourself.')
+            error = True
+
+        if not error:
+            db = get_db()
+            user = db.execute(
+                'SELECT * FROM user WHERE id = ?',
+                (int(chosen_user['id']),),
+            ).fetchone()
+
+            db.execute(
+                'UPDATE budget SET owner_id = ?'
+                'WHERE id = ?',
+                (user['id'], id,),
+            )
+            db.commit()
+            flash(f"{user['username']} is now the onwer of the budget.")
+            return redirect(url_for('budget.view_budget_members', id=id))
+    
+    current_user_is_owner = (g.user['id'] == int(budget['owner_id']))
+    if not current_user_is_owner:
+        flash("You are not the budger owner, you cannot access this page.")
+        return redirect(url_for('budget.view_budget_members', id=id))
+    
+    return render_template("budget/budget_member_change_owner.html", budget=budget, form=form)
+
+# change budget owner
+# - check if current user is budget owner
+# > if yes, then change the budget owner to whoever the selected user is
+# > if selected user doesn't exist, stop and flash user not exist
+# -- if no, then do nothing and flash you must be the owner
+
+# leave budget
+# - check if current user is budget owner
+# > if yes, have they selected a user to transfer ownership
+# > > if yes, then change budget owner and remove user from budget
+# > - if no, flash that a user must selected as owner
+# -- if not user selected for transfer, then flash user must be selected
+
 # ------------
 # INCOME ITEMS
 # ------------
@@ -380,9 +533,6 @@ def create_income_item(id):
 def update_income_item(budget_id, income_item_id):
     income_item = get_income_item(income_item_id)
     form = CreateIncomeItemForm(request.form)
-    form.title.data = income_item['title']
-    form.amount.data = income_item['amount']
-    form.frequency.data = income_item['frequency']
 
     if request.method == 'POST' and form.validate():
         title = form.title.data
@@ -393,10 +543,15 @@ def update_income_item(budget_id, income_item_id):
         db.execute(
             'UPDATE income_item SET title = ?, amount = ?, frequency = ?'
             'WHERE id = ?',
-            (title, amount, frequency, income_item_id,)
+            (title, float(amount), frequency, income_item_id,)
         )
         db.commit()
         return redirect(url_for('budget.read', id=budget_id))
+
+    # Pre-populate form data
+    form.title.data = income_item['title']
+    form.amount.data = income_item['amount']
+    form.frequency.data = income_item['frequency']
 
     return render_template('budget/income_item_update.html', budget_id=budget_id, income_item=income_item, form=form)
 
@@ -445,10 +600,6 @@ def create_expense_item(id):
 def update_expense_item(budget_id, expense_item_id):
     expense_item = get_expense_item(expense_item_id)
     form = CreateExpenseItemForm(request.form)
-    form.title.data = expense_item['title']
-    form.amount.data = expense_item['amount']
-    form.frequency.data = expense_item['frequency']
-    form.expense_bucket.data = expense_item['expense_bucket']
 
     if request.method == 'POST' and form.validate():
         title = form.title.data
@@ -460,10 +611,16 @@ def update_expense_item(budget_id, expense_item_id):
         db.execute(
             'UPDATE expense_item SET title = ?, amount = ?, frequency = ?, expense_bucket = ?'
             'WHERE id = ?',
-            (title, amount, frequency, expense_bucket, expense_item_id,)
+            (title, float(amount), frequency, expense_bucket, expense_item_id,)
         )
         db.commit()
         return redirect(url_for('budget.read', id=budget_id))
+
+    # Pre-populate form data
+    form.title.data = expense_item['title']
+    form.amount.data = expense_item['amount']
+    form.frequency.data = expense_item['frequency']
+    form.expense_bucket.data = expense_item['expense_bucket']
 
     return render_template('budget/expense_item_update.html', budget_id=budget_id, expense_item=expense_item, form=form)
 
@@ -509,8 +666,6 @@ def create_bucket(id):
 def bucket_update(budget_id, bucket_id):
     bucket = get_bucket(bucket_id)
     form = CreateBucketForm(request.form)
-    form.title.data = bucket['title']
-    form.percent.data = bucket['percent']
 
     if request.method == 'POST' and form.validate():
         title = form.title.data
@@ -520,10 +675,14 @@ def bucket_update(budget_id, bucket_id):
         db.execute(
             'UPDATE bucket SET title = ?, percent = ?'
             ' WHERE id = ?',
-            (title, percent, bucket_id)
+            (title, float(percent), bucket_id)
         )
         db.commit()
         return redirect(url_for('budget.read', id=budget_id))
+
+    # Pre-populate form data
+    form.title.data = bucket['title']
+    form.percent.data = bucket['percent']
 
     return render_template('budget/bucket_update.html', budget_id=budget_id, bucket=bucket, form=form)
 

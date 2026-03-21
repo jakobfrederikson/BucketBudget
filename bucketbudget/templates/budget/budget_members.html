@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}"{{ budget['title'] }}" members{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    {% if current_user_is_owner == True %}
+        <a href="{{ url_for('budget.change_budget_owner', id=budget['id']) }}">Change budget ownership</a>
+    {% endif %}
+    <ul>
+        {% for member in budget_members %}
+            <li>
+                {{ member['username'] }}
+                {% if budget['owner_id'] == g.user['id'] %}
+                    <form action="{{ url_for('budget.view_budget_members', id=budget['id']) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        {% for field in form %}
+                            {{ field(value = member['id']) }}
+                        {% endfor %}
+                        <input class="danger" type="submit" value="Remove member" onclick="return confirm('Are you sure?');">
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

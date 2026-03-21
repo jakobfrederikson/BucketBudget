@@ -45,17 +45,40 @@ Users can have:
 > Done: Update form validation
     - Used WTForms
 > Doing: Add budget collaboration.
-    - Add ability to invite users to a budget
-    - Users must accept an invite first
-    - Once accepted, users can see this new budget on their 'budget dashboard' area?
+    - Add ability to invite users to a budget | DONE
+    - Users must accept an invite first | DONE - just created an invite code for users
+    - Once accepted, users can see this new budget on their 'budget dashboard' area? | DONE
+    - Let budget owner edit budget members | DONE
+    -- The only thing the owner can do is switch ownership from themself
+    -- create a form that takes a list of all budget members
+    -- exclude the current owner
+    -- on submission, check if the submitted member id is the current users
+    --- if yes then redirect back to form advising they can't do this
+    -- check if the current user is the owner of the budget
+    --- if not, then redirect back to form advising they don't have permission
+    -- all good now, so do the following:
+    ---> set owner_id on budget to member_id and commit the executed sql
+    ---> redirect user back to the budget index advising ownership transfer successful
 > To Do: User update
     - Add ability to reset password
     - Add user constraints - password must be 8 characters long with characters etc.
+> To Do: Form update
+    - Add Delete forms with CSRF tokens for each table
+> To Do: UI/UX Update
+    - Add ability to go back to 'budget index' page on each budget form
+    - Create base colour scheme
+    - Update base, consistent layout for forms
+    - 
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.
     - Test budget collaboration.
     - Test password reset. 
+
+
+Budget Collaboration:
+- add invite_code stringfield to budget
+- upon budget creation, generate a uuid for the invite_code
 
 >> Nice to have(s)
 > Expected savings. Show how much will be saved in each bucket in 6 months, then 1 year.
