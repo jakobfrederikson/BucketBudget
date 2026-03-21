@@ -48,7 +48,7 @@ Users can have:
     - Add ability to invite users to a budget | DONE
     - Users must accept an invite first | DONE - just created an invite code for users
     - Once accepted, users can see this new budget on their 'budget dashboard' area? | DONE
-    - Let budget owner edit budget members | KINDA DONE
+    - Let budget owner edit budget members | DONE
     -- The only thing the owner can do is switch ownership from themself
     -- create a form that takes a list of all budget members
     -- exclude the current owner
@@ -62,6 +62,13 @@ Users can have:
 > To Do: User update
     - Add ability to reset password
     - Add user constraints - password must be 8 characters long with characters etc.
+> To Do: Form update
+    - Add Delete forms with CSRF tokens for each table
+> To Do: UI/UX Update
+    - Add ability to go back to 'budget index' page on each budget form
+    - Create base colour scheme
+    - Update base, consistent layout for forms
+    - 
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.
