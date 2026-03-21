@@ -91,8 +91,8 @@ def create():
         ).fetchone()
 
         db.execute(
-            'INSERT INTO budget_member (user_id, budget_id, is_budget_owner)'
-            'VALUES (?, ?, 1)',
+            'INSERT INTO budget_member (user_id, budget_id)'
+            'VALUES (?, ?)',
             (g.user['id'], just_created_budget['id']),
         )
         db.commit()
