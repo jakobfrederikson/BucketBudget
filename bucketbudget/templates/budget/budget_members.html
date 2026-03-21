@@ -5,7 +5,9 @@
 {% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('budget.change_budget_owner', id=budget['id']) }}">Change budget ownership</a>
+    {% if current_user_is_owner == True %}
+        <a href="{{ url_for('budget.change_budget_owner', id=budget['id']) }}">Change budget ownership</a>
+    {% endif %}
     <ul>
         {% for member in budget_members %}
             <li>

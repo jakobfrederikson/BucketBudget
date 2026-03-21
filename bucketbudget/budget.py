@@ -410,6 +410,8 @@ def view_budget_members(id):
     budget = get_budget(id)
     budget_members = get_budget_members(id)
     form = DeleteBudgetMemberForm(request.form)
+    current_user_is_owner = (g.user['id'] == int(budget['owner_id']))
+
     if request.method == 'POST' and form.validate():
         error = None
         member_id = int(form.member_id.data)
@@ -438,7 +440,7 @@ def view_budget_members(id):
             return redirect(url_for('budget.view_budget_members', id=id))
 
 
-    return render_template("budget/budget_members.html", budget=budget, budget_members=budget_members, form=form)
+    return render_template("budget/budget_members.html", budget=budget, budget_members=budget_members, current_user_is_owner=current_user_is_owner, form=form)
 
 
 @bp.route("/budget/<int:id>/budget_members/change_owner", methods=('GET', 'POST'))
@@ -478,7 +480,11 @@ def change_budget_owner(id):
             flash(f"{user['username']} is now the onwer of the budget.")
             return redirect(url_for('budget.view_budget_members', id=id))
     
-
+    current_user_is_owner = (g.user['id'] == int(budget['owner_id']))
+    if not current_user_is_owner:
+        flash("You are not the budger owner, you cannot access this page.")
+        return redirect(url_for('budget.view_budget_members', id=id))
+    
     return render_template("budget/budget_member_change_owner.html", budget=budget, form=form)
 
 # change budget owner
