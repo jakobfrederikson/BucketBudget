@@ -3,12 +3,16 @@ import os
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY="dev",
-        DATABASE=os.path.join(app.instance_path, 'bucketbudget.sqlite'),
+        SECRET_KEY=os.environ['SECRET_KEY'],
+        DATABASE=os.path.join(app.instance_path, os.environ['DB_CONNECTION']),
     )
 
     csrf = CSRFProtect(app)
