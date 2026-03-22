@@ -59,7 +59,8 @@ Users can have:
     -- all good now, so do the following:
     ---> set owner_id on budget to member_id and commit the executed sql
     ---> redirect user back to the budget index advising ownership transfer successful
-> Doing: User update
+> Doing: Security (was User update)
+    - Use Flask-Security, may include using SQLAlchemy
     - Add ability to reset password
     - Add user constraints - password must be 8 characters long with characters etc.
 > To Do: Form update
