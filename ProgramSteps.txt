@@ -44,7 +44,7 @@ Users can have:
 >> To Dos:
 > Done: Update form validation
     - Used WTForms
-> Doing: Add budget collaboration.
+> Done: Add budget collaboration.
     - Add ability to invite users to a budget | DONE
     - Users must accept an invite first | DONE - just created an invite code for users
     - Once accepted, users can see this new budget on their 'budget dashboard' area? | DONE
@@ -59,7 +59,7 @@ Users can have:
     -- all good now, so do the following:
     ---> set owner_id on budget to member_id and commit the executed sql
     ---> redirect user back to the budget index advising ownership transfer successful
-> To Do: User update
+> Doing: User update
     - Add ability to reset password
     - Add user constraints - password must be 8 characters long with characters etc.
 > To Do: Form update
@@ -68,7 +68,6 @@ Users can have:
     - Add ability to go back to 'budget index' page on each budget form
     - Create base colour scheme
     - Update base, consistent layout for forms
-    - 
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.
