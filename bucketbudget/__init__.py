@@ -1,6 +1,8 @@
 import os
 
+import click
 from flask import Flask
+from flask.cli import with_appcontext
 from flask_wtf.csrf import CSRFProtect
 from flask_security import Security, SQLAlchemyUserDatastore
 from flask_sqlalchemy import SQLAlchemy
@@ -20,7 +22,16 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     
     app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+
+    app.config['SECURITY_USERNAME_ENABLE'] = True
+    app.config['SECURITY_USERNAME_REQUIRED'] = True
     app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
+    app.config['SECURITY_REGISTERABLE'] = True
+    app.config['SECURITY_SEND_REGISTER_EMAIL'] = False
+    app.config['SECURITY_USE_REGISTER_V2'] = True
+    app.config['SECURITY_RECOVERABLE'] = True
+    app.config['SECURITY_CHANGEABLE'] = True
+    app.config['SECURITY_CONFIRMABLE'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
     app.config['REMEMBER_COOKIE_SAMESITE'] = os.environ['REMEMBER_COOKIE_SAMESITE'] 
     app.config['SESSION_COOKIE_SAMESITE'] = os.environ['SESSION_COOKIE_SAMESITE']
@@ -36,19 +47,21 @@ def create_app(test_config=None):
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    from . import models
+    from . import auth, budget
+    from .auth import models as auth_models
+    from .budget import models as budget_models
+    from .auth.forms import CustomLoginForm, CustomRegisterForm
+
     db.init_app(app)
     app.cli.add_command(init_db_command)
 
     with app.app_context():
         db.create_all()
-
-    from . import budget, auth
     
-    app.register_blueprint(budget.bp)
-    app.register_blueprint(auth.bp)
+    app.register_blueprint(budget.views.bp)
+    app.register_blueprint(auth.views.bp)
 
-    user_datastore = SQLAlchemyUserDatastore(db, models.User)
+    user_datastore = SQLAlchemyUserDatastore(db, auth_models.User, auth_models.Role)
     app.security = Security(app, user_datastore)
 
     app.add_url_rule("/", endpoint="index")
