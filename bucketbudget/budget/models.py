@@ -35,8 +35,7 @@ class Budget(db.Model):
 
     # User object backed by owner_id
     # lazy="joined" means the user is returned with the budget in one query
-    owner: Mapped[User] = relationship(
-        lazy="joined", back_populates="budgets")
+    owner: Mapped[User] = relationship(back_populates="budgets")
 
     income_items = relationship(
         "IncomeItem",

@@ -59,7 +59,6 @@ def create_app(test_config=None):
         db.create_all()
     
     app.register_blueprint(budget.views.bp)
-    app.register_blueprint(auth.views.bp)
 
     user_datastore = SQLAlchemyUserDatastore(db, auth_models.User, auth_models.Role)
     app.security = Security(app, user_datastore)

@@ -11,9 +11,16 @@ from flask_security import auth_required, current_user
 from werkzeug.exceptions import abort
 
 from bucketbudget import db
-from bucketbudget.forms import (CreateBudgetForm, CreateIncomeItemForm, 
-CreateExpenseItemForm, CreateBucketForm, JoinBudgetForm, DeleteBudgetMemberForm,
-ChangeBudgetOwnershipForm)
+from bucketbudget.budget.forms import (
+    CreateBudgetForm, 
+    CreateIncomeItemForm,
+    CreateExpenseItemForm,
+    CreateBucketForm,
+    JoinBudgetForm,
+    DeleteBudgetMemberForm,
+    ChangeBudgetOwnershipForm
+)
+
 from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
 from decimal import Decimal
@@ -25,7 +32,6 @@ bp = Blueprint("budget", __name__)
 @bp.route("/", methods=('GET', 'POST'))
 def index():
     form = JoinBudgetForm(request.form)
-    print(current_user)
 
     if request.method == 'POST' and form.validate():
         db = get_db()
@@ -59,12 +65,8 @@ def index():
         flash(flash_message)
 
     budgets = None
-    if g.user is not None:
-        db = get_db()
-        budgets = db.execute(
-                'SELECT * FROM budget WHERE id IN'
-                 '(SELECT budget_id FROM budget_member WHERE user_id IS ?)', (g.user['id'],)
-            ).fetchall()
+    if current_user.is_authenticated:
+        budgets = current_user.budgets
     return render_template("budget/index.html", budgets=budgets, form=form)
 
 

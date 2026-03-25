@@ -23,5 +23,4 @@ class User(db.Model, fsqla.FsUserMixin):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
-    budgets: Mapped[list[Budget]] = relationship(
-        "Budget", back_populates="owner")
+    budgets: Mapped[list[Budget]] = relationship(back_populates="owner")
