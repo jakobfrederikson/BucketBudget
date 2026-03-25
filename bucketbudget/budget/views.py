@@ -6,9 +6,10 @@ from flask import render_template
 from flask import request
 from flask import url_for
 from flask import session
+from flask_security import auth_required, current_user
+
 from werkzeug.exceptions import abort
 
-from bucketbudget.auth.views import login_required
 from bucketbudget import db
 from bucketbudget.forms import (CreateBudgetForm, CreateIncomeItemForm, 
 CreateExpenseItemForm, CreateBucketForm, JoinBudgetForm, DeleteBudgetMemberForm,
@@ -24,6 +25,7 @@ bp = Blueprint("budget", __name__)
 @bp.route("/", methods=('GET', 'POST'))
 def index():
     form = JoinBudgetForm(request.form)
+    print(current_user)
 
     if request.method == 'POST' and form.validate():
         db = get_db()
@@ -67,7 +69,7 @@ def index():
 
 
 @bp.route('/budget/create', methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def create():
     form = CreateBudgetForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -102,7 +104,7 @@ def create():
 
 
 @bp.route('/budget/<int:id>')
-@login_required
+@auth_required()
 def read(id):
     """View a budget."""
     budget = get_budget(id)
@@ -252,7 +254,7 @@ def _get_frequency(frequency: str) -> Frequency:
 
 
 @bp.route('/budget/<int:id>/update', methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def update(id):
     budget = get_budget(id)
     form = CreateBudgetForm(request.form)
@@ -277,7 +279,7 @@ def update(id):
 
 
 @bp.route('/budget/<int:id>/delete', methods=('POST',))
-@login_required
+@auth_required()
 def delete(id):
     """Delete a BucketBudget and all associated items."""
     get_budget(id)
@@ -405,7 +407,7 @@ def get_bucket(id):
 # BUDGET MEMBERS
 # --------------
 @bp.route("/budget/<int:id>/budget_members", methods=("GET", "POST"))
-@login_required
+@auth_required()
 def view_budget_members(id):
     budget = get_budget(id)
     budget_members = get_budget_members(id)
@@ -444,7 +446,7 @@ def view_budget_members(id):
 
 
 @bp.route("/budget/<int:id>/budget_members/change_owner", methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def change_budget_owner(id):
     budget = get_budget(id)
     budget_members = get_budget_members(id)
@@ -505,7 +507,7 @@ def change_budget_owner(id):
 # ------------
 
 @bp.route("/budget/<int:id>/income_item/create", methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def create_income_item(id):
     form = CreateIncomeItemForm(request.form)
     if request.method == 'POST':
@@ -529,7 +531,7 @@ def create_income_item(id):
 
 
 @bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/update', methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def update_income_item(budget_id, income_item_id):
     income_item = get_income_item(income_item_id)
     form = CreateIncomeItemForm(request.form)
@@ -557,7 +559,7 @@ def update_income_item(budget_id, income_item_id):
 
 
 @bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/delete', methods=('POST',))
-@login_required
+@auth_required()
 def delete_income_item(budget_id, income_item_id):
     get_income_item(income_item_id)
     db = get_db()
@@ -572,7 +574,7 @@ def delete_income_item(budget_id, income_item_id):
 
 
 @bp.route("/budget/<int:id>/expense_item/create", methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def create_expense_item(id):
     form = CreateExpenseItemForm(request.form)
     if request.method == 'POST':
@@ -596,7 +598,7 @@ def create_expense_item(id):
 
 
 @bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/update', methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def update_expense_item(budget_id, expense_item_id):
     expense_item = get_expense_item(expense_item_id)
     form = CreateExpenseItemForm(request.form)
@@ -626,7 +628,7 @@ def update_expense_item(budget_id, expense_item_id):
 
 
 @bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/delete', methods=('POST',))
-@login_required
+@auth_required()
 def delete_expense_item(budget_id, expense_item_id):
     get_expense_item(expense_item_id)
     db = get_db()
@@ -640,7 +642,7 @@ def delete_expense_item(budget_id, expense_item_id):
 #--------
 
 @bp.route("/budget/<int:id>/bucket/create", methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def create_bucket(id):
     form = CreateBucketForm(request.form)
     if request.method == 'POST':
@@ -662,7 +664,7 @@ def create_bucket(id):
     return render_template("budget/bucket_create.html", form=form)
 
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
-@login_required
+@auth_required()
 def bucket_update(budget_id, bucket_id):
     bucket = get_bucket(bucket_id)
     form = CreateBucketForm(request.form)
@@ -688,7 +690,7 @@ def bucket_update(budget_id, bucket_id):
 
 
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/delete', methods=('POST',))
-@login_required
+@auth_required()
 def delete_bucket_item(budget_id, bucket_id):
     get_bucket(bucket_id)
     db = get_db()
