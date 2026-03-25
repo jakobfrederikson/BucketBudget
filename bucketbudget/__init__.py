@@ -5,6 +5,8 @@ from flask import Flask
 from flask.cli import with_appcontext
 from flask_wtf.csrf import CSRFProtect
 from flask_security import Security, SQLAlchemyUserDatastore
+
+# Create the SQLAlchemy object
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 
@@ -32,6 +34,7 @@ def create_app(test_config=None):
     app.config['SECURITY_RECOVERABLE'] = True
     app.config['SECURITY_CHANGEABLE'] = True
     app.config['SECURITY_CONFIRMABLE'] = False
+
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
     app.config['REMEMBER_COOKIE_SAMESITE'] = os.environ['REMEMBER_COOKIE_SAMESITE'] 
     app.config['SESSION_COOKIE_SAMESITE'] = os.environ['SESSION_COOKIE_SAMESITE']
@@ -52,9 +55,11 @@ def create_app(test_config=None):
     from .budget import models as budget_models
     from .auth.forms import CustomLoginForm, CustomRegisterForm
 
+    # Init the db
     db.init_app(app)
     app.cli.add_command(init_db_command)
 
+    # Create the tables
     with app.app_context():
         db.create_all()
     
