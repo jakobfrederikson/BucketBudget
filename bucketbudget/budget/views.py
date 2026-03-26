@@ -20,6 +20,7 @@ from bucketbudget.budget.forms import (
     DeleteBudgetMemberForm,
     ChangeBudgetOwnershipForm
 )
+from bucketbudget.budget.models import Budget, IncomeItem, ExpenseItem, Bucket, Frequency
 
 from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
@@ -78,28 +79,14 @@ def create():
         title = form.title.data
         frequency = form.frequency.data
 
-        db = get_db()
-        db.execute(
-            'INSERT INTO budget (owner_id, title, invite_code, frequency)'
-            'VALUES (?, ?, ?, ?)',
-            (g.user['id'], title, generate_unique_budget_name(title), frequency),
+        budget = Budget(
+            owner_id = current_user.id,
+            title = form.title.data,
+            invite_code = generate_unique_budget_name(form.title.data),
+            frequency = form.frequency.data
         )
-        db.commit()
-
-        just_created_budget = db.execute(
-            'SELECT * FROM budget ' \
-            'WHERE owner_id IS ?' \
-            'AND title IS ?' \
-            'AND frequency IS ?', 
-            (g.user['id'], title, frequency),
-        ).fetchone()
-
-        db.execute(
-            'INSERT INTO budget_member (user_id, budget_id)'
-            'VALUES (?, ?)',
-            (g.user['id'], just_created_budget['id']),
-        )
-        db.commit()
+        db.session.add(budget)
+        db.session.commit()
         return redirect(url_for('index'))
         
     return render_template('budget/create.html', form=form)
@@ -109,32 +96,31 @@ def create():
 @auth_required()
 def read(id):
     """View a budget."""
-    budget = get_budget(id)
-    db = get_db()
-    income_items = db.execute(
-        'SELECT * FROM income_item WHERE budget_id IS ?',
-        (budget['id'],),
-    ).fetchall()
+    budget = db.get_or_404(Budget, id)
+    print(budget)
+    print(budget.income_items)
+    print(budget.expense_items)
+    print(budget.buckets)
 
-    expense_items = db.execute(
-        'SELECT * FROM expense_item WHERE budget_id IS ?',
-        (budget['id'],),
-    ).fetchall()
+    #result = get_result(budget, income_items, expense_items, buckets)
+    result = []
 
-    buckets = db.execute(
-        'SELECT * FROM bucket WHERE budget_id IS ?',
-        (budget['id'],),
-    ).fetchall()
-
-    result = get_result(budget, income_items, expense_items, buckets)
+    # context = {
+    #     "budget": budget,
+    #     "income_items": income_items,
+    #     "expense_items": expense_items,
+    #     "buckets": buckets,
+    #     "result": result,
+    # }
 
     context = {
         "budget": budget,
-        "income_items": income_items,
-        "expense_items": expense_items,
-        "buckets": buckets,
+        "income_items": [],
+        "expense_items": [],
+        "buckets": [],
         "result": result,
     }
+
     return render_template('budget/read.html', context=context)
 
 
