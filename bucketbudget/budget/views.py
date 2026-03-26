@@ -393,27 +393,22 @@ def create_income_item(id):
 @bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/update', methods=('GET', 'POST'))
 @auth_required()
 def update_income_item(budget_id, income_item_id):
-    income_item = get_income_item(income_item_id)
+    income_item = db.get_or_404(IncomeItem, income_item_id)
     form = CreateIncomeItemForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        title = form.title.data
-        amount = form.amount.data
-        frequency = form.frequency.data
+        income_item.title = form.title.data
+        income_item.amount = form.amount.data
+        income_item.frequency = form.frequency.data
 
-        db = get_db()
-        db.execute(
-            'UPDATE income_item SET title = ?, amount = ?, frequency = ?'
-            'WHERE id = ?',
-            (title, float(amount), frequency, income_item_id,)
-        )
-        db.commit()
+        db.session.add(income_item)
+        db.session.commit()
         return redirect(url_for('budget.read', id=budget_id))
 
     # Pre-populate form data
-    form.title.data = income_item['title']
-    form.amount.data = income_item['amount']
-    form.frequency.data = income_item['frequency']
+    form.title.data = income_item.title
+    form.amount.data = income_item.amount
+    form.frequency.data = income_item.frequency.value
 
     return render_template('budget/income_item_update.html', budget_id=budget_id, income_item=income_item, form=form)
 
@@ -421,10 +416,12 @@ def update_income_item(budget_id, income_item_id):
 @bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/delete', methods=('POST',))
 @auth_required()
 def delete_income_item(budget_id, income_item_id):
-    get_income_item(income_item_id)
-    db = get_db()
-    db.execute('DELETE FROM income_item WHERE id = ?', (income_item_id,))
-    db.commit()
+    income_item = db.get_or_404(IncomeItem, income_item_id)
+
+    if request.method == "POST":
+        db.session.delete(income_item)
+        db.session.commit()
+
     return redirect(url_for('budget.read', id=budget_id))
 
 
@@ -437,6 +434,7 @@ def delete_income_item(budget_id, income_item_id):
 @auth_required()
 def create_expense_item(id):
     form = CreateExpenseItemForm(request.form)
+
     if request.method == 'POST' and form.validate():
         budget = db.get_or_404(Budget, id)
         expense_item = ExpenseItem(
@@ -457,29 +455,24 @@ def create_expense_item(id):
 @bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/update', methods=('GET', 'POST'))
 @auth_required()
 def update_expense_item(budget_id, expense_item_id):
-    expense_item = get_expense_item(expense_item_id)
+    expense_item = db.get_or_404(ExpenseItem, expense_item_id)
     form = CreateExpenseItemForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        title = form.title.data
-        amount = form.amount.data
-        frequency = form.frequency.data
-        expense_bucket = form.expense_bucket.data
+        expense_item.title = form.title.data
+        expense_item.amount = form.amount.data
+        expense_item.frequency = form.frequency.data
+        expense_item.expense_bucket = form.expense_bucket.data
 
-        db = get_db()
-        db.execute(
-            'UPDATE expense_item SET title = ?, amount = ?, frequency = ?, expense_bucket = ?'
-            'WHERE id = ?',
-            (title, float(amount), frequency, expense_bucket, expense_item_id,)
-        )
-        db.commit()
+        db.session.add(expense_item)
+        db.session.commit()
         return redirect(url_for('budget.read', id=budget_id))
 
     # Pre-populate form data
-    form.title.data = expense_item['title']
-    form.amount.data = expense_item['amount']
-    form.frequency.data = expense_item['frequency']
-    form.expense_bucket.data = expense_item['expense_bucket']
+    form.title.data = expense_item.title
+    form.amount.data = expense_item.amount
+    form.frequency.data = expense_item.frequency.value
+    form.expense_bucket.data = expense_item.expense_bucket
 
     return render_template('budget/expense_item_update.html', budget_id=budget_id, expense_item=expense_item, form=form)
 
@@ -487,10 +480,12 @@ def update_expense_item(budget_id, expense_item_id):
 @bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/delete', methods=('POST',))
 @auth_required()
 def delete_expense_item(budget_id, expense_item_id):
-    get_expense_item(expense_item_id)
-    db = get_db()
-    db.execute('DELETE FROM expense_item WHERE id = ?', (expense_item_id,))
-    db.commit()
+    expense_item = db.get_or_404(ExpenseItem, expense_item_id)
+
+    if request.method == "POST":
+        db.session.delete(expense_item)
+        db.session.commit()   
+
     return redirect(url_for('budget.read', id=budget_id))
 
 
@@ -502,6 +497,7 @@ def delete_expense_item(budget_id, expense_item_id):
 @auth_required()
 def create_bucket(id):
     form = CreateBucketForm(request.form)
+
     if request.method == 'POST' and form.validate():
         budget = db.get_or_404(Budget, id)
         bucket = Bucket(
@@ -520,25 +516,20 @@ def create_bucket(id):
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
 @auth_required()
 def bucket_update(budget_id, bucket_id):
-    bucket = get_bucket(bucket_id)
+    bucket = db.get_or_404(Bucket, bucket_id)
     form = CreateBucketForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        title = form.title.data
-        percent = form.percent.data
+        bucket.title = form.title.data
+        bucket.percent = form.percent.data
         
-        db = get_db()
-        db.execute(
-            'UPDATE bucket SET title = ?, percent = ?'
-            ' WHERE id = ?',
-            (title, float(percent), bucket_id)
-        )
-        db.commit()
+        db.session.add(bucket)
+        db.session.commit()
         return redirect(url_for('budget.read', id=budget_id))
 
     # Pre-populate form data
-    form.title.data = bucket['title']
-    form.percent.data = bucket['percent']
+    form.title.data = bucket.title
+    form.percent.data = bucket.percent
 
     return render_template('budget/bucket_update.html', budget_id=budget_id, bucket=bucket, form=form)
 
@@ -546,8 +537,10 @@ def bucket_update(budget_id, bucket_id):
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/delete', methods=('POST',))
 @auth_required()
 def delete_bucket_item(budget_id, bucket_id):
-    get_bucket(bucket_id)
-    db = get_db()
-    db.execute('DELETE FROM bucket WHERE id = ?', (bucket_id,))
-    db.commit()
+    bucket = db.get_or_404(Bucket, bucket_id)
+
+    if request.method == "POST":
+        db.session.delete(bucket)
+        db.session.commit()   
+
     return redirect(url_for('budget.read', id=budget_id))
