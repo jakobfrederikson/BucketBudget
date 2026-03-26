@@ -25,7 +25,11 @@ from bucketbudget.budget.models import Budget, IncomeItem, ExpenseItem, Bucket, 
 from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
 from decimal import Decimal
-from bucketbudget.BudgetHandler.budget_handler import IncomeItem, ExpenseItem, Frequency
+from bucketbudget.BudgetHandler.budget_handler import (
+    IncomeItem as _income_item, 
+    ExpenseItem as _expense_item, 
+    Frequency as _frequency
+)
 
 bp = Blueprint("budget", __name__)
 
@@ -498,21 +502,18 @@ def change_budget_owner(id):
 @auth_required()
 def create_income_item(id):
     form = CreateIncomeItemForm(request.form)
-    if request.method == 'POST':
-        budget = get_budget(id)
-        title = form.title.data
-        amount = form.amount.data
-        frequency = form.frequency.data
-            
-        if form.validate():
-            db = get_db()
-            db.execute(
-                'INSERT INTO income_item (budget_id, title, amount, frequency)'
-                'VALUES (?, ?, ?, ?)',
-                (budget['id'], title, float(amount), frequency,),
-            )
-            db.commit()
-            return redirect(url_for('budget.read', id=budget['id']))
+    if request.method == 'POST' and form.validate():
+        budget = db.get_or_404(Budget, id)
+        income_item = IncomeItem(
+            budget_id = budget.id,
+            title = form.title.data,
+            amount = form.amount.data,
+            frequency = form.frequency.data
+        )
+        db.session.add(income_item)
+        db.session.commit()
+
+        return redirect(url_for('budget.read', id=budget.id))
 
     
     return render_template("budget/income_item_create.html", form=form)
