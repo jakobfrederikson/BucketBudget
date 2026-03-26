@@ -101,41 +101,25 @@ def create():
 def read(id):
     """View a budget."""
     budget = db.get_or_404(Budget, id)
-    print(budget)
-    print(budget.income_items)
-    print(budget.expense_items)
-    print(budget.buckets)
 
-    #result = get_result(budget, income_items, expense_items, buckets)
-    result = []
-
-    # context = {
-    #     "budget": budget,
-    #     "income_items": income_items,
-    #     "expense_items": expense_items,
-    #     "buckets": buckets,
-    #     "result": result,
-    # }
+    result = get_result(budget)
 
     context = {
         "budget": budget,
-        "income_items": [],
-        "expense_items": [],
-        "buckets": [],
         "result": result,
     }
 
     return render_template('budget/read.html', context=context)
 
 
-def get_result(budget, income_items, expense_items, buckets) -> dict:
-    income_money_items: list[IncomeItem] = _get_income_money_items(income_items)
-    expense_money_items: list[ExpenseItem] = _get_expense_money_items(expense_items)
+def get_result(budget) -> dict:
+    income_money_items: list[_income_item] = _get_income_money_items(budget.income_items)
+    expense_money_items: list[_expense_item] = _get_expense_money_items(budget.expense_items)
     result = create_result(
         budget, 
         income_money_items, 
         expense_money_items,
-        buckets
+        budget.buckets
     )
     
     return result
@@ -143,13 +127,13 @@ def get_result(budget, income_items, expense_items, buckets) -> dict:
 
 def create_result(
         budget, 
-        income_money_items: list[IncomeItem], 
-        expense_money_items: list[ExpenseItem],
+        income_money_items: list[_income_item], 
+        expense_money_items: list[_expense_item],
         buckets
         ) -> dict:
     
     # Get the budget frequency
-    budget_frequency: Frequency = _get_frequency(budget['frequency'])
+    budget_frequency: Frequency = _get_frequency(budget.frequency)
 
     all_income_buckets = []
     for income in income_money_items:
@@ -175,12 +159,12 @@ def create_result(
             income_to_buckets.append(bucket_item)
 
         for bucket in buckets:
-            percent_to_decimal = Decimal(bucket['percent'] / 100)
+            percent_to_decimal = Decimal(bucket.percent / 100)
 
             bucket_item = {
-                "title": bucket['title'],
+                "title": bucket.title,
                 "amount": Decimal(percent_to_decimal * net_income).quantize(Decimal('0.01')),
-                "percent": bucket['percent'],
+                "percent": bucket.percent,
             }
             income_to_buckets.append(bucket_item)
 
@@ -201,48 +185,48 @@ def create_result(
     return result
 
 
-def _get_expense_money_items(expense_items) -> list[ExpenseItem]:
+def _get_expense_money_items(expense_items) -> list[_expense_item]:
     expense_money_items = []
     for item in expense_items:
-        frequency = _get_frequency(item['frequency'])
+        frequency = _get_frequency(item.frequency)
 
         expense_money_items.append(
-            ExpenseItem(
-                item['title'],
-                Decimal(item['amount']), 
+            _expense_item(
+                item.title,
+                Decimal(item.amount), 
                 frequency,
-                item['expense_bucket']
+                item.expense_bucket
             )
         )
     return expense_money_items
 
 
-def _get_income_money_items(income_items) -> list[IncomeItem]:
+def _get_income_money_items(income_items) -> list[_income_item]:
     income_money_items = []
     for item in income_items:
-        frequency = _get_frequency(item['frequency'])
+        frequency = _get_frequency(item.frequency)
 
         income_money_items.append(
-            IncomeItem(
-                item['title'],
-                Decimal(item['amount']), 
+            _income_item(
+                item.title,
+                Decimal(item.amount), 
                 frequency
             )
         )
     return income_money_items
 
 
-def _get_frequency(frequency: str) -> Frequency:
+def _get_frequency(frequency: str) -> _frequency:
     if frequency == 'Weekly':
-        return Frequency.WEEKLY
+        return _frequency.WEEKLY
     elif frequency == 'Fortnightly':
-        return Frequency.FORTNIGHTLY
-    elif frequency == 'Four-Weekly':
-        return Frequency.FOUR_WEEKLY
+        return _frequency.FORTNIGHTLY
+    elif frequency == 'FourWeekly':
+        return _frequency.FOUR_WEEKLY
     elif frequency == 'Monthly':
-        return Frequency.MONTHLY
+        return _frequency.MONTHLY
     else:
-        return Frequency.YEARLY
+        return _frequency.YEARLY
 
 
 @bp.route('/budget/<int:id>/update', methods=('GET', 'POST'))
@@ -566,22 +550,19 @@ def delete_income_item(budget_id, income_item_id):
 @auth_required()
 def create_expense_item(id):
     form = CreateExpenseItemForm(request.form)
-    if request.method == 'POST':
-        budget = get_budget(id)
-        title = form.title.data
-        amount = form.amount.data
-        frequency = form.frequency.data
-        expense_bucket = form.expense_bucket.data
+    if request.method == 'POST' and form.validate():
+        budget = db.get_or_404(Budget, id)
+        expense_item = ExpenseItem(
+            budget_id = budget.id,
+            title = form.title.data,
+            amount = form.amount.data,
+            frequency = form.frequency.data,
+            expense_bucket = form.expense_bucket.data
+        )
+        db.session.add(expense_item)
+        db.session.commit()
 
-        if form.validate():
-            db = get_db()
-            db.execute(
-                'INSERT INTO expense_item (budget_id, title, amount, frequency, expense_bucket)'
-                'VALUES (?, ?, ?, ?, ?)',
-                (budget['id'], title, float(amount), frequency, expense_bucket,),
-            )
-            db.commit()
-            return redirect(url_for('budget.read', id=budget['id']))
+        return redirect(url_for('budget.read', id=budget.id))
 
     return render_template("budget/expense_item_create.html", form=form)
 
@@ -634,20 +615,17 @@ def delete_expense_item(budget_id, expense_item_id):
 @auth_required()
 def create_bucket(id):
     form = CreateBucketForm(request.form)
-    if request.method == 'POST':
-        budget = get_budget(id)
-        title = form.title.data
-        percent = form.percent.data
+    if request.method == 'POST' and form.validate():
+        budget = db.get_or_404(Budget, id)
+        bucket = Bucket(
+            budget_id = budget.id,
+            title = form.title.data,
+            percent = form.percent.data
+        )
+        db.session.add(bucket)
+        db.session.commit()
 
-        if form.validate():
-            db = get_db()
-            db.execute(
-                'INSERT INTO bucket (budget_id, title, percent)'
-                'VALUES (?, ?, ?)',
-                (budget['id'], title, float(percent),),
-            )
-            db.commit()
-            return redirect(url_for('budget.read', id=budget['id']))
+        return redirect(url_for('budget.read', id=budget.id))
 
 
     return render_template("budget/bucket_create.html", form=form)

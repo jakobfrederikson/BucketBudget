@@ -9,12 +9,12 @@ class CreateBudgetForm(Form):
     frequency = SelectField(u'Frequency',
         [validators.DataRequired()],
         choices=[
-            'Weekly', 
-            'Fortnightly', 
-            'Monthly', 
-            'Four-Weekly', 
-            'Yearly',
-            ])
+            ('Weekly', 'Weekly'), 
+            ('Fortnightly', 'Fortnightly'), 
+            ('Monthly', 'Monthly'), 
+            ('FourWeekly', 'Four-Weekly'), 
+            ('Yearly', 'Yearly'),
+        ])
 
 
 class CreateIncomeItemForm(Form):
@@ -29,12 +29,12 @@ class CreateIncomeItemForm(Form):
     frequency = SelectField(u'Frequency',
         [validators.DataRequired()],
         choices=[
-            'Weekly', 
-            'Fortnightly', 
-            'Monthly', 
-            'Four-Weekly', 
-            'Yearly',
-            ])
+            ('Weekly', 'Weekly'), 
+            ('Fortnightly', 'Fortnightly'), 
+            ('Monthly', 'Monthly'), 
+            ('FourWeekly', 'Four-Weekly'), 
+            ('Yearly', 'Yearly'),
+        ])
 
 
 class CreateExpenseItemForm(Form):
@@ -49,12 +49,12 @@ class CreateExpenseItemForm(Form):
     frequency = SelectField(u'Frequency',
         [validators.DataRequired()],
         choices=[
-            'Weekly', 
-            'Fortnightly', 
-            'Monthly', 
-            'Four-Weekly', 
-            'Yearly',
-            ])
+            ('Weekly', 'Weekly'), 
+            ('Fortnightly', 'Fortnightly'), 
+            ('Monthly', 'Monthly'), 
+            ('FourWeekly', 'Four-Weekly'), 
+            ('Yearly', 'Yearly'),
+        ])
     expense_bucket = BooleanField('Expense Bucket')
 
 
