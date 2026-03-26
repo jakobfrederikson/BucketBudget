@@ -62,9 +62,7 @@ def index():
         flash(flash_message)
 
     budgets = None
-    print(current_user.is_authenticated)
     if current_user.is_authenticated:
-        print("test")
         budgets = current_user.budgets
     return render_template("budget/index.html", budgets=budgets, form=form)
 
@@ -98,10 +96,6 @@ def create():
 def read(id):
     """View a budget."""
     budget = db.get_or_404(Budget, id)
-    users_in_budget = db.session.query(Budget).join(Budget.users).filter(Budget.id == id).all()
-    print(budget.users)
-    print(users_in_budget)
-
     result = get_result(budget)
 
     context = {
@@ -174,13 +168,10 @@ def create_result(
             "total_expenses": total_expenses,
             "buckets": income_to_buckets,
         })
-    
 
     result = {
         "all_income_buckets": all_income_buckets
     }
-
-    print(result)
 
     return result
 
