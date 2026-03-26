@@ -19,7 +19,7 @@ def now_utc() -> datetime:
 class Frequency(enum.Enum):
     Weekly = 'Weekly'
     Fortnightly = 'Fortnightly'
-    FourWeekly = 'Four-Weekly'
+    FourWeekly = 'FourWeekly'
     Monthly = 'Monthly'
     Yearly = 'Yearly'
 
@@ -39,21 +39,18 @@ class Budget(db.Model):
 
     income_items = relationship(
         "IncomeItem",
-        back_populates="budget",
-        cascade="all, delete",
-        passive_deletes=True
+        backref="budget",
+        cascade="all, delete"
     )
     expense_items = relationship(
         "ExpenseItem",
-        back_populates="budget",
-        cascade="all, delete",
-        passive_deletes=True
+        backref="budget",
+        cascade="all, delete"
     )
     buckets = relationship(
         "Bucket",
-        back_populates="budget",
-        cascade="all, delete",
-        passive_deletes=True
+        backref="budget",
+        cascade="all, delete"
     )
 
     @property
@@ -73,8 +70,6 @@ class IncomeItem(db.Model):
     amount: Mapped[decimal.Decimal]
     frequency: Mapped[Frequency]
 
-    budget: Mapped["Budget"] = relationship(back_populates="income_items")
-
 
 class ExpenseItem(db.Model):
     __tablename__ = "expense_item"
@@ -85,8 +80,6 @@ class ExpenseItem(db.Model):
     frequency: Mapped[Frequency]
     expense_bucket: Mapped[bool]
 
-    budget: Mapped["Budget"] = relationship(back_populates="expense_items")
-
 
 class Bucket(db.Model):
     __tablename__ = "bucket"
@@ -94,5 +87,3 @@ class Bucket(db.Model):
     budget_id: Mapped[int] = mapped_column(ForeignKey("budget.id", ondelete="CASCADE"))
     title: Mapped[str]
     percent: Mapped[decimal.Decimal]
-
-    budget: Mapped["Budget"] = relationship(back_populates="buckets")
