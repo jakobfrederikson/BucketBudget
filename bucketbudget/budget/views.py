@@ -14,6 +14,7 @@ from bucketbudget.budget.forms import (
     DeleteBudgetMemberForm,
     ChangeBudgetOwnershipForm
 )
+from bucketbudget.auth.models import User
 from bucketbudget.budget.models import Budget, IncomeItem, ExpenseItem, Bucket, Frequency
 from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
@@ -43,25 +44,20 @@ def index():
     if request.method == 'POST' and form.validate():
 
         invite_code = form.invite_code.data
-        budget = select(Budget).where(budget.invite_code == invite_code)
-        print(budget)
+        stmt = select(Budget).where(Budget.invite_code == invite_code)
+        budget = db.session.execute(stmt).scalar_one_or_none()
 
         flash_message = None
 
         if budget is None:
             flash_message = f'No budget exists with invite code "{invite_code}"'
         else:
-            members_in_budget = db.session.query(Budget).join(Budget.members).filter(Budget.id == budget.id).all()
-            if not members_in_budget:
-                db.execute(
-                    'INSERT INTO budget_member (budget_id, user_id)'
-                    'VALUES (?, ?)',
-                    (budget['id'], g.user['id'],),
-                )
-                db.commit()
-                flash_message = f'Successfully joined "{budget['title']}"'
-            else:
+            if current_user in budget.users:
                 flash_message = f'You are already a member of "{budget.title}"'
+            else:
+                budget.users.append(current_user)
+                db.session.commit()
+                flash_message = f'You have successfully joined "{budget.title}"'
         
         flash(flash_message)
 
@@ -276,40 +272,32 @@ def delete(id):
 @bp.route("/budget/<int:id>/budget_members", methods=("GET", "POST"))
 @auth_required()
 def view_budget_members(id):
-    budget = get_budget(id)
-    budget_members = get_budget_members(id)
+    budget = db.get_or_404(Budget, id)
     form = DeleteBudgetMemberForm(request.form)
-    current_user_is_owner = (g.user['id'] == int(budget['owner_id']))
 
     if request.method == 'POST' and form.validate():
         error = None
-        member_id = int(form.member_id.data)
+        user_id_to_delete = int(form.member_id.data)
 
-        if g.user['id'] != int(budget['owner_id']):
-            flash('You cannot remove members.')
-            error = True
-
-        if int(member_id) == g.user['id']:
-            flash('You cannot remove yourself.')
-            error = True
-
-        if not error:
-            db = get_db()
-            user = db.execute(
-                'SELECT * FROM user WHERE id = ?',
-                (member_id,),
-            ).fetchone()
-
-            db.execute(
-                'DELETE FROM budget_member WHERE user_id = ?',
-                (member_id,),
-            )
-            db.commit()
-            flash(f"{user['username']} has been removed from the budget.")
+        if budget.owner_id != current_user.id:
+            flash('Only the owner can remove users.')
             return redirect(url_for('budget.view_budget_members', id=id))
 
+        user_to_remove = db.get_or_404(User, user_id_to_delete)
 
-    return render_template("budget/budget_members.html", budget=budget, budget_members=budget_members, current_user_is_owner=current_user_is_owner, form=form)
+        if budget.owner == user_to_remove:
+            flash("An owner can't remove themself from the budget.")
+            return redirect(url_for('budget.view_budget_members', id=id))
+
+        if user_to_remove in budget.users:
+            budget.users.remove(user_to_remove)
+            db.session.commit()
+            flash(f"{user_to_remove.username} has been removed.")
+
+        return redirect(url_for('budget.view_budget_members', id=id))
+
+
+    return render_template("budget/budget_members.html", budget=budget, form=form)
 
 
 @bp.route("/budget/<int:id>/budget_members/change_owner", methods=('GET', 'POST'))
