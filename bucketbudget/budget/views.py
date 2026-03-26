@@ -232,24 +232,19 @@ def _get_frequency(frequency: str) -> _frequency:
 @bp.route('/budget/<int:id>/update', methods=('GET', 'POST'))
 @auth_required()
 def update(id):
-    budget = get_budget(id)
+    budget = db.get_or_404(Budget, id)
     form = CreateBudgetForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        title = form.title.data
-        frequency = form.frequency.data
+        budget.title = form.title.data
+        budget.frequency = form.frequency.data
 
-        db = get_db()
-        db.execute(
-            'UPDATE budget SET title = ?, frequency = ?'
-            'WHERE id = ?',
-            (title, frequency, id,)
-        )
-        db.commit()
+        db.session.add(budget)
+        db.session.commit()
         return redirect(url_for('budget.read', id=id))
 
-    form.title.data = budget['title']
-    form.frequency.data = budget['frequency']
+    form.title.data = budget.title
+    form.frequency.data = budget.frequency.value
 
     return render_template('budget/update.html', budget=budget, form=form)
 
@@ -258,121 +253,13 @@ def update(id):
 @auth_required()
 def delete(id):
     """Delete a BucketBudget and all associated items."""
-    get_budget(id)
-    db = get_db()
+    budget = db.get_or_404(Budget, id)
 
-    # Delete budget
-    db.execute('DELETE FROM budget WHERE id = ?', (id,))
-    db.commit()
-
-    # Delete associated budget_member rows with budget
-    db.execute('DELETE FROM budget_member WHERE budget_id =?', (id,))
-    db.commit()
-
-    # Delete associated income_item rows with budget
-    db.execute('DELETE FROM income_item WHERE budget_id =?', (id,))
-    db.commit()
-
-    # Delete associated expense_item rows with budget
-    db.execute('DELETE FROM expense_item WHERE budget_id =?', (id,))
-    db.commit()
-
-    # Delete associated bucket rows with budget
-    db.execute('DELETE FROM bucket WHERE budget_id =?', (id,))
-    db.commit()
+    if request.method == "POST":
+        db.session.delete(budget)
+        db.session.commit()
 
     return redirect(url_for('budget.index'))
-
-
-# ----------------------------
-#           GETTERS
-# ----------------------------
-
-def get_user(id):
-    user = get_db().execute(
-        'SELECT * FROM user WHERE id = ?',
-        (id,),
-    ).fetchone()
-
-    if user is None:
-        abort(404, f"User id {id} doesn't exist.")
-
-    return user
-
-
-def get_budget(id):
-    budget = get_db().execute(
-        'SELECT * FROM budget b WHERE b.id = '
-        '(SELECT budget_id FROM budget_member bm ' \
-        'WHERE bm.budget_id = ? AND bm.user_id = ?)',
-        (id, g.user['id'],)
-    ).fetchone()
-
-    if budget is None:
-        abort(404, f"Budget id {id} doesn't exist.")
-
-    return budget
-
-
-def get_budget_members(id):
-    budget_members = get_db().execute(
-        'SELECT * FROM user u WHERE u.id IN'
-        '(SELECT user_id FROM budget_member bm WHERE bm.budget_id = ?)',
-        (id,),
-    ).fetchall()
-
-    if budget_members is None:
-        abort(404, f"Budget id {id} doesn't exist.")
-    
-    return budget_members
-
-
-def get_budget_member(budget_id, user_id):
-    budget_member = get_db().execute(
-        'SELECT * FROM budget_member bm WHERE bm.budget_id = ? AND bm.user_id = ?',
-        (budget_id, user_id,),
-    ).fetchone()
-
-    if budget_member is None:
-        abort(404, f"Budget member in budget {budget_id} with ID {user_id} doesn't exist.")
-
-    return budget_member
-
-
-def get_income_item(id):
-    income_item = get_db().execute(
-        'SELECT * FROM income_item WHERE id = ?',
-        (id,)
-    ).fetchone()
-
-    if income_item is None:
-        abort(404, f"Income item id {id} doesn't exist.")
-
-    return income_item
-
-
-def get_expense_item(id):
-    expense_item = get_db().execute(
-        'SELECT * FROM expense_item WHERE id = ?',
-        (id,)
-    ).fetchone()
-
-    if expense_item is None:
-        abort(404, f"Expense item id {id} doesn't exist.")
-
-    return expense_item
-
-
-def get_bucket(id):
-    bucket = get_db().execute(
-        'SELECT * FROM bucket WHERE id = ?',
-        (id,)
-    ).fetchone()
-
-    if bucket is None:
-        abort(404, f"Bucket id {id} doesn't exist.")
-
-    return bucket
 
 
 # ---------------------------------------------------------------------
