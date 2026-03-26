@@ -1,12 +1,11 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Table, Column
 from datetime import datetime
 from datetime import timezone
 
 from flask import url_for
 
-from bucketbudget import db
-from bucketbudget.auth.models import User
+from bucketbudget import db, Base
 
 import decimal
 import enum
@@ -24,6 +23,13 @@ class Frequency(enum.Enum):
     Yearly = 'Yearly'
 
 
+budget_user = Table(
+    "budget_user",
+    Base.metadata,
+    Column("budget_id", ForeignKey("budget.id"), primary_key=True),
+    Column("user_id", ForeignKey("user.id"), primary_key=True)
+)
+
 class Budget(db.Model):
     __tablename__ = "budget"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -33,21 +39,20 @@ class Budget(db.Model):
     invite_code: Mapped[str]
     frequency: Mapped[Frequency]
 
-    # User object backed by owner_id
-    # lazy="joined" means the user is returned with the budget in one query
-    owner: Mapped[User] = relationship(back_populates="budgets")
+    owner: Mapped["User"] = relationship(back_populates="owned_budgets")
+    users: Mapped[list["User"]] = relationship(secondary=budget_user, back_populates="budgets")
 
-    income_items = relationship(
+    income_items: Mapped[list["IncomeItem"]] = relationship(
         "IncomeItem",
         backref="budget",
         cascade="all, delete"
     )
-    expense_items = relationship(
+    expense_items: Mapped[list["ExpenseItem"]] = relationship(
         "ExpenseItem",
         backref="budget",
         cascade="all, delete"
     )
-    buckets = relationship(
+    buckets: Mapped[list["Bucket"]] = relationship(
         "Bucket",
         backref="budget",
         cascade="all, delete"

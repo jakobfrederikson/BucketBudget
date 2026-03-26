@@ -1,14 +1,8 @@
-from flask import Blueprint
-from flask import flash
-from flask import g
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import url_for
-from flask import session
-from flask_security import auth_required, current_user
-
-from werkzeug.exceptions import abort
+from bucketbudget.BudgetHandler.budget_handler import (
+    IncomeItem as _income_item, 
+    ExpenseItem as _expense_item, 
+    Frequency as _frequency
+)
 
 from bucketbudget import db
 from bucketbudget.budget.forms import (
@@ -21,15 +15,23 @@ from bucketbudget.budget.forms import (
     ChangeBudgetOwnershipForm
 )
 from bucketbudget.budget.models import Budget, IncomeItem, ExpenseItem, Bucket, Frequency
-
 from bucketbudget.budget_invite_code_maker import generate_unique_budget_name
 
 from decimal import Decimal
-from bucketbudget.BudgetHandler.budget_handler import (
-    IncomeItem as _income_item, 
-    ExpenseItem as _expense_item, 
-    Frequency as _frequency
-)
+
+from flask import Blueprint
+from flask import flash
+from flask import g
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import url_for
+from flask import session
+from flask_security import auth_required, current_user
+
+from werkzeug.exceptions import abort
+
+from sqlalchemy import select
 
 bp = Blueprint("budget", __name__)
 
@@ -39,24 +41,18 @@ def index():
     form = JoinBudgetForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        db = get_db()
 
         invite_code = form.invite_code.data
-        budget = db.execute(
-            'SELECT * FROM budget WHERE invite_code = ?',
-            (invite_code,),
-        ).fetchone()
+        budget = select(Budget).where(budget.invite_code == invite_code)
+        print(budget)
 
         flash_message = None
 
         if budget is None:
             flash_message = f'No budget exists with invite code "{invite_code}"'
         else:
-            bm_iem = db.execute(
-                'SELECT * FROM budget_member WHERE budget_id = ? AND user_id = ?',
-                (budget['id'], g.user['id'],),
-            ).fetchone()
-            if not bm_iem:
+            members_in_budget = db.session.query(Budget).join(Budget.members).filter(Budget.id == budget.id).all()
+            if not members_in_budget:
                 db.execute(
                     'INSERT INTO budget_member (budget_id, user_id)'
                     'VALUES (?, ?)',
@@ -65,12 +61,14 @@ def index():
                 db.commit()
                 flash_message = f'Successfully joined "{budget['title']}"'
             else:
-                flash_message = f'You are already a member of "{budget['title']}"'
+                flash_message = f'You are already a member of "{budget.title}"'
         
         flash(flash_message)
 
     budgets = None
+    print(current_user.is_authenticated)
     if current_user.is_authenticated:
+        print("test")
         budgets = current_user.budgets
     return render_template("budget/index.html", budgets=budgets, form=form)
 
@@ -89,6 +87,9 @@ def create():
             invite_code = generate_unique_budget_name(form.title.data),
             frequency = form.frequency.data
         )
+
+        budget.users.append(current_user)
+
         db.session.add(budget)
         db.session.commit()
         return redirect(url_for('index'))
@@ -101,6 +102,9 @@ def create():
 def read(id):
     """View a budget."""
     budget = db.get_or_404(Budget, id)
+    users_in_budget = db.session.query(Budget).join(Budget.users).filter(Budget.id == id).all()
+    print(budget.users)
+    print(users_in_budget)
 
     result = get_result(budget)
 

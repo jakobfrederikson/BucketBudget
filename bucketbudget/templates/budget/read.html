@@ -9,11 +9,14 @@
 <a href="{{ url_for('budget.view_budget_members', id=context['budget']['id']) }}">View budget members</a>
 <hr/>
 
+<h2>Owner</h2>
+<p>{{ context['budget'].owner.username }}</p>
+
 <h2>Invite Code</h2>
-<code id="invite_code">{{ context['budget']['invite_code'] }}</code> <span><button onclick="copyInviteCode()">Copy Code</button></span> 
+<code id="invite_code">{{ context['budget'].invite_code }}</code> <span><button onclick="copyInviteCode()">Copy Code</button></span> 
 
 <h2>Budget Frequency</h2>
-<p>{{ context['budget']['frequency'] }} - <a href="{{ url_for('budget.update', id=context['budget']['id']) }}">edit</a></p>
+<p>{{ context['budget'].frequency }} - <a href="{{ url_for('budget.update', id=context['budget']['id']) }}">edit</a></p>
 <hr/>
 
 <h2>Income</h2>
