@@ -10,5 +10,3 @@ def generate_unique_budget_name(budget_name):
     scrambled = ''.join(combined_to_chars_list)
     return scrambled
 
-print(generate_unique_budget_name("My BudGet Name"))
-
