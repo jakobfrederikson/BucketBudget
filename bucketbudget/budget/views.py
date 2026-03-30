@@ -91,11 +91,11 @@ def create():
     return render_template('budget/create.html', form=form)
 
 
-@bp.route('/budget/<int:id>')
+@bp.route('/budget/<int:budget_id>')
 @auth_required()
-def read(id):
+def read(budget_id):
     """View a budget."""
-    budget = db.get_or_404(Budget, id)
+    budget = db.get_or_404(Budget, budget_id)
     result = get_result(budget)
 
     context = {
@@ -220,10 +220,10 @@ def _get_frequency(frequency: str) -> _frequency:
         return _frequency.YEARLY
 
 
-@bp.route('/budget/<int:id>/update', methods=('GET', 'POST'))
+@bp.route('/budget/<int:budget_id>/update', methods=('GET', 'POST'))
 @auth_required()
-def update(id):
-    budget = db.get_or_404(Budget, id)
+def update(budget_id):
+    budget = db.get_or_404(Budget, budget_id)
     form = CreateBudgetForm(request.form)
 
     if request.method == 'POST' and form.validate():
@@ -232,7 +232,7 @@ def update(id):
 
         db.session.add(budget)
         db.session.commit()
-        return redirect(url_for('budget.read', id=id))
+        return redirect(url_for('budget.read', budget_id=budget_id))
 
     form.title.data = budget.title
     form.frequency.data = budget.frequency.value
@@ -240,11 +240,11 @@ def update(id):
     return render_template('budget/update.html', budget=budget, form=form)
 
 
-@bp.route('/budget/<int:id>/delete', methods=('POST',))
+@bp.route('/budget/<int:budget_id>/delete', methods=('POST',))
 @auth_required()
 def delete(id):
     """Delete a BucketBudget and all associated items."""
-    budget = db.get_or_404(Budget, id)
+    budget = db.get_or_404(Budget, budget_id)
 
     if request.method == "POST":
         db.session.delete(budget)
@@ -260,32 +260,31 @@ def delete(id):
 # --------------
 # BUDGET MEMBERS
 # --------------
-@bp.route("/budget/<int:id>/budget_members", methods=("GET", "POST"))
+@bp.route("/budget/<int:budget_id>/budget_members", methods=("GET", "POST"))
 @auth_required()
-def view_budget_members(id):
-    budget = db.get_or_404(Budget, id)
+def view_budget_members(budget_id):
+    budget = db.get_or_404(Budget, budget_id)
     form = DeleteBudgetMemberForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        error = None
         user_id_to_delete = int(form.member_id.data)
 
         if budget.owner_id != current_user.id:
             flash('Only the owner can remove users.')
-            return redirect(url_for('budget.view_budget_members', id=id))
+            return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
 
         user_to_remove = db.get_or_404(User, user_id_to_delete)
 
         if budget.owner == user_to_remove:
             flash("An owner can't remove themself from the budget.")
-            return redirect(url_for('budget.view_budget_members', id=id))
+            return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
 
         if user_to_remove in budget.users:
             budget.users.remove(user_to_remove)
             db.session.commit()
             flash(f"{user_to_remove.username} has been removed.")
 
-        return redirect(url_for('budget.view_budget_members', id=id))
+        return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
 
 
     return render_template("budget/budget_members.html", budget=budget, form=form)
@@ -311,8 +310,8 @@ def change_budget_owner(budget_id):
             flash('You cannot choose yourself.')
             return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
 
-        
         budget.owner = chosen_user
+        db.session.commit()
         flash(f"{chosen_user.username} is now the owner of the budget.")
         return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
     
@@ -354,7 +353,7 @@ def create_income_item(id):
         db.session.add(income_item)
         db.session.commit()
 
-        return redirect(url_for('budget.read', id=budget.id))
+        return redirect(url_for('budget.read', budget_id=budget.id))
 
     
     return render_template("budget/income_item_create.html", form=form)
@@ -373,7 +372,7 @@ def update_income_item(budget_id, income_item_id):
 
         db.session.add(income_item)
         db.session.commit()
-        return redirect(url_for('budget.read', id=budget_id))
+        return redirect(url_for('budget.read', budget_id=budget_id))
 
     # Pre-populate form data
     form.title.data = income_item.title
@@ -392,7 +391,7 @@ def delete_income_item(budget_id, income_item_id):
         db.session.delete(income_item)
         db.session.commit()
 
-    return redirect(url_for('budget.read', id=budget_id))
+    return redirect(url_for('budget.read', budget_id=budget_id))
 
 
 # -------------
@@ -400,13 +399,13 @@ def delete_income_item(budget_id, income_item_id):
 # -------------
 
 
-@bp.route("/budget/<int:id>/expense_item/create", methods=('GET', 'POST'))
+@bp.route("/budget/<int:budget_id>/expense_item/create", methods=('GET', 'POST'))
 @auth_required()
-def create_expense_item(id):
+def create_expense_item(budget_id):
     form = CreateExpenseItemForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        budget = db.get_or_404(Budget, id)
+        budget = db.get_or_404(Budget, budget_id)
         expense_item = ExpenseItem(
             budget_id = budget.id,
             title = form.title.data,
@@ -417,7 +416,7 @@ def create_expense_item(id):
         db.session.add(expense_item)
         db.session.commit()
 
-        return redirect(url_for('budget.read', id=budget.id))
+        return redirect(url_for('budget.read', budget_id=budget.id))
 
     return render_template("budget/expense_item_create.html", form=form)
 
@@ -436,7 +435,7 @@ def update_expense_item(budget_id, expense_item_id):
 
         db.session.add(expense_item)
         db.session.commit()
-        return redirect(url_for('budget.read', id=budget_id))
+        return redirect(url_for('budget.read', budget_id=budget_id))
 
     # Pre-populate form data
     form.title.data = expense_item.title
@@ -456,20 +455,20 @@ def delete_expense_item(budget_id, expense_item_id):
         db.session.delete(expense_item)
         db.session.commit()   
 
-    return redirect(url_for('budget.read', id=budget_id))
+    return redirect(url_for('budget.read', budget_id=budget_id))
 
 
 # -------
 # BUCKETS
 #--------
 
-@bp.route("/budget/<int:id>/bucket/create", methods=('GET', 'POST'))
+@bp.route("/budget/<int:budget_id>/bucket/create", methods=('GET', 'POST'))
 @auth_required()
-def create_bucket(id):
+def create_bucket(budget_id):
     form = CreateBucketForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        budget = db.get_or_404(Budget, id)
+        budget = db.get_or_404(Budget, budget_id)
         bucket = Bucket(
             budget_id = budget.id,
             title = form.title.data,
@@ -478,7 +477,7 @@ def create_bucket(id):
         db.session.add(bucket)
         db.session.commit()
 
-        return redirect(url_for('budget.read', id=budget.id))
+        return redirect(url_for('budget.read', budget_id=budget.id))
 
 
     return render_template("budget/bucket_create.html", form=form)
@@ -495,7 +494,7 @@ def bucket_update(budget_id, bucket_id):
         
         db.session.add(bucket)
         db.session.commit()
-        return redirect(url_for('budget.read', id=budget_id))
+        return redirect(url_for('budget.read', budget_id=budget_id))
 
     # Pre-populate form data
     form.title.data = bucket.title
@@ -513,4 +512,4 @@ def delete_bucket_item(budget_id, bucket_id):
         db.session.delete(bucket)
         db.session.commit()   
 
-    return redirect(url_for('budget.read', id=budget_id))
+    return redirect(url_for('budget.read', budget_id=budget_id))
