@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit "{{ expense_item['title'] }}"{% endblock %}</h1>
+  <h1>{% block title %}Edit "{{ expense_item.title }}"{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -17,7 +17,7 @@
     <input type="submit" value="Save">
   </form>
   <hr>
-  <form action="{{ url_for('budget.delete_expense_item', budget_id=budget_id, expense_item_id=expense_item['id']) }}" method="post">
+  <form action="{{ url_for('budget.delete_expense_item', budget_id=budget_id, expense_item_id=expense_item.id) }}" method="post">
     <input class="danger" type="submit" value="Delete this expense item" onclick="return confirm('Are you sure?');">
   </form>
 {% endblock %}

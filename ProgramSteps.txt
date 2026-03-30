@@ -59,14 +59,19 @@ Users can have:
     -- all good now, so do the following:
     ---> set owner_id on budget to member_id and commit the executed sql
     ---> redirect user back to the budget index advising ownership transfer successful
-> Doing: User update
-    - Add ability to reset password
-    - Add user constraints - password must be 8 characters long with characters etc.
+> Doing: Security (was User update)
+    - Use Flask-Security, may include using SQLAlchemy - DONE
+    - User Email verification (Send register email, confirm email) - DONE
+    - Block users from accessing budget pages if not a budget member - DONE
+    - User password reset - DONE
+    - Email and Authenticator for 2FA - SCRAPPED - no need for this, the app relies on user input without any integrations.
 > To Do: Form update
     - Add Delete forms with CSRF tokens for each table
 > To Do: UI/UX Update
+    - Make sure the 'amounts' are all rounded to 2 decimal points on UI
     - Add ability to go back to 'budget index' page on each budget form
     - Create base colour scheme
+    - Createa a better diagram showing how you use the app
     - Update base, consistent layout for forms
 > To Do: Create tests
     - Test CRUD with all forms.
