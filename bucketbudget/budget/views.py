@@ -291,47 +291,34 @@ def view_budget_members(id):
     return render_template("budget/budget_members.html", budget=budget, form=form)
 
 
-@bp.route("/budget/<int:id>/budget_members/change_owner", methods=('GET', 'POST'))
+@bp.route("/budget/<int:budget_id>/budget_members/change_owner", methods=('GET', 'POST'))
 @auth_required()
-def change_budget_owner(id):
-    budget = get_budget(id)
-    budget_members = get_budget_members(id)
+def change_budget_owner(budget_id):
+    budget = db.get_or_404(Budget, budget_id)
+
     form = ChangeBudgetOwnershipForm(request.form)
-    form.members.choices = [(bm['id'], bm['username']) for bm in budget_members]
+    form.members.choices = [(bm.id, bm.username) for bm in budget.members]
     
     if request.method == 'POST' and form.validate():
-        error = None
         user_id = form.members.data
-        chosen_user = get_user(user_id)
+        chosen_user = db.get_or_404(User, user_id)
 
-        if g.user['id'] != int(budget['owner_id']):
+        if current_user != budget.owner:
             flash('You cannot remove members.')
-            error = True
+            return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
 
-        if int(chosen_user['id']) == g.user['id']:
+        if chosen_user.id == current_user.id:
             flash('You cannot choose yourself.')
-            error = True
+            return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
 
-        if not error:
-            db = get_db()
-            user = db.execute(
-                'SELECT * FROM user WHERE id = ?',
-                (int(chosen_user['id']),),
-            ).fetchone()
-
-            db.execute(
-                'UPDATE budget SET owner_id = ?'
-                'WHERE id = ?',
-                (user['id'], id,),
-            )
-            db.commit()
-            flash(f"{user['username']} is now the onwer of the budget.")
-            return redirect(url_for('budget.view_budget_members', id=id))
+        
+        budget.owner = chosen_user
+        flash(f"{chosen_user.username} is now the owner of the budget.")
+        return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
     
-    current_user_is_owner = (g.user['id'] == int(budget['owner_id']))
-    if not current_user_is_owner:
+    if current_user != budget.owner:
         flash("You are not the budger owner, you cannot access this page.")
-        return redirect(url_for('budget.view_budget_members', id=id))
+        return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
     
     return render_template("budget/budget_member_change_owner.html", budget=budget, form=form)
 
@@ -352,7 +339,7 @@ def change_budget_owner(id):
 # INCOME ITEMS
 # ------------
 
-@bp.route("/budget/<int:id>/income_item/create", methods=('GET', 'POST'))
+@bp.route("/budget/<int:budget_id>/income_item/create", methods=('GET', 'POST'))
 @auth_required()
 def create_income_item(id):
     form = CreateIncomeItemForm(request.form)
