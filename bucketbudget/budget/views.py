@@ -296,7 +296,7 @@ def change_budget_owner(budget_id):
     budget = db.get_or_404(Budget, budget_id)
 
     form = ChangeBudgetOwnershipForm(request.form)
-    form.members.choices = [(bm.id, bm.username) for bm in budget.members]
+    form.members.choices = [(bm.id, bm.username) for bm in budget.users]
     
     if request.method == 'POST' and form.validate():
         user_id = form.members.data
@@ -340,10 +340,10 @@ def change_budget_owner(budget_id):
 
 @bp.route("/budget/<int:budget_id>/income_item/create", methods=('GET', 'POST'))
 @auth_required()
-def create_income_item(id):
+def create_income_item(budget_id):
     form = CreateIncomeItemForm(request.form)
     if request.method == 'POST' and form.validate():
-        budget = db.get_or_404(Budget, id)
+        budget = db.get_or_404(Budget, budget_id)
         income_item = IncomeItem(
             budget_id = budget.id,
             title = form.title.data,

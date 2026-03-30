@@ -5,15 +5,15 @@
 {% endblock %}
 
 {% block content %}
-    {% if current_user_is_owner == True %}
-        <a href="{{ url_for('budget.change_budget_owner', id=budget.id) }}">Change budget ownership</a>
+    {% if budget.owner == current_user %}
+        <a href="{{ url_for('budget.change_budget_owner', budget_id=budget.id) }}">Change budget ownership</a>
     {% endif %}
     <ul>
         {% for user in budget.users %}
             <li>
                 {{ user.username }}
                 {% if current_user.id == budget.owner_id %}
-                    <form action="{{ url_for('budget.view_budget_members', id=budget['id']) }}" method="post">
+                    <form action="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}" method="post">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         {% for field in form %}
                             {{ field(value = user.id) }}
