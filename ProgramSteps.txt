@@ -61,13 +61,10 @@ Users can have:
     ---> redirect user back to the budget index advising ownership transfer successful
 > Doing: Security (was User update)
     - Use Flask-Security, may include using SQLAlchemy - DONE
-    - Make sure Flask-Security config is set up how I'd like
-        - User Email verification (Send register email, confirm email)
-        - 
-    - User email verification
+    - User Email verification (Send register email, confirm email) - DONE
+    - Block users from accessing budget pages if not a budget member - DONE
     - User password reset
-    - Invite code via email?
-    - MFA?
+    - Email and Authenticator for 2FA
 > To Do: Form update
     - Add Delete forms with CSRF tokens for each table
 > To Do: UI/UX Update

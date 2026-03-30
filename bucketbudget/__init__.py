@@ -47,6 +47,14 @@ def create_app(test_config=None):
     app.config['SECURITY_RECOVERABLE'] = True
     app.config['SECURITY_CHANGEABLE'] = True
 
+    # Flask Security - 2FA
+    # app.config['SECURITY_TWO_FACTOR_ENABLED_METHODS'] = ['email', 'authenticator']
+    # app.config['SECURITY_TWO_FACTOR'] = True
+    # app.config['SECURITY_TWO_FACTOR_ALWAYS_VALIDATE'] = False
+    # app.config['SECURITY_TWO_FACTOR_LOGIN_VALIDITY'] = "1 week"    
+    # app.config['SECURITY_TOTP_SECRETS'] = {"1": "TjQ9Qa31VOrfEzuPy4VHQWPCTmRzCnFzMKLxXYiZu9B"}
+    # app.config['SECURITY_TOTP_ISSUER'] = "bucketbudget"
+
     # Flask Mail
     app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
     app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
@@ -64,6 +72,7 @@ def create_app(test_config=None):
 
     # Flask Security - set email sender after Mail setup
     app.config['SECURITY_EMAIL_SENDER'] = app.config['MAIL_DEFAULT_SENDER']
+    # app.config['SECURITY_TWO_FACTOR_RESCUE_MAIL'] = app.config['MAIL_DEFAULT_SENDER']
 
     mail = Mail(app)
     
