@@ -246,7 +246,7 @@ def update(budget_id):
 @bp.route('/budget/<int:budget_id>/delete', methods=('POST',))
 @auth_required()
 @member_in_budget_required
-def delete(id):
+def delete(budget_id):
     """Delete a BucketBudget and all associated items."""
     budget = db.get_or_404(Budget, budget_id)
 

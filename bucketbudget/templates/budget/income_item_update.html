@@ -17,6 +17,7 @@
   </form>
   <hr>
   <form action="{{ url_for('budget.delete_income_item', budget_id=budget_id, income_item_id=income_item.id) }}" method="post">
-    <input class="danger" type="submit" value="Delete this income item" onclick="return confirm('Are you sure?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
 {% endblock %}
