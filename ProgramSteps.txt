@@ -63,8 +63,8 @@ Users can have:
     - Use Flask-Security, may include using SQLAlchemy - DONE
     - User Email verification (Send register email, confirm email) - DONE
     - Block users from accessing budget pages if not a budget member - DONE
-    - User password reset
-    - Email and Authenticator for 2FA
+    - User password reset - DONE
+    - Email and Authenticator for 2FA - SCRAPPED - no need for this, the app relies on user input without any integrations.
 > To Do: Form update
     - Add Delete forms with CSRF tokens for each table
 > To Do: UI/UX Update
