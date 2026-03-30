@@ -3,6 +3,7 @@ import os
 import click
 from flask import Flask
 from flask.cli import with_appcontext
+from flask_mail import Mail
 from flask_wtf.csrf import CSRFProtect
 from flask_security import Security, SQLAlchemyUserDatastore
 
@@ -25,19 +26,50 @@ def create_app(test_config=None):
     
     app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 
+    # Flask Security - Enable version 2 of the registration form
+    app.config['SECURITY_USE_REGISTER_V2'] = True
+
+    # Flask Security - Set the password salt
+    app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
+
+    # Flask Security - Enable user registration endpoint
+    app.config['SECURITY_REGISTERABLE'] = True
+
+    # Flask Security - Enable usernames
     app.config['SECURITY_USERNAME_ENABLE'] = True
     app.config['SECURITY_USERNAME_REQUIRED'] = True
-    app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
-    app.config['SECURITY_REGISTERABLE'] = True
-    app.config['SECURITY_SEND_REGISTER_EMAIL'] = False
-    app.config['SECURITY_USE_REGISTER_V2'] = True
+
+    # Flask Security - Email verification
+    app.config['SECURITY_SEND_REGISTER_EMAIL'] = True
+    app.config['SECURITY_CONFIRMABLE'] = True
+
+    # Flask Security - Password endpoints (change password + recover/reset password)
     app.config['SECURITY_RECOVERABLE'] = True
     app.config['SECURITY_CHANGEABLE'] = True
-    app.config['SECURITY_CONFIRMABLE'] = False
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+    # Flask Mail
+    app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
+    app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
+    app.config['MAIL_USE_SSL'] = os.environ['MAIL_USE_SSL']
+    app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
+    app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+    app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+
+    # print(f"[C] app.config['MAIL_SERVER']: {app.config['MAIL_SERVER']}")
+    # print(f"[C] app.config['MAIL_PORT']: {app.config['MAIL_PORT']}")
+    # print(f"[C] app.config['MAIL_USE_SSL']: {app.config['MAIL_USE_SSL']}")
+    # print(f"[C] app.config['MAIL_USERNAME']: {app.config['MAIL_USERNAME']}")
+    # print(f"[C] app.config['MAIL_PASSWORD']: {app.config['MAIL_PASSWORD']}")
+    # print(f"[C] app.config['MAIL_DEFAULT_SENDER']: {app.config['MAIL_DEFAULT_SENDER']}")
+
+    # Flask Security - set email sender after Mail setup
+    app.config['SECURITY_EMAIL_SENDER'] = app.config['MAIL_DEFAULT_SENDER']
+
+    mail = Mail(app)
+    
     app.config['REMEMBER_COOKIE_SAMESITE'] = os.environ['REMEMBER_COOKIE_SAMESITE'] 
     app.config['SESSION_COOKIE_SAMESITE'] = os.environ['SESSION_COOKIE_SAMESITE']
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
 
     csrf = CSRFProtect(app)

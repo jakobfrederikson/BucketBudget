@@ -62,6 +62,8 @@ Users can have:
 > Doing: Security (was User update)
     - Use Flask-Security, may include using SQLAlchemy - DONE
     - Make sure Flask-Security config is set up how I'd like
+        - User Email verification (Send register email, confirm email)
+        - 
     - User email verification
     - User password reset
     - Invite code via email?

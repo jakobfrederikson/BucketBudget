@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import datetime
+
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -24,5 +26,6 @@ class User(db.Model, fsqla.FsUserMixin):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
+    confirmed_at: Mapped[datetime.datetime]
     owned_budgets: Mapped[list["Budget"]] = relationship(back_populates="owner")
     budgets: Mapped[list["Budget"]] = relationship(secondary="budget_user", back_populates="users")
