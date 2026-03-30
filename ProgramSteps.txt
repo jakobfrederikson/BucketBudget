@@ -65,12 +65,12 @@ Users can have:
     - Block users from accessing budget pages if not a budget member - DONE
     - User password reset - DONE
     - Email and Authenticator for 2FA - SCRAPPED - no need for this, the app relies on user input without any integrations.
-> To Do: Form update
-    - Add Delete forms with CSRF tokens for each table - DOING
-> To Do: Custom abort pages
-    - Create custom abort pages, for when the site can't load a specific resource
-> To Do: UI/UX Update
-    - Make sure the 'amounts' are all rounded to 2 decimal points on UI
+> Done: Form update
+    - Add Delete forms with CSRF tokens for each table - DONE
+> Done: Custom abort pages
+    - Create custom abort pages, for when the site can't load a specific resource - DONE
+> Doing: UI/UX Update
+    - Make sure the 'amounts' are all rounded to 2 decimal points on UI - Doing
     - Add ability to go back to 'budget index' page on each budget form
     - Create base colour scheme
     - Createa a better diagram showing how you use the app

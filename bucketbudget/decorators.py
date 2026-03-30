@@ -12,7 +12,7 @@ def member_in_budget_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if not current_user.is_authenticated:
-            return redirect(url_for('security.login'))
+            return redirect("errors/404.html")
         
         budget = db.get_or_404(Budget, kwargs['budget_id'])
 

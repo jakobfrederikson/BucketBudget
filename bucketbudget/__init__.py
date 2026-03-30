@@ -102,6 +102,9 @@ def create_app(test_config=None):
     user_datastore = SQLAlchemyUserDatastore(db, auth_models.User, auth_models.Role)
     app.security = Security(app, user_datastore)
 
+    from bucketbudget.error_handlers import page_not_found
+    app.register_error_handler(404, page_not_found)
+
     app.add_url_rule("/", endpoint="index")
 
     return app
