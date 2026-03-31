@@ -40,8 +40,8 @@ def create_app(test_config=None):
     app.config['SECURITY_USERNAME_REQUIRED'] = True
 
     # Flask Security - Email verification
-    app.config['SECURITY_CONFIRMABLE'] = True
-    app.config['SECURITY_SEND_REGISTER_EMAIL'] = True    
+    app.config['SECURITY_CONFIRMABLE'] = False
+    app.config['SECURITY_SEND_REGISTER_EMAIL'] = False    
 
     # Flask Security - Password endpoints (change password + recover/reset password)
     app.config['SECURITY_RECOVERABLE'] = True

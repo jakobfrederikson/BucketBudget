@@ -80,7 +80,7 @@ def create():
             owner_id = current_user.id,
             title = form.title.data,
             invite_code = generate_unique_budget_name(form.title.data),
-            frequency = form.frequency.data
+            frequency_enum = form.frequency.data
         )
 
         budget.users.append(current_user)
@@ -100,12 +100,7 @@ def read(budget_id):
     budget = db.get_or_404(Budget, budget_id)
     result = get_result(budget)
 
-    context = {
-        "budget": budget,
-        "result": result,
-    }
-
-    return render_template('budget/read.html', context=context)
+    return render_template('budget/read.html', budget=budget, result=result)
 
 
 def get_result(budget) -> dict:
@@ -355,7 +350,7 @@ def create_income_item(budget_id):
             budget_id = budget.id,
             title = form.title.data,
             amount = form.amount.data,
-            frequency = form.frequency.data
+            frequency_enum = form.frequency.data
         )
         db.session.add(income_item)
         db.session.commit()
@@ -420,7 +415,7 @@ def create_expense_item(budget_id):
             budget_id = budget.id,
             title = form.title.data,
             amount = form.amount.data,
-            frequency = form.frequency.data,
+            frequency_enum = form.frequency.data,
             expense_bucket = form.expense_bucket.data
         )
         db.session.add(expense_item)
