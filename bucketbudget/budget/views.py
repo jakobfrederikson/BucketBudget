@@ -100,12 +100,7 @@ def read(budget_id):
     budget = db.get_or_404(Budget, budget_id)
     result = get_result(budget)
 
-    context = {
-        "budget": budget,
-        "result": result,
-    }
-
-    return render_template('budget/read.html', context=context)
+    return render_template('budget/read.html', budget=budget, result=result)
 
 
 def get_result(budget) -> dict:

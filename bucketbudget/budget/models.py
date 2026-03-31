@@ -37,7 +37,7 @@ class Budget(db.Model):
     created: Mapped[datetime] = mapped_column(default=now_utc)
     title: Mapped[str]
     invite_code: Mapped[str]
-    frequency: Mapped[Frequency]
+    frequency_enum: Mapped[Frequency]
 
     owner: Mapped["User"] = relationship(back_populates="owned_budgets")
     users: Mapped[list["User"]] = relationship(secondary=budget_user, back_populates="budgets")
@@ -59,12 +59,20 @@ class Budget(db.Model):
     )
 
     @property
+    def view_url(self) -> str:
+        return url_for("budget.read", budget_id=self.id)
+
+    @property
     def update_url(self) -> str:
-        return url_for("budget.update", id=self.id)
+        return url_for("budget.update", budget_id=self.id)
 
     @property
     def delete_url(self) -> str:
-        return url_for("budget.delete", id=self.id)
+        return url_for("budget.delete", budget_id=self.id)
+
+    @property
+    def frequency(self) -> str:
+        return frequency_enum
 
 
 class IncomeItem(db.Model):
@@ -73,7 +81,7 @@ class IncomeItem(db.Model):
     budget_id: Mapped[int] = mapped_column(ForeignKey("budget.id", ondelete="CASCADE"))
     title: Mapped[str]
     amount_int: Mapped[int]
-    frequency: Mapped[Frequency]
+    frequency_enum: Mapped[Frequency]
 
     @property
     def amount(self) -> Decimal:

@@ -23,7 +23,7 @@
 {% if budgets %}
     <ul>
     {% for budget in budgets %}
-        <li><a href="{{ url_for('budget.read', budget_id=budget.id) }}">{{ budget.title }}</a></li>
+        <li><a href="{{ budget.view_url }}">{{ budget.title }}</a></li>
     {% endfor %}
     </ul>
 {% else %}

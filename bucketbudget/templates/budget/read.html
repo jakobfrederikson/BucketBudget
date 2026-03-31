@@ -1,29 +1,29 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}{{ context['budget'].title }}{% endblock %}</h1>
+  <h1>{% block title %}{{ budget.title }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
 <button>Download budget as JSON file</button>
-<a href="{{ url_for('budget.view_budget_members', budget_id=context['budget'].id) }}">View budget members</a>
+<a href="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}">View budget members</a>
 <hr/>
 
 <h2>Owner</h2>
-<p>{{ context['budget'].owner.username }}</p>
+<p>{{ budget.owner.username }}</p>
 
 <h2>Invite Code</h2>
-<code id="invite_code">{{ context['budget'].invite_code }}</code> <span><button onclick="copyInviteCode()">Copy Code</button></span> 
+<code id="invite_code">{{ budget.invite_code }}</code> <span><button onclick="copyInviteCode()">Copy Code</button></span> 
 
 <h2>Budget Frequency</h2>
-<p>{{ context['budget'].frequency }} - <a href="{{ url_for('budget.update', budget_id=context['budget'].id) }}">edit</a></p>
+<p>{{ budget.frequency }} - <a href="{{ budget.update_url }}">edit</a></p>
 <hr/>
 
 <h2>Income</h2>
-<a href="{{ url_for('budget.create_income_item', budget_id=context['budget'].id) }}">Add an income item</a>
-{% if context['budget'].income_items %}
-    {% for item in context['budget'].income_items %}
-        <p><strong>{{ item.title }}</strong> | ${{ item.amount }} | {{ item.frequency }} - <a href="{{ url_for('budget.update_income_item', budget_id=context['budget'].id, income_item_id=item['id']) }}">edit</a></p>
+<a href="{{ url_for('budget.create_income_item', budget_id=budget.id) }}">Add an income item</a>
+{% if budget.income_items %}
+    {% for item in budget.income_items %}
+        <p><strong>{{ item.title }}</strong> | ${{ item.amount }} | {{ item.frequency }} - <a href="{{ url_for('budget.update_income_item', budget_id=budget.id, income_item_id=item['id']) }}">edit</a></p>
     {% endfor %}
 {% else %}
     <p>No income items found.</p>
@@ -31,10 +31,10 @@
 <hr/>
 
 <h2>Expenses</h2>
-<a href="{{ url_for('budget.create_expense_item', budget_id=context['budget'].id) }}">Add an expense item</a>
-{% if context['budget'].expense_items %}
-    {% for item in context['budget'].expense_items %}
-        <p><strong>{{ item.title }}</strong> | ${{ item.amount }} | {{ item.frequency }} | Expense Bucket? {{ item.expense_bucket }} - <a href="{{ url_for('budget.update_expense_item', budget_id=context['budget'].id, expense_item_id=item.id) }}">edit</a></p>
+<a href="{{ url_for('budget.create_expense_item', budget_id=budget.id) }}">Add an expense item</a>
+{% if budget.expense_items %}
+    {% for item in budget.expense_items %}
+        <p><strong>{{ item.title }}</strong> | ${{ item.amount }} | {{ item.frequency }} | Expense Bucket? {{ item.expense_bucket }} - <a href="{{ url_for('budget.update_expense_item', budget_id=budget.id, expense_item_id=item.id) }}">edit</a></p>
     {% endfor %}
 {% else %}
     <p>No expense items found.</p>
@@ -42,10 +42,10 @@
 <hr/>
 
 <h2>Buckets</h2>
-<a href="{{ url_for('budget.create_bucket', budget_id=context['budget'].id) }}">Add a bucket</a>
-{% if context['budget'].buckets %}
-    {% for item in context['budget'].buckets %}
-        <p><strong>{{ item.title }}</strong> | {{ item.percent }}% of net income. - <a href="{{ url_for('budget.bucket_update', budget_id=context['budget'].id, bucket_id=item.id) }}">edit</a></p>
+<a href="{{ url_for('budget.create_bucket', budget_id=budget.id) }}">Add a bucket</a>
+{% if budget.buckets %}
+    {% for item in budget.buckets %}
+        <p><strong>{{ item.title }}</strong> | {{ item.percent }}% of net income. - <a href="{{ url_for('budget.bucket_update', budget_id=budget.id, bucket_id=item.id) }}">edit</a></p>
     {% endfor %}
 {% else %}
     <p>No buckets created yet.</p>
@@ -53,9 +53,9 @@
 <hr/>
 
 <h2>Result</h2>
-{% if context['result'] %}
-        {% if context['result']['all_income_buckets'] %}
-            {% for item in context['result']['all_income_buckets'] %}
+{% if result %}
+        {% if result['all_income_buckets'] %}
+            {% for item in result['all_income_buckets'] %}
             <h3>Bucket split for income item "{{ item['income_name'] }}"</h3>
             <h4>Total net income: {{ item['net_income'] }}</h4>
             <h4>Total expenses: {{ item['total_expenses'] }}</h4>
