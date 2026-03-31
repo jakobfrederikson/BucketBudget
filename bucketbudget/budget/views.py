@@ -226,14 +226,14 @@ def update(budget_id):
 
     if request.method == 'POST' and form.validate():
         budget.title = form.title.data
-        budget.frequency = form.frequency.data
+        budget.frequency_enum = form.frequency.data
 
         db.session.add(budget)
         db.session.commit()
         return redirect(url_for('budget.read', budget_id=budget_id))
 
     form.title.data = budget.title
-    form.frequency.data = budget.frequency.value
+    form.frequency.data = budget.frequency
 
     return render_template('budget/update.html', budget=budget, form=form)
 
@@ -371,7 +371,7 @@ def update_income_item(budget_id, income_item_id):
     if request.method == 'POST' and form.validate():
         income_item.title = form.title.data
         income_item.amount = form.amount.data
-        income_item.frequency = form.frequency.data
+        income_item.frequency_enum = form.frequency.data
 
         db.session.add(income_item)
         db.session.commit()
@@ -380,7 +380,7 @@ def update_income_item(budget_id, income_item_id):
     # Pre-populate form data
     form.title.data = income_item.title
     form.amount.data = income_item.amount
-    form.frequency.data = income_item.frequency.value
+    form.frequency.data = income_item.frequency
 
     return render_template('budget/income_item_update.html', budget_id=budget_id, income_item=income_item, form=form)
 
@@ -436,7 +436,7 @@ def update_expense_item(budget_id, expense_item_id):
     if request.method == 'POST' and form.validate():
         expense_item.title = form.title.data
         expense_item.amount = form.amount.data
-        expense_item.frequency = form.frequency.data
+        expense_item.frequency_enum = form.frequency.data
         expense_item.expense_bucket = form.expense_bucket.data
 
         db.session.add(expense_item)
@@ -446,7 +446,7 @@ def update_expense_item(budget_id, expense_item_id):
     # Pre-populate form data
     form.title.data = expense_item.title
     form.amount.data = expense_item.amount
-    form.frequency.data = expense_item.frequency.value
+    form.frequency.data = expense_item.frequency
     form.expense_bucket.data = expense_item.expense_bucket
 
     return render_template('budget/expense_item_update.html', budget_id=budget_id, expense_item=expense_item, form=form)
