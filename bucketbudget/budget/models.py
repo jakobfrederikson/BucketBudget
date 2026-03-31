@@ -7,7 +7,7 @@ from flask import url_for
 
 from bucketbudget import db, Base
 
-import decimal
+from decimal import Decimal, ROUND_HALF_UP
 import enum
 
 
@@ -72,8 +72,17 @@ class IncomeItem(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     budget_id: Mapped[int] = mapped_column(ForeignKey("budget.id", ondelete="CASCADE"))
     title: Mapped[str]
-    amount: Mapped[decimal.Decimal]
+    amount_int: Mapped[int]
     frequency: Mapped[Frequency]
+
+    @property
+    def amount(self) -> Decimal:
+        return Decimal(self.amount_int / 100.0).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    @amount.setter
+    def amount(self, value: Decimal):
+        value = value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        amount_int = int(value * 100)
 
 
 class ExpenseItem(db.Model):
@@ -81,9 +90,18 @@ class ExpenseItem(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     budget_id: Mapped[int] = mapped_column(ForeignKey("budget.id", ondelete="CASCADE"))
     title: Mapped[str]
-    amount: Mapped[decimal.Decimal]
+    amount_int: Mapped[int]
     frequency: Mapped[Frequency]
     expense_bucket: Mapped[bool]
+
+    @property
+    def amount(self) -> Decimal:
+        return Decimal(self.amount_int / 100.0).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    @amount.setter
+    def amount(self, value: Decimal):
+        value = value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        self.amount_int = int(value * 100)
 
 
 class Bucket(db.Model):
@@ -91,4 +109,13 @@ class Bucket(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     budget_id: Mapped[int] = mapped_column(ForeignKey("budget.id", ondelete="CASCADE"))
     title: Mapped[str]
-    percent: Mapped[decimal.Decimal]
+    percent_int: Mapped[int]
+
+    @property
+    def percent(self) -> Decimal:
+        return Decimal(self.percent_int / 100.0)
+
+    @percent.setter
+    def percent(self, value: Decimal):
+        value = value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        self.percent_int = int(value * 100)
