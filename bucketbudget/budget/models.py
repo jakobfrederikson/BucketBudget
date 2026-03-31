@@ -18,7 +18,7 @@ def now_utc() -> datetime:
 class Frequency(enum.Enum):
     Weekly = 'Weekly'
     Fortnightly = 'Fortnightly'
-    FourWeekly = 'FourWeekly'
+    FourWeekly = 'Four-Weekly'
     Monthly = 'Monthly'
     Yearly = 'Yearly'
 
@@ -72,7 +72,7 @@ class Budget(db.Model):
 
     @property
     def frequency(self) -> str:
-        return frequency_enum
+        return self.frequency_enum.value
 
 
 class IncomeItem(db.Model):
@@ -90,7 +90,11 @@ class IncomeItem(db.Model):
     @amount.setter
     def amount(self, value: Decimal):
         value = value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        amount_int = int(value * 100)
+        self.amount_int = int(value * 100)
+
+    @property
+    def frequency(self) -> str:
+        return self.frequency_enum.value
 
 
 class ExpenseItem(db.Model):
@@ -99,7 +103,7 @@ class ExpenseItem(db.Model):
     budget_id: Mapped[int] = mapped_column(ForeignKey("budget.id", ondelete="CASCADE"))
     title: Mapped[str]
     amount_int: Mapped[int]
-    frequency: Mapped[Frequency]
+    frequency_enum: Mapped[Frequency]
     expense_bucket: Mapped[bool]
 
     @property
@@ -109,7 +113,12 @@ class ExpenseItem(db.Model):
     @amount.setter
     def amount(self, value: Decimal):
         value = value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        print("test")
         self.amount_int = int(value * 100)
+
+    @property
+    def frequency(self) -> str:
+        return self.frequency_enum.value
 
 
 class Bucket(db.Model):
