@@ -12,7 +12,7 @@ class CreateBudgetForm(Form):
             ('Weekly', 'Weekly'), 
             ('Fortnightly', 'Fortnightly'), 
             ('Monthly', 'Monthly'), 
-            ('Four-Weekly', 'Four-Weekly'), 
+            ('FourWeekly', 'Four-Weekly'), 
             ('Yearly', 'Yearly'),
         ])
 
@@ -32,7 +32,7 @@ class CreateIncomeItemForm(Form):
             ('Weekly', 'Weekly'), 
             ('Fortnightly', 'Fortnightly'), 
             ('Monthly', 'Monthly'), 
-            ('Four-Weekly', 'Four-Weekly'), 
+            ('FourWeekly', 'Four-Weekly'), 
             ('Yearly', 'Yearly'),
         ])
 
@@ -52,7 +52,7 @@ class CreateExpenseItemForm(Form):
             ('Weekly', 'Weekly'), 
             ('Fortnightly', 'Fortnightly'), 
             ('Monthly', 'Monthly'), 
-            ('Four-Weekly', 'Four-Weekly'), 
+            ('FourWeekly', 'Four-Weekly'), 
             ('Yearly', 'Yearly'),
         ])
     expense_bucket = BooleanField('Expense Bucket')
