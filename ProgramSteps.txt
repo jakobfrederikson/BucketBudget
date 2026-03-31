@@ -69,9 +69,9 @@ Users can have:
     - Add Delete forms with CSRF tokens for each table - DONE
 > Done: Custom abort pages
     - Create custom abort pages, for when the site can't load a specific resource - DONE
-> Doing: Store 'amounts' as lowest possible units
-    - Convert all amounts for income/expense item and bucket percent to integer - DOING
-    - Change how the money is then stored and handled
+> Done: Store 'amounts' as lowest possible units
+    - Convert all amounts for income/expense item and bucket percent to integer - DONE
+    - Change how the money is then stored and handled - DONE
 > Doing: UI/UX Update
     - Make sure the 'amounts' are all rounded to 2 decimal points on UI - Doing
     - Add ability to go back to 'budget index' page on each budget form
