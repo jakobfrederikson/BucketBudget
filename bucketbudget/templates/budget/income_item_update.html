@@ -19,19 +19,9 @@
         <button type="submit" class="button is-primary">
           Save
         </button>
-      </div>
-    </div>
-
-  </form>
-  <hr>
-  <form action="{{ url_for('budget.delete_income_item', budget_id=budget_id, income_item_id=income_item.id) }}" method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-
-    <div class="field">
-      <div class="control">
-        <button type="submit" class="button is-danger" onclick="return confirm('Are you sure?')">
-          Delete Income Item
-        </button>
+        <a class="button" href="{{ url_for('budget.read', budget_id=budget_id) }}">
+          Back
+        </a>
       </div>
     </div>
   </form>

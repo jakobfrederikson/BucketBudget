@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit "{{ bucket.title }}"{% endblock %}</h1>
+  <h1>{% block title %}Edit Bucket: "{{ bucket.title }}"{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -18,21 +18,11 @@
         <button type="submit" class="button is-primary">
           Save
         </button>
+        <a class="button" href="{{ url_for('budget.read', budget_id=budget_id) }}">
+          Back
+        </a>
       </div>
     </div>
 
   </form>
-  <hr>
-  <form action="{{ url_for('budget.delete_bucket_item', budget_id=budget_id, bucket_id=bucket.id) }}" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-      
-      <div class="field">
-      <div class="control">
-        <button type="submit" class="button is-danger" onclick="return confirm('Are you sure?')">
-          Delete Bucket
-        </button>
-      </div>
-    </div>
-
-    </form>
 {% endblock %}
