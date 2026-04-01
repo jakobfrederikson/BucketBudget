@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+
  {% from "_formhelpers.html" import render_field %}
   <form method="post">
 
@@ -19,8 +20,12 @@
         <button type="submit" class="button is-primary">
           Save
         </button>
+        {% from "_uimacros.html" import backtobudget %}
+        {{ backtobudget(budget.id) }}
       </div>
     </div>
+
+     
 
   </form>
   <hr>
@@ -30,9 +35,10 @@
 
     <div class="field">
       <div class="control">
-        <button type="submit" class="button is-danger" onclick="return confirm('Are you sure?');">
+        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
           Delete Budget
         </button>
+        <p class="is-small">You cannot undo this action.</p>
       </div>
     </div>
 

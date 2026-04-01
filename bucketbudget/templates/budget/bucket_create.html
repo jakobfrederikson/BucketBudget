@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<p>Most people have 2-3 buckets.</p>
+<p>A bucket is a place to store a percentage of your net income. For example, you might state that you want 10% of your income saved towards holdays, so you would create a 'Holiday' bucket with a percent of 10.</p>
 
 <p><strong>add percentage bar here to show total percentage of all buckets, letting user know how much percent is left.</strong></p>
 
@@ -17,6 +17,14 @@
       {{ render_field(form.title) }}
       {{ render_field(form.percent) }}
     </dl>
-    <input type="submit" value="Save">
+    
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-primary">
+          Create
+        </button>
+      </div>
+    </div>
+
   </form>
 {% endblock %}

@@ -5,51 +5,202 @@
 {% endblock %}
 
 {% block content %}
-<button>Download budget as JSON file</button>
-<a href="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}">View budget members</a>
-<hr/>
+<nav class="level">
+    <div class="level-left">
+        <div class="level-item">
+            <p><strong>Budget Owner:</strong> {{ budget.owner.username }}</p>
+        </div>
+        <div class="level-item">
+            <a class="button" href="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}">
+                View budget members
+            </a>
+        </div>
+    </div>
+</nav>
 
-<h2>Owner</h2>
-<p>{{ budget.owner.username }}</p>
-
-<h2>Invite Code</h2>
-<code id="invite_code">{{ budget.invite_code }}</code> <span><button onclick="copyInviteCode()">Copy Code</button></span> 
+<p>Invite code: 
+    <span>
+        <code id="invite_code">{{ budget.invite_code }}</code>
+    </span>
+    <span><button onclick="copyInviteCode()">Copy Code</button></span> 
+</p> 
 
 <h2>Budget Frequency</h2>
 <p>{{ budget.frequency }} - <a href="{{ budget.update_url }}">edit</a></p>
 <hr/>
 
-<h2>Income</h2>
-<a href="{{ url_for('budget.create_income_item', budget_id=budget.id) }}">Add an income item</a>
-{% if budget.income_items %}
-    {% for item in budget.income_items %}
-        <p><strong>{{ item.title }}</strong> | ${{ item.amount }} | {{ item.frequency }} - <a href="{{ url_for('budget.update_income_item', budget_id=budget.id, income_item_id=item['id']) }}">edit</a></p>
-    {% endfor %}
-{% else %}
-    <p>No income items found.</p>
-{% endif %}
+<div class="container">
+    <div class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <h3 class="title is-4">Income</h3>
+            </div>
+            <div class="level-item">
+                <a class="button" href="{{ url_for('budget.create_income_item', budget_id=budget.id) }}">+ Add</a>
+                
+            </div>
+        </div>
+    </div>
+
+    {% if budget.income_items %}
+    <table class="table is-bordered is-hoverable is-fullwidth">
+        <thead>
+            <tr>
+                <th class="has-text-centered">Name</th>
+                <th class="has-text-centered">Amount</th>
+                <th class="has-text-centered">Frequency</th>
+                <th class="has-text-centered">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in budget.income_items %}
+                <tr>
+                    <td class="has-text-centered">{{ item.title }}</td>
+                    <td class="has-text-centered">${{ item.amount }}</td>
+                    <td class="has-text-centered">{{ item.frequency }}</td>
+                    <td class="has-text-centered">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <a class="button is-link is-small" href="{{ url_for('budget.update_income_item', budget_id=budget.id, income_item_id=item.id) }}">Edit</a>
+                                </div>
+                                <div class="level-item">
+                                    <form action="{{ url_for('budget.delete_income_item', budget_id=budget.id, income_item_id=item.id) }}" method="post">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>You haven't created any income items yet.</p>
+    {% endif %}
+
+</div>
+
 <hr/>
 
-<h2>Expenses</h2>
-<a href="{{ url_for('budget.create_expense_item', budget_id=budget.id) }}">Add an expense item</a>
-{% if budget.expense_items %}
-    {% for item in budget.expense_items %}
-        <p><strong>{{ item.title }}</strong> | ${{ item.amount }} | {{ item.frequency }} | Expense Bucket? {{ item.expense_bucket }} - <a href="{{ url_for('budget.update_expense_item', budget_id=budget.id, expense_item_id=item.id) }}">edit</a></p>
-    {% endfor %}
-{% else %}
-    <p>No expense items found.</p>
-{% endif %}
+<div class="container">
+    <div class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <h3 class="title is-4">Expenses</h3>
+            </div>
+            <div class="level-item">
+                <a class="button" href="{{ url_for('budget.create_expense_item', budget_id=budget.id) }}">+ Add</a>
+                
+            </div>
+        </div>
+    </div>
+
+    {% if budget.expense_items %}
+    <table class="table is-bordered is-hoverable is-fullwidth">
+        <thead>
+            <tr>
+                <th class="has-text-centered">Name</th>
+                <th class="has-text-centered">Amount</th>
+                <th class="has-text-centered">Frequency</th>
+                <th class="has-text-centered">Expense Bucket</th>
+                <th class="has-text-centered">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in budget.expense_items %}
+                <tr>
+                    <td class="has-text-centered">{{ item.title }}</td>
+                    <td class="has-text-centered">${{ item.amount }}</td>
+                    <td class="has-text-centered">{{ item.frequency }}</td>
+                    <td class="has-text-centered">{{ item.expense_bucket }}</td>
+                    <td class="has-text-centered">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <a class="button is-link is-small" href="{{ url_for('budget.update_expense_item', budget_id=budget.id, expense_item_id=item.id) }}">Edit</a>
+                                </div>
+                                <div class="level-item">
+                                    <form action="{{ url_for('budget.delete_expense_item', budget_id=budget.id, expense_item_id=item.id) }}" method="post">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>You haven't created any expense items yet.</p>
+    {% endif %}
+
+</div>
+
 <hr/>
 
-<h2>Buckets</h2>
-<a href="{{ url_for('budget.create_bucket', budget_id=budget.id) }}">Add a bucket</a>
-{% if budget.buckets %}
-    {% for item in budget.buckets %}
-        <p><strong>{{ item.title }}</strong> | {{ item.percent }}% of net income. - <a href="{{ url_for('budget.bucket_update', budget_id=budget.id, bucket_id=item.id) }}">edit</a></p>
-    {% endfor %}
-{% else %}
-    <p>No buckets created yet.</p>
-{% endif %}
+<div class="container">
+    <div class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <h3 class="title is-4">Buckets</h3>
+            </div>
+            <div class="level-item">
+                <a class="button" href="{{ url_for('budget.create_bucket', budget_id=budget.id) }}">+ Add</a>
+                
+            </div>
+        </div>
+    </div>
+
+    {% if budget.buckets %}
+    <table class="table is-bordered is-hoverable is-fullwidth">
+        <thead>
+            <tr>
+                <th class="has-text-centered">Name</th>
+                <th class="has-text-centered">Percent</th>
+                <th class="has-text-centered">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in budget.buckets %}
+                <tr>
+                    <td class="has-text-centered">{{ item.title }}</td>
+                    <td class="has-text-centered">{{ item.percent }}%</td>
+                    <td class="has-text-centered">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <a class="button is-link is-small" href="{{ url_for('budget.bucket_update', budget_id=budget.id, bucket_id=item.id) }}">Edit</a>
+                                </div>
+                                <div class="level-item">
+                                    <form action="{{ url_for('budget.delete_bucket_item', budget_id=budget.id, bucket_id=item.id) }}" method="post">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>You haven't created any buckets yet.</p>
+    {% endif %}
+
+</div>
+
 <hr/>
 
 <h2>Result</h2>
@@ -72,7 +223,6 @@
 {% else %}
     <p>Could not produce result.</p>
 {% endif %}
-<hr/>
 
 <script>
 
