@@ -59,20 +59,14 @@
                     <td class="has-text-centered">${{ item.amount }}</td>
                     <td class="has-text-centered">{{ item.frequency }}</td>
                     <td class="has-text-centered">
-                        <div class="level">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <a class="button is-link is-small" href="{{ url_for('budget.update_income_item', budget_id=budget.id, income_item_id=item.id) }}">Edit</a>
-                                </div>
-                                <div class="level-item">
-                                    <form action="{{ url_for('budget.delete_income_item', budget_id=budget.id, income_item_id=item.id) }}" method="post">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
-                                            Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+                        <div class="buttons is-centered">
+                            <a class="button is-link is-small" href="{{ url_for('budget.update_income_item', budget_id=budget.id, income_item_id=item.id) }}">Edit</a>
+                            <form action="{{ url_for('budget.delete_income_item', budget_id=budget.id, income_item_id=item.id) }}" method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+                                    Delete
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -119,20 +113,14 @@
                     <td class="has-text-centered">{{ item.frequency }}</td>
                     <td class="has-text-centered">{{ item.expense_bucket }}</td>
                     <td class="has-text-centered">
-                        <div class="level">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <a class="button is-link is-small" href="{{ url_for('budget.update_expense_item', budget_id=budget.id, expense_item_id=item.id) }}">Edit</a>
-                                </div>
-                                <div class="level-item">
-                                    <form action="{{ url_for('budget.delete_expense_item', budget_id=budget.id, expense_item_id=item.id) }}" method="post">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
-                                            Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+                        <div class="buttons is-centered">
+                            <a class="button is-link is-small" href="{{ url_for('budget.update_expense_item', budget_id=budget.id, expense_item_id=item.id) }}">Edit</a>
+                            <form action="{{ url_for('budget.delete_expense_item', budget_id=budget.id, expense_item_id=item.id) }}" method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+                                    Delete
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -175,20 +163,14 @@
                     <td class="has-text-centered">{{ item.title }}</td>
                     <td class="has-text-centered">{{ item.percent }}%</td>
                     <td class="has-text-centered">
-                        <div class="level">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <a class="button is-link is-small" href="{{ url_for('budget.bucket_update', budget_id=budget.id, bucket_id=item.id) }}">Edit</a>
-                                </div>
-                                <div class="level-item">
-                                    <form action="{{ url_for('budget.delete_bucket_item', budget_id=budget.id, bucket_id=item.id) }}" method="post">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
-                                            Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+                        <div class="buttons is-centered">
+                            <a class="button is-link is-small" href="{{ url_for('budget.bucket_update', budget_id=budget.id, bucket_id=item.id) }}">Edit</a>
+                            <form action="{{ url_for('budget.delete_bucket_item', budget_id=budget.id, bucket_id=item.id) }}" method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+                                    Delete
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
