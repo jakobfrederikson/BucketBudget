@@ -358,7 +358,7 @@ def create_income_item(budget_id):
         return redirect(url_for('budget.read', budget_id=budget.id))
 
     
-    return render_template("budget/income_item_create.html", form=form)
+    return render_template("budget/income_item_create.html", form=form, budget_id=budget_id)
 
 
 @bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/update', methods=('GET', 'POST'))
@@ -423,7 +423,7 @@ def create_expense_item(budget_id):
 
         return redirect(url_for('budget.read', budget_id=budget.id))
 
-    return render_template("budget/expense_item_create.html", form=form)
+    return render_template("budget/expense_item_create.html", form=form, budget_id=budget_id)
 
 
 @bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/update', methods=('GET', 'POST'))
@@ -488,7 +488,7 @@ def create_bucket(budget_id):
         return redirect(url_for('budget.read', budget_id=budget.id))
 
 
-    return render_template("budget/bucket_create.html", form=form)
+    return render_template("budget/bucket_create.html", form=form, budget_id=budget_id)
 
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
 @auth_required()
