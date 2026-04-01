@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}Add income item{% endblock %}</h1>
+    <h1>{% block title %}Add Income Item{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+
+<p>You might not have many income items, most people will only add one "income item" for their salary/wages.</p>
 
 {% from "_formhelpers.html" import render_field %}
   <form method="post">
@@ -14,6 +16,14 @@
       {{ render_field(form.amount) }}
       {{ render_field(form.frequency) }}
     </dl>
-    <input type="submit" value="Save">
+
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-primary">
+          Create
+        </button>
+      </div>
+    </div>
+
   </form>
 {% endblock %}

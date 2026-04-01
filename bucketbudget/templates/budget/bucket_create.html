@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}Create bucket{% endblock %}</h1>
+    <h1>{% block title %}Create Bucket{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+
+<p>Most people have 2-3 buckets.</p>
+
+<p><strong>add percentage bar here to show total percentage of all buckets, letting user know how much percent is left.</strong></p>
+
 {% from "_formhelpers.html" import render_field %}
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

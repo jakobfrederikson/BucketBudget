@@ -8,6 +8,9 @@
 <button>Upload JSON file</button>
 <hr/>
 
+<h4>Budget Frequency</h4>
+<p>This will tell be how often you put money into your buckets.</p>
+
   {% from "_formhelpers.html" import render_field %}
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -15,29 +18,15 @@
       {{ render_field(form.title) }}
       {{ render_field(form.frequency) }}
     </dl>
-    <input type="submit" value="Save">
+
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-primary">
+          Create Budget
+        </button>
+      </div>
+    </div>
+
   </form>
 
-<h2>Budget Frequency</h2>
-<p>This will tell you how often to put money into your buckets.</p>
-<p>This frequency should probably be in line with how often your pay is.</p>
-<hr/>
-
-<h2>Income</h2>
-<p>Provide ability to add multiple income sources into the budget here.</p>
-<p>Each item will have name, amount, and frequency</p>
-<p>For example: work salary, side hustle</p>
-<hr/>
-
-<h2>Expenses</h2>
-<p>Provide ability to add multiple expenses into the budget here.</p>
-<p>Each item will have a name, amount, frequency, and can be grouped to form a 'bucket'.</p>
-<p>For example: rent, phone, internet, power, travel</p>
-<hr/>
-
-<h2>Buckets</h2>
-<p>Provide ability to add savings buckets. Buckets are akin to accounts. You might have an everyday use account, splurge account, savings account, and holiday account.</p>
-<p>Each bucket will have a name, and percentage or amount (depends if the bucket is a savings/everday or expense bucket). This percentage will be the percent of net income that gets put into the bucket.</p>
-<p>Buckets should always equal to 100% of the net income.</p>
-<hr/>
 {% endblock %}

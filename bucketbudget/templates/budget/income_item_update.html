@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit "{{ income_item.title }}"{% endblock %}</h1>
+  <h1>{% block title %}Edit Income Item: "{{ income_item.title }}"{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -13,11 +13,26 @@
       {{ render_field(form.amount) }}
       {{ render_field(form.frequency) }}
     </dl>
-    <input type="submit" value="Save">
+
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-primary">
+          Save
+        </button>
+      </div>
+    </div>
+
   </form>
   <hr>
   <form action="{{ url_for('budget.delete_income_item', budget_id=budget_id, income_item_id=income_item.id) }}" method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-danger" onclick="return confirm('Are you sure?')">
+          Delete Income Item
+        </button>
+      </div>
+    </div>
   </form>
 {% endblock %}
