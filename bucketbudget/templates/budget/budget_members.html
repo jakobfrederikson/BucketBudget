@@ -1,26 +1,39 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}"{{ budget.title }}" members{% endblock %}</h1>
+  <h1>{% block title %}Budget Members{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
     {% if budget.owner == current_user %}
-        <a href="{{ url_for('budget.change_budget_owner', budget_id=budget.id) }}">Change budget ownership</a>
+        <a class="button is-primary" href="{{ url_for('budget.change_budget_owner', budget_id=budget.id) }}">Change budget ownership</a>
     {% endif %}
+    <a class="button" href="{{ url_for('budget.read', budget_id=budget.id) }}">
+        Back
+    </a>
     <ul>
         {% for user in budget.users %}
             <li>
-                {{ user.username }}
-                {% if current_user.id == budget.owner_id %}
-                    <form action="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}" method="post">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        {% for field in form %}
-                            {{ field(value = user.id) }}
-                        {% endfor %}
-                        <input class="danger" type="submit" value="Remove member" onclick="return confirm('Are you sure?');">
-                    </form>
-                {% endif %}
+                <div class="level">
+                    <div class="level-left">
+                        <div class="level-item">
+                            {{ user.username }}
+                        </div>
+                        <div class="level-item">
+                            {% if current_user.id == budget.owner_id %}
+                                <form action="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}" method="post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    {% for field in form %}
+                                        {{ field(value = user.id) }}
+                                    {% endfor %}
+                                    <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+                                        Remove
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </li>
         {% endfor %}
     </ul>

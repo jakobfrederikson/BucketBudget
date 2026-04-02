@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}{{ budget.title }}{% endblock %}</h1>
+  <h1 class="has-text-centered">{% block title %}{{ budget.title }}{% endblock %}</h1>
+  <p class="has-text-centered"><em><strong>{{budget.frequency}}</strong> budget, created by user '<strong>{{ budget.owner.username }}</strong>'</em></p>
 {% endblock %}
 
 {% block content %}
 <nav class="level">
     <div class="level-left">
-        <div class="level-item">
-            <p><strong>Budget Owner:</strong> {{ budget.owner.username }}</p>
-        </div>
         <div class="level-item">
             <a class="button" href="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}">
                 View budget members
