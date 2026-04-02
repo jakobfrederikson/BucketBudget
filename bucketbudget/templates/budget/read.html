@@ -187,7 +187,7 @@
         {% if result['all_income_buckets'] %}
             {% for item in result['all_income_buckets'] %}
                 <section class="income-result container">
-                    <div class="level m0 p0">
+                    <div class="level">
                         <div class="level-left">
                             <div class="level-item">
                                 <p>Bucket results for <strong>{{ item['income_name'] }}</strong></p>
@@ -228,11 +228,11 @@
 <script>
 
     function copyInviteCode() {
-    var copyText = document.getElementById("invite_code");
+        var copyText = document.getElementById("invite_code");
 
-    navigator.clipboard.writeText(copyText.innerHTML);
+        navigator.clipboard.writeText(copyText.innerHTML);
 
-    alert("Copied the text: " + copyText.innerHTML);
-}
+        alert("Copied the text: " + copyText.innerHTML);
+    }
 </script>
 {% endblock %}
