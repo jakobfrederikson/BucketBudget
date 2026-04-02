@@ -140,8 +140,7 @@
                 <h3 class="title is-4">Buckets</h3>
             </div>
             <div class="level-item">
-                <a class="button" href="{{ url_for('budget.create_bucket', budget_id=budget.id) }}">+ Add</a>
-                
+                <a class="button" href="{{ url_for('budget.create_bucket', budget_id=budget.id) }}">+ Add</a>                
             </div>
         </div>
     </div>
@@ -183,21 +182,43 @@
 
 <hr/>
 
-<h2>Result</h2>
+<h2>Budget Result</h2>
 {% if result %}
         {% if result['all_income_buckets'] %}
             {% for item in result['all_income_buckets'] %}
-            <h3>Bucket split for income item "{{ item['income_name'] }}"</h3>
-            <h4>Total net income: {{ item['net_income'] }}</h4>
-            <h4>Total expenses: {{ item['total_expenses'] }}</h4>
-                {% for bucket in item["buckets"] %}
-                    <table>
-                        <tr>
-                            <td>{{ bucket.title }} {{ bucket.percent }}</td>
-                            <td>${{ bucket.amount }}</td>
-                        </tr>
-                    </table>
-                {% endfor %}
+                <section class="income-result container">
+                    <div class="level m0 p0">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <p>Bucket results for <strong>{{ item['income_name'] }}</strong></p>
+                            </div>
+                            <div class="level-item">
+                                <p>Total Net Income: <strong>{{ item['net_income'] }}</strong></p>
+                            </div>
+                            <div class="level-item">
+                                <p>Total Expenses: <strong>{{ item['total_expenses'] }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table is-bordered is-hoverable is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th class="has-text-centered">Bucket</th>
+                                <th class="has-text-centered">% of net income</th>
+                                <th class="has-text-centered">$ of net income</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bucket in item["buckets"] %}
+                                <tr>
+                                    <td>{{ bucket.title }}</td>
+                                    <td>{{ bucket.percent }} </td>
+                                    <td>{{ bucket.amount }} </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>                    
+                </section>            
             {% endfor %}
         {% endif %}
 {% else %}
