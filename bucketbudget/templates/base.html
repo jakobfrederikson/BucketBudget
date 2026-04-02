@@ -9,7 +9,7 @@
 </head>
 <body>
     <nav class="navbar" role="navigation" aria-label="main navigation">
-        <div class="container is-max-tablet">
+        <div class="container">
             <div class="navbar-brand">
                 <a class="navbar-item" href="{{ url_for('index') }}">
                     <strong>BUCKET BUDGET</strong>
@@ -28,35 +28,40 @@
                     <a class="navbar-item" href="{{ url_for('index') }}">
                         Home
                     </a>
+                    <a class="navbar-item">
+                        How it works
+                    </a>
                 </div>
 
                 <div class="navbar-end">
-                    <div class="navbar-item">
-                        <div class="buttons">
-                            {% if current_user.is_authenticated %}
-                                <span>
-                                    {{ current_user.username }}
-                                </span>
-                                <a class="button is-danger" href="{{ url_for('security.logout') }}">
-                                    Log Out
-                                </a>
-                            {% else %}
+                    {% if current_user.is_authenticated %}
+                        <div class="navbar-item">
+                            <a class="button is-ghost">Account</a>
+                        </div>
+                        <div class="navbar-item">
+                            <a class="button is-danger" href="{{ url_for('security.logout') }}">
+                                Log Out
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="navbar-item">
+                            <div class="buttons">
                                 <a class="button is-primary" href="{{ url_for('security.register') }}">
                                     <strong>Sign up</strong>
                                 </a>
                                 <a class="button is-light" href="{{ url_for('security.login') }}">
                                     Login
                                 </a>
-                            {% endif %}
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>        
     </nav>
 
     <section class="section">
-        <div class="container is-max-tablet">
+        <div class="container">
             <div class="content">
                 
                 <header>
