@@ -72,7 +72,7 @@ def create_app(test_config=None):
     
     app.config['REMEMBER_COOKIE_SAMESITE'] = os.environ['REMEMBER_COOKIE_SAMESITE'] 
     app.config['SESSION_COOKIE_SAMESITE'] = os.environ['SESSION_COOKIE_SAMESITE']
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
 
     csrf = CSRFProtect(app)
