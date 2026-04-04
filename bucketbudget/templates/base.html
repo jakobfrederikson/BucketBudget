@@ -61,23 +61,33 @@
     </nav>
 
     <section class="section">
-        <div class="container">
+        <div class="container is-max-tablet">
             <div class="content">
-                
-                <header>
-                    {% block header %}{% endblock %}
-                </header>
+                <div class="columns is-multiline">
 
-                {% for message in get_flashed_messages() %}
-                    <div class="flash">
-                        <div class="notification is-primary">
-                            {{ message }}
-                        </div>                
+                    <div class="column is-full">
+                        <header>
+                            {% block header %}
+                            {% endblock %}
+                        </header>
                     </div>
-                {% endfor %}
-                
-                {% block content %}
-                {% endblock %}
+
+                    <div class="column is-full">
+                        {% for message in get_flashed_messages() %}
+                            <div class="flash">
+                                <div class="notification is-primary">
+                                    {{ message }}
+                                </div>                
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="column is-full">
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                    
+                </div>
             </div>
         </div>
     </div>
