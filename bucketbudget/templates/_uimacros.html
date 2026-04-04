@@ -1,0 +1,5 @@
+{% macro backtobudget(budget_id) %}
+    <a class="button" href="{{ url_for('budget.read', budget_id=budget_id) }}">
+        Back
+    </a>
+{% endmacro %}
