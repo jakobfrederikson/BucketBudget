@@ -61,8 +61,8 @@
                             <div class="card">
                                 <div class="card-content">
                                     <div class="level is-mobile">
-                                        <div class="level-left">
-                                            <span class="level-item"><strong>{{ item.title }}</strong></span>
+                                        <div class="level-left level-line-breaker">
+                                            <span class="level-item level-item-word-wrapper"><strong>{{ item.title }}</strong></span>
                                         </div>
                                         <div class="level-right">
                                             <span class="level-item">${{ item.amount }}</span>
@@ -100,7 +100,7 @@
         <div class="container">
             <div class="columns is-centered">
                 <div class="column">
-                    <div class="level">
+                    <div class="level is-mobile">
                         <div class="level-left">
                             <div class="level-item">
                                 <h3 class="title is-4">Expenses</h3>
@@ -120,7 +120,7 @@
                             <div class="card">
                                 <div class="card-content">
                                     <div class="level is-mobile">
-                                        <div class="level-left">
+                                        <div class="level-left level-line-breaker">
                                             {% if item.expense_bucket %}
                                                 <span class="level-item"><strong>{{ item.title }} (Expense Bucket)</strong></span>
                                             {% else %}
@@ -162,7 +162,7 @@
     <div class="column is-full">
         <div class="columns is-centered">
             <div class="column">
-                <div class="level">
+                <div class="level is-mobile">
                     <div class="level-left">
                         <div class="level-item">
                             <h3 class="title is-4">Buckets</h3>
@@ -182,8 +182,8 @@
                         <div class="card">
                             <div class="card-content">
                                 <div class="level is-mobile">
-                                    <div class="level-left" style="overflow: hidden; max-width: 50%;">
-                                        <span class="level-item" style="word-wrap: break-word; white-space: normal;">
+                                    <div class="level-left level-line-breaker">
+                                        <span class="level-item level-item-word-wrapper">
                                             <strong>{{ item.title }} ({{ item.percent }}%)</strong>
                                         </span>
                                     </div>
@@ -213,43 +213,43 @@
     <div class="column is-full">
         <h2>Budget Result</h2>
         {% if result %}
-                {% if result['all_income_buckets'] %}
-                    {% for item in result['all_income_buckets'] %}
-                        <section class="income-result container">
-                            <div class="level">
-                                <div class="level-left">
-                                    <div class="level-item">
-                                        <p>Bucket results for <strong>{{ item['income_name'] }}</strong></p>
-                                    </div>
-                                    <div class="level-item">
-                                        <p>Total Net Income: <strong>{{ item['net_income'] }}</strong></p>
-                                    </div>
-                                    <div class="level-item">
-                                        <p>Total Expenses: <strong>{{ item['total_expenses'] }}</strong></p>
-                                    </div>
+            <div class="columns is-multiline">
+                {% for item in result['all_income_buckets'] %}
+                    <div class="column is-full">
+                        <div class="level is-mobile">
+                            <div class="level-left" style="overflow: hidden; word-wrap: break-word;">
+                                <div class="level-item">
+                                    <p>Bucket results for <strong>{{ item['income_name'] }}</strong></p>
+                                </div>
+                                <div class="level-item">
+                                    <p>Total Net Income: <strong>{{ item['net_income'] }}</strong></p>
+                                </div>
+                                <div class="level-item">
+                                    <p>Total Expenses: <strong>{{ item['total_expenses'] }}</strong></p>
                                 </div>
                             </div>
-                            <table class="table is-bordered is-hoverable is-fullwidth">
-                                <thead>
+                        </div>
+                        <table class="table is-bordered is-hoverable is-fullwidth">
+                            <thead>
+                                <tr>
+                                    <th class="has-text-centered">Bucket</th>
+                                    <th class="has-text-centered">% of net income</th>
+                                    <th class="has-text-centered">$ of net income</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bucket in item["buckets"] %}
                                     <tr>
-                                        <th class="has-text-centered">Bucket</th>
-                                        <th class="has-text-centered">% of net income</th>
-                                        <th class="has-text-centered">$ of net income</th>
+                                        <td class="table-data-overflow">{{ bucket.title }}</td>
+                                        <td class="table-data-overflow">{{ bucket.percent }}</td>
+                                        <td class="table-data-overflow">{{ bucket.amount }}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {% for bucket in item["buckets"] %}
-                                        <tr>
-                                            <td>{{ bucket.title }}</td>
-                                            <td>{{ bucket.percent }} </td>
-                                            <td>{{ bucket.amount }} </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>                    
-                        </section>            
-                    {% endfor %}
-                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                {% endfor %}
+            </div
         {% else %}
             <p>Could not produce result.</p>
         {% endif %}
