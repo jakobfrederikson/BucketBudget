@@ -212,7 +212,7 @@
     <!-- budget result -->
     <div class="column is-full">
         <h2>Budget Result</h2>
-        {% if result %}
+        {% if result['all_income_buckets'] %}
             <div class="columns is-multiline">
                 {% for item in result['all_income_buckets'] %}
                     <div class="column is-full">
@@ -249,7 +249,7 @@
                         </table> 
                     </div>
                 {% endfor %}
-            </div
+            </div>
         {% else %}
             <p>Could not produce result.</p>
         {% endif %}
@@ -265,5 +265,6 @@
 
         alert("Copied the text: " + copyText.innerHTML);
     }
+
 </script>
 {% endblock %}

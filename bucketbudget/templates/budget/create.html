@@ -5,11 +5,11 @@
 {% endblock %}
 
 {% block content %}
-<button>Upload JSON file</button>
+<button class="button">Upload JSON file</button>
+
 <hr/>
 
-<h4>Budget Frequency</h4>
-<p>This will tell be how often you put money into your buckets.</p>
+<p>The frequency is how often you want your automatic payments to be budgeted for.</p>
 
   {% from "_formhelpers.html" import render_field %}
   <form method="post">

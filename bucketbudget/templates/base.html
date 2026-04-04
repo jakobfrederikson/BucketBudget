@@ -36,7 +36,7 @@
                 <div class="navbar-end">
                     {% if current_user.is_authenticated %}
                         <div class="navbar-item">
-                            <a class="button is-ghost">Account</a>
+                            <a class="button is-ghost" href=" {{ url_for('auth.view_account', user_id=current_user.id) }}">Account</a>
                         </div>
                         <div class="navbar-item">
                             <a class="button is-danger" href="{{ url_for('security.logout') }}">
