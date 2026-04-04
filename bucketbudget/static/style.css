@@ -1,0 +1,22 @@
+.level-line-breaker {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 50%;
+}
+
+.level-item-word-wrapper {
+    word-wrap: break-word; 
+    text-overflow: ellipsis;
+}
+
+.table-data-overflow {
+    max-width: 0;
+    overflow: scroll;
+    white-space: nowrap;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.update-page-header {
+    overflow: hidden;
+}
