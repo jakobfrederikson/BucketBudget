@@ -34,6 +34,7 @@ from flask_security import auth_required, current_user
 from werkzeug.exceptions import abort
 
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 
 bp = Blueprint("budget", __name__)
 
@@ -97,7 +98,13 @@ def create():
 @member_in_budget_required
 def read(budget_id):
     """View a budget."""
-    budget = db.get_or_404(Budget, budget_id)
+    # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#joined-eager-loading uhhhhhh
+    budget = Budget.query.options(
+        joinedload(Budget.income_items),
+        joinedload(Budget.expense_items),
+        joinedload(Budget.buckets),
+    ).filter_by(id=budget_id).first_or_404()
+    #budget = db.get_or_404(Budget, budget_id)
     result = get_result(budget)
 
     return render_template('budget/read.html', budget=budget, result=result)
