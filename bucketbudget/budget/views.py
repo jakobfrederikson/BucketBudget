@@ -39,6 +39,11 @@ from sqlalchemy.orm import joinedload
 bp = Blueprint("budget", __name__)
 
 
+@bp.route("/how-it-works", methods=["GET"])
+def how_it_works():
+    return render_template("budget/how_it_works.html")
+
+
 @bp.route("/", methods=('GET', 'POST'))
 def index():
     form = JoinBudgetForm(request.form)

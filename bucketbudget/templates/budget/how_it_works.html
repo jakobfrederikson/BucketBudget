@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="columns is-centered">
+    <div class="column">
+        <h1 class="title has-text-centered">{% block title %}How it works{% endblock %}</h1>
+
+        <ol>
+            <li>Create a budget</li>
+            <li>Decide how often you want to 'save' for your budget (frequency)</li>
+            <li>Add your income</li>
+            <li>Add any expenses, and decide if you need to save for certain expenses by marking them as an 'expense bucket'. If it's an expense that will just come out of your normal everyday account, then this is just a normal expense and doesn't need to marked as an expense bucket.</li>
+            <li>Create your buckets, making sure their total percentage adds to 100%. The aim is to have 100% of your net income being utilised properly!</li>
+            <li>View the result and create your automatic payments based on the buckets.</li>
+        </ol>
+
+    </div>
+</div>
+
+{% endblock %}

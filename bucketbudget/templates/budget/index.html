@@ -1,50 +1,52 @@
 {% extends 'base.html' %}
 
-{% block header %}
-    <h1>{% block title %}Home{% endblock %}</h1>
-{% endblock %}
-
 {% block content %}
-<a href="{{ url_for('budget.create') }}">Create a BucketBudget</a>
 
-{% from "_formhelpers.html" import render_field %}
-  <form method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <dl>
-      {{ render_field(form.invite_code) }}
-    </dl>
+<div class="columns is-multiline is-centered">
+  
+  <div class="column is-full">
+    <h1 class="title has-text-centered">{% block title %}Home{% endblock %}</h1>
+  </div>
 
-    <div class="field">
-      <div class="control">
-        <button type="submit" class="button is-primary is-fullwidth">
-          Join Budget
-        </button>
+  <div class="column is-full">
+    <a href="{{ url_for('budget.create') }}" class="button is-primary is-fullwidth">Create a Budget</a>
+  </div>
+
+  <div class="column is-full">
+    <h2>Your Budgets</h2>
+    {% from "_formhelpers.html" import render_field %}
+    <form method="post">
+
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      
+      <div class="field">
+        <div class="label is-small">{{ form.invite_code.label }}</div>
+        <div class="control">{{ form.invite_code(class="input is-small") }}</div>
       </div>
-    </div>
 
-  </form>
+      <div class="field">
+        <div class="control">
+          <button type="submit" class="button is-primary is-dark is-small">
+            Join Budget
+          </button>
+        </div>
+      </div>
+    </form>
 
+    {% if budgets %}
+      <div class="columns is-multiline pt-3">
+        {% for budget in budgets %}
+          <div class="column is-full">
+            <a href="{{ budget.view_url }}">{{ budget.title }}</a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+        <p>You have no budgets.</p>
+    {% endif %}
 
-<hr/>
+  </div>
 
-<h2>Your BucketBudgets</h2>
-{% if budgets %}
-    <ul>
-    {% for budget in budgets %}
-        <li><a href="{{ budget.view_url }}">{{ budget.title }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>You have no budgets.</p>
-{% endif %}
-<hr/>
+</div>
 
-<h2>Intro</h2>
-<p>BucketBudget will help you divide your income into 3 different bucket types: normal buckets, savings buckets, and expense buckets.</p>
-<p>Buckets are seen as bank accounts, like everyday use or savings accounts. You will need to declare the frequency of your budget, the income sources, any expenses, and lastly the buckets. BucketBudget will then take your income, subtract it by the expenses, and then allocate your remaining income into the buckets.</p>
-<p><code>Normal Buckets</code> are general purpose percentage based buckets. Some use cases of a normal bucket are: allocating 40% towards a daily expenses bank account used for petrol/groceries, and 10% towards a 'fun' bank account used for non-essentials like pizza, coffees, games etc.</p>
-<p><code>Savings Buckets</code> work the same way as normal buckets, just with an <strong>S</strong> infront of them to indicate you shouldn't be dipping into these accounts without a good reason. For example, you might want to save 40% of your income for emergencies and 10% for holidays.</p>
-<p><code>Expense Buckets</code> work a little differently than the other two. They are fixed amount buckets that are just a normal expense. The difference is that you might have an important bill that you need to pay each month, so you want to allocate a fixed amount of your pay into the expense bucket so that you will always have enough to pay the bill.</p>
-<p>Here's an example: You earn $500 a week and have a $200 power bill every month that <em>must</em> be paid. In your banking app, you decide to create an everyday use bank account called 'Power bill'. You did the math and found out you can put $50 into this account every pay so that you always have enough to pay the power bill. You then found out you can tick 'Expense Bucket' on any important expenses like this in BucketBudget, and the app will do all of that work for you.</p>
-<hr/>
 {% endblock %}

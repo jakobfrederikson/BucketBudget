@@ -28,7 +28,7 @@
                     <a class="navbar-item" href="{{ url_for('index') }}">
                         Home
                     </a>
-                    <a class="navbar-item">
+                    <a class="navbar-item" href="{{ url_for('budget.how_it_works') }}">
                         How it works
                     </a>
                 </div>
@@ -60,7 +60,7 @@
         </div>        
     </nav>
 
-    <section class="section">
+    <section class="section expand-page">
         <div class="container is-max-tablet">
             <div class="content">
                 <div class="columns is-multiline">
@@ -90,7 +90,15 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                Made by <a href="https://jakobfrederikson.github.io/site/" target="_blank">Jakob</a>
+            </p>
+        </div>
+    </footer>
 
     <script>
         // https://bulma.io/documentation/components/navbar/
