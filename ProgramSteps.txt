@@ -73,12 +73,12 @@ Users can have:
     - Convert all amounts for income/expense item and bucket percent to integer - DONE
     - Change how the money is then stored and handled - DONE
 > Doing: UI/UX Update
-    - Make sure the 'amounts' are all rounded to 2 decimal points on UI - Doing
-    - Add ability to go back to 'budget index' page on each budget form
-    - Create base colour scheme
+    - Make sure the 'amounts' are all rounded to 2 decimal points on UI - DONE
+    - Add ability to go back to 'budget index' page on each budget form - DONE
+    - Create base colour scheme - DONE (bulma)
     - Createa a better diagram showing how you use the app
-    - Update base, consistent layout for forms
-> To Do: Migrate to PostgreSQL
+    - Update base, consistent layout for forms - DONE
+> Done: Migrate to PostgreSQL
 > To Do: Generate UUIDs for Public IDs?
 > To Do: Create tests
     - Test CRUD with all forms.
