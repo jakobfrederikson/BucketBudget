@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1 class="title has-text-centered">{% block title %}Join a Budget{% endblock %}</h1>
+
+    {% from "_formhelpers.html" import render_field %}
+    <form method="post">
+
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      
+      <div class="field">
+        <div class="label">{{ form.invite_code.label }}</div>
+        <div class="control">{{ form.invite_code(class="input") }}</div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <button type="submit" class="button is-primary">
+            Join Budget
+          </button>
+          <a href="{{ url_for('budget.index') }}" class="button">Back</a>
+        </div>
+      </div>
+    </form>
+
+{% endblock %}

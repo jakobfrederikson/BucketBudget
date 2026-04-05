@@ -13,38 +13,36 @@
   </div>
 
   <div class="column is-full">
-    <h2>Your Budgets</h2>
-    {% from "_formhelpers.html" import render_field %}
-    <form method="post">
+    <div class="container">
+      <div class="columns is-centered is-multiline">
+        <div class="column is-full">
+          <div class="level is-mobile">
+            <div class="level-left">
+              <div class="level-item">
+                <h3 class="title is-4">Your Budgets</h3>
+              </div>
+              <div class="level-item">
+                <a href="{{ url_for('budget.join') }}" class="button is-link">Join a Budget</a>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-      
-      <div class="field">
-        <div class="label is-small">{{ form.invite_code.label }}</div>
-        <div class="control">{{ form.invite_code(class="input is-small") }}</div>
-      </div>
-
-      <div class="field">
-        <div class="control">
-          <button type="submit" class="button is-primary is-dark is-small">
-            Join Budget
-          </button>
+        <div class="column is-full">
+          {% if budgets %}
+            <div class="columns is-multiline">
+              {% for budget in budgets %}
+                <div class="column is-full">
+                  <span><a href="{{ budget.view_url }}">{{ budget.title }}</a> - owned by <strong>{{ budget.owner.username }}</strong></span>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+              <p>You have no budgets.</p>
+          {% endif %}
         </div>
       </div>
-    </form>
-
-    {% if budgets %}
-      <div class="columns is-multiline pt-3">
-        {% for budget in budgets %}
-          <div class="column is-full">
-            <a href="{{ budget.view_url }}">{{ budget.title }}</a>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-        <p>You have no budgets.</p>
-    {% endif %}
-
+    </div>    
   </div>
 
 </div>

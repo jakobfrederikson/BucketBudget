@@ -43,7 +43,6 @@ bp = Blueprint("budget", __name__)
 def how_it_works():
     return render_template("budget/how_it_works.html")
 
-
 @bp.route("/", methods=('GET', 'POST'))
 def index():
     form = JoinBudgetForm(request.form)
@@ -72,6 +71,35 @@ def index():
     if current_user.is_authenticated:
         budgets = current_user.budgets
     return render_template("budget/index.html", budgets=budgets, form=form)
+
+
+@bp.route('/budget/join', methods=["GET", "POST"])
+@auth_required()
+def join():
+    form = JoinBudgetForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+
+        invite_code = form.invite_code.data
+        stmt = select(Budget).where(Budget.invite_code == invite_code)
+        budget = db.session.execute(stmt).scalar_one_or_none()
+
+        flash_message = None
+
+        if budget is None:
+            flash_message = f'No budget exists with invite code "{invite_code}"'
+        else:
+            if current_user in budget.users:
+                flash_message = f'You are already a member of "{budget.title}"'
+            else:
+                budget.users.append(current_user)
+                db.session.commit()
+                flash_message = f'You have successfully joined "{budget.title}"'
+        
+        flash(flash_message)
+
+    return render_template("budget/join.html", form=form)
+
 
 
 @bp.route('/budget/create', methods=('GET', 'POST'))
