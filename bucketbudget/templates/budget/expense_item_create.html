@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}Add expense item{% endblock %}</h1>
+    <h1>{% block title %}Add Expense Item{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+
+<p>Most people have many expenses: rent, phone, internet, power, gas/public transport etc.</p>
+<p>If it's an important expense that you <em>always</em> want to have make sure you have enough for, then make it an expense bucket.</p>
 
 {% from "_formhelpers.html" import render_field %}
   <form method="post">
@@ -15,6 +18,17 @@
       {{ render_field(form.frequency) }}
       {{ render_field(form.expense_bucket) }}
     </dl>
-    <input type="submit" value="Save">
+    
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-primary">
+          Create
+        </button>
+        <a class="button" href="{{ url_for('budget.read', budget_id=budget_id) }}">
+          Back
+        </a>
+      </div>
+    </div>
+
   </form>
 {% endblock %}

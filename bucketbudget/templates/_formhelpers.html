@@ -1,12 +1,27 @@
 {% macro render_field(field) %}
-  <dt>{{ field.label }}
-  <dd>{{ field(**kwargs)|safe }}
+  <div class="field">
+    <label class="label">{{ field.label.text }}</label>
+
+    <div class="control">
+      {# Style each field appropriately using Bulma CSS Forms #}
+      {% if field.type == 'BooleanField' %}
+        <label class="checkbox">
+          {{ field(**kwargs)|safe }}
+          {{ field.label.text }}
+        </label>
+      {% elif field.type == 'TextAreaField' %}
+        {{ field(class="textarea", **kwargs)|safe }}
+      {% else %}
+        {{ field(class="input", **kwargs)|safe }}
+      {% endif %}
+    </div>
+  </div>
+
   {% if field.errors %}
     <ul class=errors>
     {% for error in field.errors %}
-      <li>{{ error }}</li>
+      <li class="help is-danger">{{ error }}</li>
     {% endfor %}
     </ul>
   {% endif %}
-  </dd>
 {% endmacro %}

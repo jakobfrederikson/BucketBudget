@@ -34,9 +34,14 @@ from flask_security import auth_required, current_user
 from werkzeug.exceptions import abort
 
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 
 bp = Blueprint("budget", __name__)
 
+
+@bp.route("/how-it-works", methods=["GET"])
+def how_it_works():
+    return render_template("budget/how_it_works.html")
 
 @bp.route("/", methods=('GET', 'POST'))
 def index():
@@ -68,6 +73,35 @@ def index():
     return render_template("budget/index.html", budgets=budgets, form=form)
 
 
+@bp.route('/budget/join', methods=["GET", "POST"])
+@auth_required()
+def join():
+    form = JoinBudgetForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+
+        invite_code = form.invite_code.data
+        stmt = select(Budget).where(Budget.invite_code == invite_code)
+        budget = db.session.execute(stmt).scalar_one_or_none()
+
+        flash_message = None
+
+        if budget is None:
+            flash_message = f'No budget exists with invite code "{invite_code}"'
+        else:
+            if current_user in budget.users:
+                flash_message = f'You are already a member of "{budget.title}"'
+            else:
+                budget.users.append(current_user)
+                db.session.commit()
+                flash_message = f'You have successfully joined "{budget.title}"'
+        
+        flash(flash_message)
+
+    return render_template("budget/join.html", form=form)
+
+
+
 @bp.route('/budget/create', methods=('GET', 'POST'))
 @auth_required()
 def create():
@@ -97,7 +131,13 @@ def create():
 @member_in_budget_required
 def read(budget_id):
     """View a budget."""
-    budget = db.get_or_404(Budget, budget_id)
+    # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#joined-eager-loading uhhhhhh
+    budget = Budget.query.options(
+        joinedload(Budget.income_items),
+        joinedload(Budget.expense_items),
+        joinedload(Budget.buckets),
+    ).filter_by(id=budget_id).first_or_404()
+    #budget = db.get_or_404(Budget, budget_id)
     result = get_result(budget)
 
     return render_template('budget/read.html', budget=budget, result=result)
@@ -226,14 +266,14 @@ def update(budget_id):
 
     if request.method == 'POST' and form.validate():
         budget.title = form.title.data
-        budget.frequency = form.frequency.data
+        budget.frequency_enum = form.frequency.data
 
         db.session.add(budget)
         db.session.commit()
         return redirect(url_for('budget.read', budget_id=budget_id))
 
     form.title.data = budget.title
-    form.frequency.data = budget.frequency.value
+    form.frequency.data = budget.frequency
 
     return render_template('budget/update.html', budget=budget, form=form)
 
@@ -358,7 +398,7 @@ def create_income_item(budget_id):
         return redirect(url_for('budget.read', budget_id=budget.id))
 
     
-    return render_template("budget/income_item_create.html", form=form)
+    return render_template("budget/income_item_create.html", form=form, budget_id=budget_id)
 
 
 @bp.route('/budget/<int:budget_id>/income_item/<int:income_item_id>/update', methods=('GET', 'POST'))
@@ -371,7 +411,7 @@ def update_income_item(budget_id, income_item_id):
     if request.method == 'POST' and form.validate():
         income_item.title = form.title.data
         income_item.amount = form.amount.data
-        income_item.frequency = form.frequency.data
+        income_item.frequency_enum = form.frequency.data
 
         db.session.add(income_item)
         db.session.commit()
@@ -380,7 +420,7 @@ def update_income_item(budget_id, income_item_id):
     # Pre-populate form data
     form.title.data = income_item.title
     form.amount.data = income_item.amount
-    form.frequency.data = income_item.frequency.value
+    form.frequency.data = income_item.frequency
 
     return render_template('budget/income_item_update.html', budget_id=budget_id, income_item=income_item, form=form)
 
@@ -423,7 +463,7 @@ def create_expense_item(budget_id):
 
         return redirect(url_for('budget.read', budget_id=budget.id))
 
-    return render_template("budget/expense_item_create.html", form=form)
+    return render_template("budget/expense_item_create.html", form=form, budget_id=budget_id)
 
 
 @bp.route('/budget/<int:budget_id>/expense_item/<int:expense_item_id>/update', methods=('GET', 'POST'))
@@ -436,7 +476,7 @@ def update_expense_item(budget_id, expense_item_id):
     if request.method == 'POST' and form.validate():
         expense_item.title = form.title.data
         expense_item.amount = form.amount.data
-        expense_item.frequency = form.frequency.data
+        expense_item.frequency_enum = form.frequency.data
         expense_item.expense_bucket = form.expense_bucket.data
 
         db.session.add(expense_item)
@@ -446,7 +486,7 @@ def update_expense_item(budget_id, expense_item_id):
     # Pre-populate form data
     form.title.data = expense_item.title
     form.amount.data = expense_item.amount
-    form.frequency.data = expense_item.frequency.value
+    form.frequency.data = expense_item.frequency
     form.expense_bucket.data = expense_item.expense_bucket
 
     return render_template('budget/expense_item_update.html', budget_id=budget_id, expense_item=expense_item, form=form)
@@ -488,7 +528,7 @@ def create_bucket(budget_id):
         return redirect(url_for('budget.read', budget_id=budget.id))
 
 
-    return render_template("budget/bucket_create.html", form=form)
+    return render_template("budget/bucket_create.html", form=form, budget_id=budget_id)
 
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
 @auth_required()

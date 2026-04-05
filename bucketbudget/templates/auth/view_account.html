@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Account{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="columns is-multiline">
+    <div class="column is-full">
+        <p><strong>Email:</strong> {{ user.email }}</p>
+    </div>
+    <div class="column is-full">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+    </div>
+</div>
+
+<hr/>
+<h2>Budgets</h2>
+<p>Budgets you are a member of.</p>
+{% if user.budgets %}
+    <ul>
+        {% for budget in user.budgets %}
+        <li>
+            {% if budget.owner_id == current_user.id %}
+                <a href="{{ budget.view_url }}">{{ budget.title }}</a> (Owner)
+            {% else %}
+                <a href="{{ budget.view_url }}">{{ budget.title }}</a>
+            {% endif %}
+        </li>        
+        {% endfor %}
+    </ul>    
+{% else %}
+    <p>You're not apart of any budgets.</p>
+{% endif %}
+
+{% include "security/_menu.html" %}
+{% endblock %}

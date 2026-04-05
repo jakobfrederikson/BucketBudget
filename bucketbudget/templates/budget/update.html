@@ -1,22 +1,46 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit "{{ budget.title }}"{% endblock %}</h1>
+  <h1 class="update-page-header">{% block title %}Edit Budget: "{{ budget.title }}"{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+
  {% from "_formhelpers.html" import render_field %}
   <form method="post">
+
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <dl>
       {{ render_field(form.title) }}
       {{ render_field(form.frequency) }}
     </dl>
-    <input type="submit" value="Save">
+
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-primary">
+          Save
+        </button>
+        {% from "_uimacros.html" import backtobudget %}
+        {{ backtobudget(budget.id) }}
+      </div>
+    </div>
+
+     
+
   </form>
   <hr>
   <form action="{{ url_for('budget.delete', budget_id=budget.id) }}" method="post">
+    
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <input class="danger" type="submit" value="Delete this budget" onclick="return confirm('Are you sure?');">
+
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+          Delete Budget
+        </button>
+        <p class="is-small">You cannot undo this action.</p>
+      </div>
+    </div>
+
   </form>
 {% endblock %}

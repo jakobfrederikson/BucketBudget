@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}Create bucket{% endblock %}</h1>
+    <h1>{% block title %}Create Bucket{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+
+<p>A bucket is a place to store a percentage of your net income. For example, you might state that you want 10% of your income saved towards holdays, so you would create a 'Holiday' bucket with a percent of 10.</p>
+
+<p><strong>add percentage bar here to show total percentage of all buckets, letting user know how much percent is left.</strong></p>
+
 {% from "_formhelpers.html" import render_field %}
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -12,6 +17,17 @@
       {{ render_field(form.title) }}
       {{ render_field(form.percent) }}
     </dl>
-    <input type="submit" value="Save">
+    
+    <div class="field">
+      <div class="control">
+        <button type="submit" class="button is-primary">
+          Create
+        </button>
+        <a class="button" href="{{ url_for('budget.read', budget_id=budget_id) }}">
+          Back
+        </a>
+      </div>
+    </div>
+
   </form>
 {% endblock %}

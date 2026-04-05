@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}"{{ budget.title }}" members{% endblock %}</h1>
+  <h1>{% block title %}Change Budget Ownership{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -11,6 +11,11 @@
         <dl>
             {{ render_field(form.members) }}
         </dl>
-        <input type="submit" value="Save">
+        <button type="submit" class="button is-primary">
+          Save
+        </button>
+        <a class="button" href="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}">
+            Back
+        </a>
     </form>
 {% endblock %}

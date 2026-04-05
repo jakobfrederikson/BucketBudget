@@ -1,15 +1,48 @@
 {% extends "base.html" %}
-{% from "security/_macros.html" import render_field_with_errors, render_field %}
 
 {% block content %}
-  {% include "security/_messages.html" %}
-  {% block header %}
-    <h1>{% block title %}Resend confirmation instructions{% endblock %}</h1>
-  {% endblock %}
-  <form action="{{ url_for_security('send_confirmation') }}" method="post" name="send_confirmation_form">
-    {{ send_confirmation_form.hidden_tag() }}
-    {{ render_field_with_errors(send_confirmation_form.email) }}
-    {{ render_field(send_confirmation_form.submit) }}
-  </form>
+
+  <div class="columns is-centered">
+    <div class="column">
+
+      <h1 class="title has-text-centered">{% block title %}Resend confirmation instructions{% endblock %}</h1>
+
+      <form 
+        action="{{ url_for_security('send_confirmation') }}" 
+        method="post" 
+        name="send_confirmation_form"
+      >
+        
+        {{ send_confirmation_form.hidden_tag() }}
+
+        <div class="field">
+          <div class="label">{{ send_confirmation_form.email.label }}</div>
+          <div class="control">{{ send_confirmation_form.email(class="input") }}</div>
+          {% if send_confirmation_form.email.errors %}
+            {% for error in send_confirmation_form.email.errors %}
+              <p class="help is-danger">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        {% if send_confirmation_form.csrf_token.errors %}
+          {% for error in send_confirmation_form.csrf_token.errors %}
+            <p class="help is-danger">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+
+        <hr />
+
+        <div class="field">
+          <div class="control">
+            {{ send_confirmation_form.submit(class="button is-primary is-fullwidth") }}
+          </div>
+        </div>
+
+      </form>
+      
+    </div>
+  </div>
+  
   {% include "security/_menu.html" %}
 {% endblock content %}

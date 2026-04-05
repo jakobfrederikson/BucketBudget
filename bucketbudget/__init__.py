@@ -40,8 +40,8 @@ def create_app(test_config=None):
     app.config['SECURITY_USERNAME_REQUIRED'] = True
 
     # Flask Security - Email verification
-    app.config['SECURITY_CONFIRMABLE'] = False
-    app.config['SECURITY_SEND_REGISTER_EMAIL'] = False    
+    app.config['SECURITY_CONFIRMABLE'] = True
+    app.config['SECURITY_SEND_REGISTER_EMAIL'] = True    
 
     # Flask Security - Password endpoints (change password + recover/reset password)
     app.config['SECURITY_RECOVERABLE'] = True
@@ -65,13 +65,14 @@ def create_app(test_config=None):
 
     # Flask Security - set email sender after Mail setup
     app.config['SECURITY_EMAIL_SENDER'] = app.config['MAIL_DEFAULT_SENDER']
+
     # app.config['SECURITY_TWO_FACTOR_RESCUE_MAIL'] = app.config['MAIL_DEFAULT_SENDER']
 
     mail = Mail(app)
     
     app.config['REMEMBER_COOKIE_SAMESITE'] = os.environ['REMEMBER_COOKIE_SAMESITE'] 
     app.config['SESSION_COOKIE_SAMESITE'] = os.environ['SESSION_COOKIE_SAMESITE']
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
 
     csrf = CSRFProtect(app)
@@ -98,6 +99,7 @@ def create_app(test_config=None):
         db.create_all()
     
     app.register_blueprint(budget.views.bp)
+    app.register_blueprint(auth.views.bp)
 
     user_datastore = SQLAlchemyUserDatastore(db, auth_models.User, auth_models.Role)
     app.security = Security(app, user_datastore)
