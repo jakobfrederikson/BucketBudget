@@ -40,8 +40,8 @@ def create_app(test_config=None):
     app.config['SECURITY_USERNAME_REQUIRED'] = True
 
     # Flask Security - Email verification
-    app.config['SECURITY_CONFIRMABLE'] = True
-    app.config['SECURITY_SEND_REGISTER_EMAIL'] = True    
+    app.config['SECURITY_CONFIRMABLE'] = False
+    app.config['SECURITY_SEND_REGISTER_EMAIL'] = False    
 
     # Flask Security - Password endpoints (change password + recover/reset password)
     app.config['SECURITY_RECOVERABLE'] = True
@@ -56,15 +56,15 @@ def create_app(test_config=None):
     # app.config['SECURITY_TOTP_ISSUER'] = "bucketbudget"
 
     # Flask Mail
-    app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
-    app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
-    app.config['MAIL_USE_SSL'] = os.environ['MAIL_USE_SSL']
-    app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
-    app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
-    app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+    # app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
+    # app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
+    # app.config['MAIL_USE_SSL'] = os.environ['MAIL_USE_SSL']
+    # app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
+    # app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+    # app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
     # Flask Security - set email sender after Mail setup
-    app.config['SECURITY_EMAIL_SENDER'] = app.config['MAIL_DEFAULT_SENDER']
+    # app.config['SECURITY_EMAIL_SENDER'] = app.config['MAIL_DEFAULT_SENDER']
 
     # app.config['SECURITY_TWO_FACTOR_RESCUE_MAIL'] = app.config['MAIL_DEFAULT_SENDER']
 

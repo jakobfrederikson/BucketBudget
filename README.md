@@ -15,6 +15,8 @@ BucketBudget is being developed on Python 3.12.3.
 - run `flask --app bucketbudget init-db`
 - run `flask --app bucketbudget run`
 
+Note: If you failed to install psycopg2 on Linux when running `pip install -r requirements.txt`, then run `pip install psycopg2-binary`
+
 
 ## What's this app about?
 
