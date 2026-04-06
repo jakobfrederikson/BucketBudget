@@ -249,7 +249,7 @@ def _get_frequency(frequency: str) -> _frequency:
         return _frequency.WEEKLY
     elif frequency == 'Fortnightly':
         return _frequency.FORTNIGHTLY
-    elif frequency == 'FourWeekly':
+    elif frequency == 'Four-Weekly':
         return _frequency.FOUR_WEEKLY
     elif frequency == 'Monthly':
         return _frequency.MONTHLY
