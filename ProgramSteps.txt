@@ -79,8 +79,12 @@ Users can have:
     - Createa a better diagram showing how you use the app
     - Update base, consistent layout for forms - DONE
 > Done: Migrate to PostgreSQL
-> Doing: Check if budget result is working properly
-> To Do: Generate UUIDs for Public IDs?
+> Done: Check if budget result is working properly
+> Skipped: Generate UUIDs for Public IDs? - no need
+> Doing: Budget Generation and Limitation
+    - Generate a templated budget for the user once they're verified
+    - Explain why this was generated, so that users know this is how the barefoot investor gets you to start budgeting
+    - Limit budget creation to 2 per user
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.
