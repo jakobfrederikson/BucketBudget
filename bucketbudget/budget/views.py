@@ -97,6 +97,7 @@ def join():
                 flash_message = f'You have successfully joined "{budget.title}"'
         
         flash(flash_message)
+        redirect(url_for('index'))
 
     return render_template("budget/join.html", form=form)
 
