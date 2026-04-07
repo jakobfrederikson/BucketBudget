@@ -45,32 +45,11 @@ def how_it_works():
 
 @bp.route("/", methods=('GET', 'POST'))
 def index():
-    form = JoinBudgetForm(request.form)
-
-    if request.method == 'POST' and form.validate():
-
-        invite_code = form.invite_code.data
-        stmt = select(Budget).where(Budget.invite_code == invite_code)
-        budget = db.session.execute(stmt).scalar_one_or_none()
-
-        flash_message = None
-
-        if budget is None:
-            flash_message = f'No budget exists with invite code "{invite_code}"'
-        else:
-            if current_user in budget.users:
-                flash_message = f'You are already a member of "{budget.title}"'
-            else:
-                budget.users.append(current_user)
-                db.session.commit()
-                flash_message = f'You have successfully joined "{budget.title}"'
-        
-        flash(flash_message)
-
     budgets = None
     if current_user.is_authenticated:
+        db.session.expire(current_user)
         budgets = current_user.budgets
-    return render_template("budget/index.html", budgets=budgets, form=form)
+    return render_template("budget/index.html", budgets=budgets)
 
 
 @bp.route('/budget/join', methods=["GET", "POST"])

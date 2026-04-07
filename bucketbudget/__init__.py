@@ -110,6 +110,9 @@ def create_app(test_config=None):
 
     app.add_url_rule("/", endpoint="index")
 
+    with app.app_context():
+        from .budget import signals
+
     return app
 
 
