@@ -13,7 +13,6 @@ from decimal import Decimal
 @user_registered.connect
 def on_user_registration_create_default_budget(sender, user, **extra):
     """Create a default budget for the user on registration"""
-    print(user)
     # Default Budget
     default_budget = Budget(
         owner = user,
@@ -75,8 +74,4 @@ def on_user_registration_create_default_budget(sender, user, **extra):
     )
     db.session.add(bucket_smile)
     db.session.commit()
-
-    print(f"User registered: {user.username} - {user.email}")
-    # db.session.add(default_budget)
-    # db.session.commit()
     flash("A default budget has been created for you.")
