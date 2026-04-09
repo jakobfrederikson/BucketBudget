@@ -81,10 +81,13 @@ Users can have:
 > Done: Migrate to PostgreSQL
 > Done: Check if budget result is working properly
 > Skipped: Generate UUIDs for Public IDs? - no need
-> Doing: Budget Generation and Limitation
+> DONE: Budget Generation and Limitation
     - Generate a templated budget for the user once they're verified - DONE
     - Explain why this was generated, so that users know this is how the barefoot investor gets you to start budgeting - MEH
-    - Limit budget creation to 2 per user - Doing
+    - Limit budget creation to 2 per user - DONE
+> To Do: Password complexity
+    - Create password requirments
+> To Do: Let Users leave a budget
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.
