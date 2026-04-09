@@ -47,6 +47,10 @@ def create_app(test_config=None):
     app.config['SECURITY_RECOVERABLE'] = True
     app.config['SECURITY_CHANGEABLE'] = True
 
+    # Flask Security - Use a complexity checker for passwords
+    # I mean... only zxcvbn is supported so maybe no need for .env file for this lol
+    app.config['SECURITY_PASSWORD_COMPLEXITY_CHECKER'] = os.environ['SECURITY_PASSWORD_COMPLEXITY_CHECKER']
+
     # Flask Security - 2FA
     # app.config['SECURITY_TWO_FACTOR_ENABLED_METHODS'] = ['email', 'authenticator']
     # app.config['SECURITY_TWO_FACTOR'] = True
