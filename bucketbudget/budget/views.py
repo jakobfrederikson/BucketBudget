@@ -45,32 +45,11 @@ def how_it_works():
 
 @bp.route("/", methods=('GET', 'POST'))
 def index():
-    form = JoinBudgetForm(request.form)
-
-    if request.method == 'POST' and form.validate():
-
-        invite_code = form.invite_code.data
-        stmt = select(Budget).where(Budget.invite_code == invite_code)
-        budget = db.session.execute(stmt).scalar_one_or_none()
-
-        flash_message = None
-
-        if budget is None:
-            flash_message = f'No budget exists with invite code "{invite_code}"'
-        else:
-            if current_user in budget.users:
-                flash_message = f'You are already a member of "{budget.title}"'
-            else:
-                budget.users.append(current_user)
-                db.session.commit()
-                flash_message = f'You have successfully joined "{budget.title}"'
-        
-        flash(flash_message)
-
     budgets = None
     if current_user.is_authenticated:
+        db.session.expire(current_user)
         budgets = current_user.budgets
-    return render_template("budget/index.html", budgets=budgets, form=form)
+    return render_template("budget/index.html", budgets=budgets)
 
 
 @bp.route('/budget/join', methods=["GET", "POST"])
@@ -97,6 +76,7 @@ def join():
                 flash_message = f'You have successfully joined "{budget.title}"'
         
         flash(flash_message)
+        return redirect(url_for('index'))
 
     return render_template("budget/join.html", form=form)
 
@@ -106,6 +86,11 @@ def join():
 @auth_required()
 def create():
     form = CreateBudgetForm(request.form)
+
+    if not current_user_has_less_than_two_budgets():
+        flash("You cannot create more than two budgets.")
+        return redirect(url_for('index'))
+
     if request.method == 'POST' and form.validate():
         title = form.title.data
         frequency = form.frequency.data
@@ -126,6 +111,14 @@ def create():
     return render_template('budget/create.html', form=form)
 
 
+def current_user_has_less_than_two_budgets() -> bool:
+    user_budget_count = Budget.query.filter_by(owner_id = current_user.id).count()
+    if user_budget_count >= 2:
+        return False
+    
+    return True
+
+
 @bp.route('/budget/<int:budget_id>')
 @auth_required()
 @member_in_budget_required
@@ -137,7 +130,6 @@ def read(budget_id):
         joinedload(Budget.expense_items),
         joinedload(Budget.buckets),
     ).filter_by(id=budget_id).first_or_404()
-    #budget = db.get_or_404(Budget, budget_id)
     result = get_result(budget)
 
     return render_template('budget/read.html', budget=budget, result=result)
