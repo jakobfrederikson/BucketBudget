@@ -19,19 +19,33 @@
                         <div class="level-item">
                             {{ user.username }}
                         </div>
-                        <div class="level-item">
-                            {% if current_user.id == budget.owner_id %}
+                        {% if current_user.id == budget.owner_id %}
+                            <div class="level-item">
+                                
+                                    <form action="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}" method="post">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        {% for field in form %}
+                                            {{ field(value = user.id) }}
+                                        {% endfor %}
+                                        <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
+                                            Remove
+                                        </button>
+                                    </form>
+                                
+                            </div>
+                        {% elif current_user.id == user.id %}
+                            <div class="level-item">
                                 <form action="{{ url_for('budget.view_budget_members', budget_id=budget.id) }}" method="post">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     {% for field in form %}
                                         {{ field(value = user.id) }}
                                     {% endfor %}
                                     <button type="submit" class="button is-danger is-small" onclick="return confirm('Are you sure?');">
-                                        Remove
+                                        Leave Budget
                                     </button>
                                 </form>
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </li>

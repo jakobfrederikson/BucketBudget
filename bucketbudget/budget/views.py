@@ -301,14 +301,19 @@ def view_budget_members(budget_id):
     if request.method == 'POST' and form.validate():
         user_id_to_delete = int(form.member_id.data)
 
-        if budget.owner_id != current_user.id:
-            flash('Only the owner can remove users.')
-            return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
-
         user_to_remove = db.get_or_404(User, user_id_to_delete)
 
         if budget.owner == user_to_remove:
             flash("An owner can't remove themself from the budget.")
+            return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
+        elif current_user == user_to_remove:
+            budget.users.remove(user_to_remove)
+            db.session.commit()
+            flash(f"You have left the budget '{budget.title}'")
+            return redirect(url_for('index'))
+
+        if budget.owner_id != current_user.id:
+            flash('Only the owner can remove users.')
             return redirect(url_for('budget.view_budget_members', budget_id=budget_id))
 
         if user_to_remove in budget.users:

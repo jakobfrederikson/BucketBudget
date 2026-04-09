@@ -87,7 +87,7 @@ Users can have:
     - Limit budget creation to 2 per user - DONE
 > To Do: Password complexity
     - Create password requirments
-> To Do: Let Users leave a budget
+> DOING: Let Users leave a budget
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.
