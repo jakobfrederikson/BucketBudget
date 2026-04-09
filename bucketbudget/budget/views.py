@@ -76,7 +76,7 @@ def join():
                 flash_message = f'You have successfully joined "{budget.title}"'
         
         flash(flash_message)
-        redirect(url_for('index'))
+        return redirect(url_for('index'))
 
     return render_template("budget/join.html", form=form)
 
@@ -86,6 +86,11 @@ def join():
 @auth_required()
 def create():
     form = CreateBudgetForm(request.form)
+
+    if not current_user_has_less_than_two_budgets():
+        flash("You cannot create more than two budgets.")
+        return redirect(url_for('index'))
+
     if request.method == 'POST' and form.validate():
         title = form.title.data
         frequency = form.frequency.data
@@ -106,6 +111,14 @@ def create():
     return render_template('budget/create.html', form=form)
 
 
+def current_user_has_less_than_two_budgets() -> bool:
+    user_budget_count = Budget.query.filter_by(owner_id = current_user.id).count()
+    if user_budget_count >= 2:
+        return False
+    
+    return True
+
+
 @bp.route('/budget/<int:budget_id>')
 @auth_required()
 @member_in_budget_required
@@ -117,7 +130,6 @@ def read(budget_id):
         joinedload(Budget.expense_items),
         joinedload(Budget.buckets),
     ).filter_by(id=budget_id).first_or_404()
-    #budget = db.get_or_404(Budget, budget_id)
     result = get_result(budget)
 
     return render_template('budget/read.html', budget=budget, result=result)
