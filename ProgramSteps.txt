@@ -85,9 +85,9 @@ Users can have:
     - Generate a templated budget for the user once they're verified - DONE
     - Explain why this was generated, so that users know this is how the barefoot investor gets you to start budgeting - MEH
     - Limit budget creation to 2 per user - DONE
-> To Do: Password complexity
+> DOING: Password complexity
     - Create password requirments
-> DOING: Let Users leave a budget
+> DONE: Let Users leave a budget
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.
