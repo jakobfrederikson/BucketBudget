@@ -1,7 +1,6 @@
 import pytest
 from decimal import Decimal
-
-from bucketbudget.db import get_db
+from bucketbudget import db
 
 def test_index(client):
     response = client.get("/")

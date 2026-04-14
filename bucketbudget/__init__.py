@@ -23,90 +23,63 @@ load_dotenv()
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
-    
-    app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-
-    # Flask Security - Enable version 2 of the registration form
-    app.config['SECURITY_USE_REGISTER_V2'] = True
-
-    # Flask Security - Set the password salt
-    app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
-
-    # Flask Security - Enable user registration endpoint
-    app.config['SECURITY_REGISTERABLE'] = True
-
-    # Flask Security - Enable usernames
-    app.config['SECURITY_USERNAME_ENABLE'] = True
-    app.config['SECURITY_USERNAME_REQUIRED'] = True
-
-    # Flask Security - Email verification
-    app.config['SECURITY_CONFIRMABLE'] = False
-    app.config['SECURITY_SEND_REGISTER_EMAIL'] = False    
-
-    # Flask Security - Password endpoints (change password + recover/reset password)
-    app.config['SECURITY_RECOVERABLE'] = True
-    app.config['SECURITY_CHANGEABLE'] = True
-
-    # Flask Security - Use a complexity checker for passwords
-    # I mean... only zxcvbn is supported so maybe no need for .env file for this lol
-    app.config['SECURITY_PASSWORD_COMPLEXITY_CHECKER'] = os.environ['SECURITY_PASSWORD_COMPLEXITY_CHECKER']
-
-    # Flask Security - 2FA
-    # app.config['SECURITY_TWO_FACTOR_ENABLED_METHODS'] = ['email', 'authenticator']
-    # app.config['SECURITY_TWO_FACTOR'] = True
-    # app.config['SECURITY_TWO_FACTOR_ALWAYS_VALIDATE'] = False
-    # app.config['SECURITY_TWO_FACTOR_LOGIN_VALIDITY'] = "1 week"    
-    # app.config['SECURITY_TOTP_SECRETS'] = {"1": "TjQ9Qa31VOrfEzuPy4VHQWPCTmRzCnFzMKLxXYiZu9B"}
-    # app.config['SECURITY_TOTP_ISSUER'] = "bucketbudget"
-
-    # Flask Mail
-    # app.config['MAIL_SERVER'] = os.environ['MAIL_SERVER']
-    # app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
-    # app.config['MAIL_USE_SSL'] = os.environ['MAIL_USE_SSL']
-    # app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
-    # app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
-    # app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
-
-    # Flask Security - set email sender after Mail setup
-    # app.config['SECURITY_EMAIL_SENDER'] = app.config['MAIL_DEFAULT_SENDER']
-
-    # app.config['SECURITY_TWO_FACTOR_RESCUE_MAIL'] = app.config['MAIL_DEFAULT_SENDER']
-
-    mail = Mail(app)
-    
-    app.config['REMEMBER_COOKIE_SAMESITE'] = os.environ['REMEMBER_COOKIE_SAMESITE'] 
-    app.config['SESSION_COOKIE_SAMESITE'] = os.environ['SESSION_COOKIE_SAMESITE']
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
-
-    csrf = CSRFProtect(app)
+    app.config.from_mapping(
+        SECRET_KEY=os.environ['SECRET_KEY'],
+        SECURITY_PASSWORD_SALT=os.environ['SECURITY_PASSWORD_SALT'],
+        SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SQLALCHEMY_ENGINE_OPTIONS={"pool_pre_ping": True},
+        SECURITY_USE_REGISTER_V2=True,
+        SECURITY_REGISTERABLE=True,
+        SECURITY_USERNAME_ENABLE=True,
+        SECURITY_USERNAME_REQUIRED=True,
+        SECURITY_CONFIRMABLE=False,
+        SECURITY_SEND_REGISTER_EMAIL=False,
+        SECURITY_RECOVERABLE=True,
+        SECURITY_CHANGEABLE=True,
+        SECURITY_PASSWORD_COMPLEXITY_CHECKER=os.environ['SECURITY_PASSWORD_COMPLEXITY_CHECKER'],
+        # MAIL_SERVER=os.environ['MAIL_SERVER'],
+        # MAIL_PORT=os.environ['MAIL_PORT'],
+        # MAIL_USE_SSL=os.environ['MAIL_USE_SSL'],
+        # MAIL_USERNAME=os.environ['MAIL_USERNAME'],
+        # MAIL_PASSWORD=os.environ['MAIL_PASSWORD'],
+        # MAIL_DEFAULT_SENDER=os.environ['MAIL_USERNAME'],
+        # SECURITY_EMAIL_SENDER=os.environ['MAIL_USERNAME'],
+        # SECURITY_TWO_FACTOR_ENABLED_METHODS = ['email', 'authenticator'],
+        # SECURITY_TWO_FACTOR=True,
+        # SECURITY_TWO_FACTOR_ALWAYS_VALIDATE=False,
+        # SECURITY_TWO_FACTOR_LOGIN_VALIDITY="1 Week",
+        # SECURITY_TOTP_SECRETS={"": ""},
+        # SECURITY_TOTP_ISSUER="bucketbudget",
+        # SECURITY_TWO_FACTOR_RESCUE_MAIL=os.environ['MAIL_USERNAME'],
+        REMEMBER_COOKIE_SAMESITE=os.environ["REMEMBER_COOKIE_SAMESITE"],
+        SESSION_COOKIE_SAMESITE=os.environ['SESSION_COOKIE_SAMESITE']
+    )
 
     if test_config is None:
-        # load the instance config, if it exists, when not testing
         app.config.from_pyfile("config.py", silent=True)
     else:
-        app.config.update(test_config)
+        app.config.from_mapping(test_config)
 
-    os.makedirs(app.instance_path, exist_ok=True)
+    mail = Mail(app)
+    csrf = CSRFProtect(app)
+    db.init_app(app)
+    app.cli.add_command(init_db_command)
 
     from . import auth, budget
     from .auth import models as auth_models
     from .budget import models as budget_models
     from .auth.forms import CustomLoginForm, CustomRegisterForm
 
-    # Init the db
-    db.init_app(app)
-    app.cli.add_command(init_db_command)
-
-    # Create the tables
-    with app.app_context():
-        db.create_all()
+    user_datastore = SQLAlchemyUserDatastore(db, auth_models.User, auth_models.Role)
+    app.security = Security(app, user_datastore)
     
     app.register_blueprint(budget.views.bp)
     app.register_blueprint(auth.views.bp)
 
-    user_datastore = SQLAlchemyUserDatastore(db, auth_models.User, auth_models.Role)
-    app.security = Security(app, user_datastore)
+    # Create the tables
+    with app.app_context():
+        db.create_all()    
 
     from bucketbudget.error_handlers import page_not_found, forbidden
     app.register_error_handler(404, page_not_found)

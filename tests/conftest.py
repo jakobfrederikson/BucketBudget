@@ -1,35 +1,38 @@
-import os
-import tempfile
-
 import pytest
-
-from bucketbudget import create_app
-from bucketbudget.db import get_db
-from bucketbudget.db import init_db
-
-# read in SQL for populating data
-with open(os.path.join(os.path.dirname(__file__), "data.sql"), "rb") as f:
-    _data_sql = f.read().decode("utf8")
+from sqlalchemy import text
+from bucketbudget.auth.models import User, Role
+from bucketbudget import create_app, db
+import os
 
 
 @pytest.fixture
 def app():
     """Create and configure a new app instance for each test."""
-    # create a temporary file to isolate the database for each test
-    db_fd, db_path = tempfile.mkstemp()
     # create the app with common test config
-    app = create_app({"TESTING": True, "DATABASE": db_path})
+    app = create_app({
+        "TESTING": True, 
+        "SQLALCHEMY_DATABASE_URI": 'sqlite:///:memory:',
+        'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+        'WTF_CSRF_ENABLED': False,
+        'SECURITY_PASSWORD_SALT': 'test',
+        'SECURITY_PASSWORD_HASH': 'plaintext',
+        'MAIL_BACKEND': 'locmem',
+    })
 
     # create the database and load test data
     with app.app_context():
-        init_db()
-        get_db().executescript(_data_sql)
+        db.create_all()
 
-    yield app
+        sql_file_path = os.path.join(os.path.dirname(__file__), "data.sql")
+        if os.path.exists(sql_file_path):
+            with open(sql_file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                db.engine.raw_connection().executescript(content)
 
-    # close and remove the temporary database
-    os.close(db_fd)
-    os.unlink(db_path)
+        yield app
+
+        db.session.remove()
+        db.drop_all()
 
 
 @pytest.fixture
@@ -48,9 +51,9 @@ class AuthActions:
     def __init__(self, client):
         self._client = client
 
-    def login(self, username="test", password="test"):
+    def login(self, email="test@test.com", username="testuser", password="testpassword"):
         return self._client.post(
-            "/auth/login", data={"username": username, "password": password}
+            "/auth/login", data={"email": email, "username": username, "password": password}
         )
 
     def logout(self):
