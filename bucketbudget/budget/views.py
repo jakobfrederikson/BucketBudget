@@ -524,8 +524,14 @@ def create_bucket(budget_id):
 
         return redirect(url_for('budget.read', budget_id=budget.id))
 
+    budget = db.get_or_404(Budget, budget_id)
+    total_bucket_percent = Decimal(0)
+    for bucket in budget.buckets:
+        print(bucket.percent)
+        total_bucket_percent += bucket.percent
+        print(total_bucket_percent)
 
-    return render_template("budget/bucket_create.html", form=form, budget_id=budget_id)
+    return render_template("budget/bucket_create.html", form=form, budget_id=budget_id, total_bucket_percent=total_bucket_percent)
 
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
 @auth_required()
