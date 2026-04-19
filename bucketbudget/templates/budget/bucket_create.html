@@ -8,7 +8,10 @@
 
 <p>A bucket is a place to store a percentage of your net income. For example, you might state that you want 10% of your income saved towards holdays, so you would create a 'Holiday' bucket with a percent of 10.</p>
 
-<p><strong>add percentage bar here to show total percentage of all buckets, letting user know how much percent is left.</strong></p>
+
+ <label for="progress-bar">Total Bucket Percentage ( 0   / 100 )</label>
+<progress id="progress-bar" class="progress is-primary" value="10" max="100">
+</progress>
 
 {% from "_formhelpers.html" import render_field %}
   <form method="post">
