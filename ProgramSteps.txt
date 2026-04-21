@@ -88,9 +88,9 @@ Users can have:
 > DONE: Password complexity
     - Create password requirments
 > DONE: Let Users leave a budget
-> DOING: Add percentage bar to buckets section
-    - Link percentage bar to current total percentage
-    - Display percentages amount in the bar
+> DONE: Add percentage bar to buckets section
+    - Link percentage bar to current total percentage - DONE
+    - Display percentages amount in the bar - DONE
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.
