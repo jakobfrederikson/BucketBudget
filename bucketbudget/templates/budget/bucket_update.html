@@ -5,6 +5,12 @@
 {% endblock %}
 
 {% block content %}
+
+  <label for="progress-bar">Total Bucket Percentage ( {{ total_bucket_percent }}   / 100 ) </label>
+  <progress id="progress-bar" class="progress is-primary" value="{{ total_bucket_percent }}" max="100">
+    {{ total_bucket_percent }}%
+  </progress>
+
 {% from "_formhelpers.html" import render_field %}
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

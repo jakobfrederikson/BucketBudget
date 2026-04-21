@@ -512,8 +512,18 @@ def delete_expense_item(budget_id, expense_item_id):
 def create_bucket(budget_id):
     form = CreateBucketForm(request.form)
 
+    budget = db.get_or_404(Budget, budget_id)
+    total_bucket_percent = get_budget_total_bucket_percent(buckets=budget.buckets, budget_id=budget_id)
+
     if request.method == 'POST' and form.validate():
-        budget = db.get_or_404(Budget, budget_id)
+        if total_bucket_percent + form.percent.data > 100:
+            flash("You can't have a total bucket percent over 100.")
+            return redirect(url_for('budget.create_bucket', budget_id=budget_id))
+
+        if form.percent.data == 0:
+            flash("You can't have a bucket percentage of 0.")
+            return redirect(url_for('budget.create_bucket', budget_id=budget_id))
+        
         bucket = Bucket(
             budget_id = budget.id,
             title = form.title.data,
@@ -524,14 +534,18 @@ def create_bucket(budget_id):
 
         return redirect(url_for('budget.read', budget_id=budget.id))
 
-    budget = db.get_or_404(Budget, budget_id)
-    total_bucket_percent = Decimal(0)
-    for bucket in budget.buckets:
-        print(bucket.percent)
-        total_bucket_percent += bucket.percent
-        print(total_bucket_percent)
+    
 
     return render_template("budget/bucket_create.html", form=form, budget_id=budget_id, total_bucket_percent=total_bucket_percent)
+
+
+# Helper - get budget's total bucket percent
+def get_budget_total_bucket_percent(buckets, budget_id):
+    total_bucket_percent = Decimal(0)
+    for bucket in buckets:
+        total_bucket_percent += bucket.percent
+
+    return total_bucket_percent
 
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
 @auth_required()
@@ -540,7 +554,14 @@ def bucket_update(budget_id, bucket_id):
     bucket = db.get_or_404(Bucket, bucket_id)
     form = CreateBucketForm(request.form)
 
+    budget = db.get_or_404(Budget, budget_id)
+    total_bucket_percent = get_budget_total_bucket_percent(buckets=budget.buckets, budget_id=budget_id)
+
     if request.method == 'POST' and form.validate():
+        if total_bucket_percent + form.percent.data > 100:
+            flash("You can't have a total bucket percent over 100.")
+            return redirect(url_for('budget.bucket_update', budget_id=budget_id, bucket_id=bucket_id))
+        
         bucket.title = form.title.data
         bucket.percent = form.percent.data
         
@@ -552,7 +573,7 @@ def bucket_update(budget_id, bucket_id):
     form.title.data = bucket.title
     form.percent.data = bucket.percent
 
-    return render_template('budget/bucket_update.html', budget_id=budget_id, bucket=bucket, form=form)
+    return render_template('budget/bucket_update.html', budget_id=budget_id, bucket=bucket, form=form, total_bucket_percent=total_bucket_percent)
 
 
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/delete', methods=('POST',))
