@@ -80,8 +80,14 @@
         <div class="field">
           <div class="control">
             <button type="submit" class="button is-primary is-fullwidth">
-              {{ login_user_form.submit.label.text or "Sign In" }}
+              {{ login_user_form.submit.label.text }}
             </button>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="control">
+            <a href="{{ url_for('security.register') }}">Create an account</a>
           </div>
         </div>
 
