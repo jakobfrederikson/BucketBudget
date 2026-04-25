@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% from "security/_macros.html" import prop_next, render_csrf %}
+
+{% block content %}
+    <div class="columns is-centered">
+        <div class="column is-6-tablet is-5-desktop">
+            <h1>{% block title %}Reauthenticate{% endblock %}</h1>
+
+            <form 
+            action="{{ url_for_security('verify') }}{{ prop_next() }}"
+            method="post"
+            name="verify_form"
+            >
+
+                {{  verify_form.hidden_tag() }}
+                <div class="field">
+                    <label class="label">{{ verify_form.password.label.text }}</label>
+                    <div class="control">
+                        {{ verify_form.password(class="input") }}
+                    </div>
+                    {% if verify_form.password.errors %}
+                        {% for error in verify_form.password.errors %}
+                            <p class="help is-danger">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <button type="submit" class="button is-primary is-fullwidth">
+                        {{ verify_form.submit.label.text }}
+                        </button>
+                    </div>
+                </div>
+        
+            </form>
+            {% if has_webauthn_verify_credential %}
+                <hr>
+                <h2>Use a Passkey to Reauthenticate</h2>
+                <form action="{{ url_for_security('wan_verify') }}{{ prop_next() }}"
+                method="post"
+                name="wan_verify_form">
+                    {{ render_csrf(wan_verify_form, "wan") }}
+
+                    <div class="field">
+                        <div class="control">
+                            <button type="submit" class="button is-primary is-fullwidth">
+                            {{ wan_verify_form.submit.label.text }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+            {% if security.oauthglue %}
+                <hr>
+                <h2>Use Social Login to Reauthenticate</h2>
+                <form 
+                method="post"
+                id="{{ provider }}_form"
+                name="{{ provider }}_form"
+                >
+
+                    <div class="field">
+                        <div class="control">
+                            <input 
+                                id="{{ provider }}" 
+                                name="{{ provider }}"
+                                type="submit"
+                                value="{{ _fsdomain('Continue with %(provider)s', provider=provider) }}"
+                                formaction="{{ url_for_security('oauth_verify_start', name=provider) }}{{ prop_next() }}"
+                                class="input">
+                        </div>
+                    </div>
+
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
