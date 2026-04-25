@@ -91,6 +91,11 @@ Users can have:
 > DONE: Add percentage bar to buckets section
     - Link percentage bar to current total percentage - DONE
     - Display percentages amount in the bar - DONE
+> DOING: Allow users to change their email
+    - Configure Flask-Security 'SECURITY_CHANGE_EMAIL' to true
+    - Check if there is a default template required for bucket budget, if so, customise it
+    - Customise the 'verify.html' template from flask security
+    -> https://github.com/pallets-eco/flask-security/blob/main/flask_security/templates/security/verify.html
 > To Do: Create tests
     - Test CRUD with all forms.
     - Test user creation and deletion.

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="columns is-centered">
+        <div class="column is-6-tablet is-5-desktop">
+            <h1>{% block title %}Change Email{% endblock %}</h1>
+            <p>Once submitted, an email confirmation will be sent to this new email address.</p>
+            <div class="box">
+                <form 
+                action="{{ url_for_security('change_email') }}"
+                method="post"
+                name="change_email_form">
+                    {{ change_email_form.hidden_tag() }}
+
+                    <div class="field">
+                        <label class="label">Current Email</label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="{{ current_user.email }}" disabled></input>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">{{ change_email_form.email.label.text }}</label>
+                        <div class="control">{{ change_email_form.email(class="input") }}</div>
+                        {% if change_email_form.email.errors %}
+                            {% for error in change_email_form.email.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    {% if change_email_form.csrf_token.errors %} 
+                        {% for error in change_email_form.csrf_token.errors %}
+                            <p class="help is-danger">{{ error }}</p>
+                        {% endfor %} 
+                    {% endif %}
+
+                    <hr />
+
+                    <div class="field">
+                        <div class="control">
+                            <button type="submit" class="button is-primary is-fullwidth">
+                            {{ change_email_form.submit.label.text }}
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+                {% include "security/_menu.html" %} 
+            </div>
+        </div>
+    </div>
+
+  
+{% endblock content %}
