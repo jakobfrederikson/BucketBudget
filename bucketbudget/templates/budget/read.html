@@ -121,11 +121,7 @@
                                 <div class="card-content">
                                     <div class="level is-mobile">
                                         <div class="level-left level-line-breaker">
-                                            {% if item.expense_bucket %}
-                                                <span class="level-item"><strong>{{ item.title }} (Expense Bucket)</strong></span>
-                                            {% else %}
-                                                <span class="level-item"><strong>{{ item.title }}</strong></span>
-                                            {% endif %}
+                                            <span class="level-item"><strong>{{ item.title }}</strong></span>
                                         </div>
                                         <div class="level-right">
                                             <span class="level-item">${{ item.amount }}</span>
@@ -184,7 +180,7 @@
                                 <div class="level is-mobile">
                                     <div class="level-left level-line-breaker">
                                         <span class="level-item level-item-word-wrapper">
-                                            <strong>{{ item.title }} ({{ item.percent }}%)</strong>
+                                            <strong>{{ item.title }} ({{ item.percent }}%) | Expense Bucket? {{ item.is_expense_bucket }}</strong>
                                         </span>
                                     </div>
                                     <div class="level-right">
