@@ -97,7 +97,8 @@ Users can have:
     - Customise the 'verify.html' template from flask security
     -> https://github.com/pallets-eco/flask-security/blob/main/flask_security/templates/security/verify.html
 > DOING: Expense Bucket Update
-    - Update 'expense bucket' boolean to be under buckets instead of expense items
+    - Update 'expense bucket' boolean to be under buckets instead of expense items - DONE
+    - Update forms and views to have expense bucket checkbox under buckets instead of expense items
     - If Bucket is an expense bucket, then allow users to select certain expenses go under this bucket
     -> E.g. Utilities bucket - people might then select Power, Internet, Rent etc. to go under this bucket
     - This will require a new table: bucket_expense_items, to create the relationship of one to many (one 'expense bucket' to many 'expense items')
