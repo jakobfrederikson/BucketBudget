@@ -37,41 +37,60 @@ def on_user_registration_create_default_budget(sender, user, **extra):
         budget_id = budget.id,
         title = "Example Expense (Power)",
         amount = Decimal(200),
-        frequency_enum = Frequency.FourWeekly,
-        expense_bucket=True
+        frequency_enum = Frequency.FourWeekly
     )
     db.session.add(default_expense_item)
     default_expense_item_2 = ExpenseItem(
         budget_id = budget.id,
-        title = "Example Expense (Phone)",
-        amount = Decimal(30),
-        frequency_enum = Frequency.Monthly,
-        expense_bucket=False
+        title = "Example Expense (Internet)",
+        amount = Decimal(101),
+        frequency_enum = Frequency.FourWeekly
     )
     db.session.add(default_expense_item_2)
+    default_expense_item_3 = ExpenseItem(
+        budget_id = budget.id,
+        title = "Example Expense (Phone)",
+        amount = Decimal(30),
+        frequency_enum = Frequency.Monthly
+    )
+    db.session.add(default_expense_item_3)
     bucket_de = Bucket(
         budget_id = budget.id,
         title = "Daily Expenses",
-        percent = Decimal(60)
+        percent = Decimal(60),
+        is_expense_bucket = False
     )
     db.session.add(bucket_de)
     bucket_splurge = Bucket(
         budget_id = budget.id,
         title = "Splurge",
-        percent = Decimal(10)
+        percent = Decimal(10),
+        is_expense_bucket = False
     )
     db.session.add(bucket_splurge)
     bucket_fe = Bucket(
         budget_id = budget.id,
         title = "Fire Extinguisher",
-        percent = Decimal(20)
+        percent = Decimal(20),
+        is_expense_bucket = False
     )
     db.session.add(bucket_fe)
     bucket_smile = Bucket(
         budget_id = budget.id,
         title = "Smile",
-        percent = Decimal(10)
+        percent = Decimal(10),
+        is_expense_bucket = False
     )
     db.session.add(bucket_smile)
+    bucket_utils = Bucket(
+        budget_id = budget.id,
+        title = "Utilities",
+        percent_int = None,
+        is_expense_bucket = True
+    )
+    bucket_utils.expense_items.append(default_expense_item)
+    bucket_utils.expense_items.append(default_expense_item_2)
+    db.session.add(bucket_utils)
+    
     db.session.commit()
     flash("A default budget has been created for you.")
