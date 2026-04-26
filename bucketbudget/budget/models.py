@@ -104,7 +104,6 @@ class ExpenseItem(db.Model):
     title: Mapped[str]
     amount_int: Mapped[int]
     frequency_enum: Mapped[Frequency]
-    expense_bucket: Mapped[bool]
 
     @property
     def amount(self) -> Decimal:
@@ -121,18 +120,43 @@ class ExpenseItem(db.Model):
         return self.frequency_enum.value
 
 
+bucket_expense_items = Table(
+    "bucket_expense_items",
+    Base.metadata,
+    Column("bucket_id", ForeignKey("bucket.id", ondelete="CASCADE"), primary_key=True),
+    Column("expense_item_id", ForeignKey("expense_item.id", ondelete="CASCADE"), primary_key=True)
+)
+
 class Bucket(db.Model):
     __tablename__ = "bucket"
     id: Mapped[int] = mapped_column(primary_key=True)
     budget_id: Mapped[int] = mapped_column(ForeignKey("budget.id", ondelete="CASCADE"))
     title: Mapped[str]
-    percent_int: Mapped[int]
+    is_expense_bucket: Mapped[bool]
+    percent_int: Mapped[int | None]
+
+    expense_items: Mapped[list["ExpenseItem"]] = relationship(
+        secondary=bucket_expense_items,
+        backref="buckets"
+    )
+    
+    @property
+    def expense_items_sum(self) -> Decimal:
+        if self.is_expense_bucket:
+            # return sum of all expense items linked to this bucket
+            return sum((item.amount for item in self.expense_items), Decimal("0.01"))
+        else:
+            # not an expense item bucket so return 0
+            return 0
 
     @property
     def percent(self) -> Decimal:
+        if self.is_expense_bucket:
+            return 0
         return Decimal(self.percent_int / 100.0)
 
     @percent.setter
     def percent(self, value: Decimal):
-        value = value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        self.percent_int = int(value * 100)
+        if not self.is_expense_bucket:
+            value = value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            self.percent_int = int(value * 100)
