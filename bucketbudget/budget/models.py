@@ -112,7 +112,6 @@ class ExpenseItem(db.Model):
     @amount.setter
     def amount(self, value: Decimal):
         value = value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        print("test")
         self.amount_int = int(value * 100)
 
     @property

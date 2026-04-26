@@ -1,6 +1,5 @@
 from bucketbudget.BudgetHandler.budget_handler import (
-    IncomeItem as _income_item, 
-    ExpenseItem as _expense_item, 
+    MoneyItem, 
     Frequency as _frequency
 )
 
@@ -136,22 +135,24 @@ def read(budget_id):
 
 
 def get_result(budget) -> dict:
-    income_money_items: list[_income_item] = _get_income_money_items(budget.income_items)
-    expense_money_items: list[_expense_item] = _get_expense_money_items(budget.expense_items)
+    income_money_items: list[MoneyItem] = _get_money_items(budget.income_items)
+    expense_money_items: list[MoneyItem] = _get_money_items(budget.expense_items)
     result = create_result(
         budget, 
         income_money_items, 
         expense_money_items,
         budget.buckets
     )
+
+    print(result)
     
     return result
 
 
 def create_result(
         budget, 
-        income_money_items: list[_income_item], 
-        expense_money_items: list[_expense_item],
+        income_money_items: list[MoneyItem], 
+        expense_money_items: list[MoneyItem],
         buckets
         ) -> dict:
     
@@ -162,34 +163,35 @@ def create_result(
     for income in income_money_items:
         income.convert_frequency_to(budget_frequency)
         net_income = income.get_amount()
-        total_expenses = 0
+        total_expenses = Decimal("0.00")
+
         for expense in expense_money_items:
             expense.convert_frequency_to(budget_frequency)
-            net_income -= expense.get_amount()
-            total_expenses += expense.get_amount()
+            expense_amount = expense.get_amount()
+            net_income -= expense_amount
+            total_expenses += expense_amount
 
         income_to_buckets = []
-        expense_buckets = []
-        for item in expense_money_items:
-            if item.is_expense_bucket():
-                expense_buckets.append(item)
-        for bucket in expense_buckets:
-            bucket_item = {
-                "title": bucket.get_name(),
-                "amount": bucket.get_amount(),
-                "percent": "(fixed amount)",
-            }
-            income_to_buckets.append(bucket_item)
 
         for bucket in buckets:
-            percent_to_decimal = Decimal(bucket.percent / 100)
+            if bucket.is_expense_bucket:
+                bucket_sum = Decimal("0.00")
+                for item in bucket.expense_items:
+                    temp_item = MoneyItem(item.title, item.amount, _get_frequency(item.frequency))
+                    temp_item.convert_frequency_to(budget_frequency)
+                    bucket_sum += temp_item.get_amount()
 
-            bucket_item = {
+                amount = bucket_sum
+                percent_display = "(fixed amount)"
+            else:
+                amount = (net_income * (bucket.percent / 100)).quantize(Decimal("0.01"))
+                percent_display = f"{bucket.percent}%"
+
+            income_to_buckets.append({
                 "title": bucket.title,
-                "amount": Decimal(percent_to_decimal * net_income).quantize(Decimal('0.01')),
-                "percent": bucket.percent,
-            }
-            income_to_buckets.append(bucket_item)
+                "amount": amount,
+                "percent": percent_display,
+            })
 
         all_income_buckets.append({
             "income_name": income.get_name(),
@@ -204,37 +206,19 @@ def create_result(
 
     return result
 
-
-def _get_expense_money_items(expense_items) -> list[_expense_item]:
-    expense_money_items = []
-    for item in expense_items:
+def _get_money_items(money_items) -> list[MoneyItem]:
+    result_list = []
+    for item in money_items:
         frequency = _get_frequency(item.frequency)
 
-        expense_money_items.append(
-            _expense_item(
-                item.title,
-                Decimal(item.amount), 
-                frequency,
-                item.expense_bucket
-            )
-        )
-    return expense_money_items
-
-
-def _get_income_money_items(income_items) -> list[_income_item]:
-    income_money_items = []
-    for item in income_items:
-        frequency = _get_frequency(item.frequency)
-
-        income_money_items.append(
-            _income_item(
+        result_list.append(
+            MoneyItem(
                 item.title,
                 Decimal(item.amount), 
                 frequency
             )
         )
-    return income_money_items
-
+    return result_list
 
 def _get_frequency(frequency: str) -> _frequency:
     if frequency == 'Weekly':
