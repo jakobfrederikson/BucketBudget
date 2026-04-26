@@ -516,19 +516,21 @@ def create_bucket(budget_id):
     total_bucket_percent = get_budget_total_bucket_percent(buckets=budget.buckets, budget_id=budget_id)
 
     if request.method == 'POST' and form.validate():
-        if total_bucket_percent + form.percent.data > 100:
-            flash("You can't have a total bucket percent over 100.")
-            return redirect(url_for('budget.create_bucket', budget_id=budget_id))
-
-        if form.percent.data == 0:
-            flash("You can't have a bucket percentage of 0.")
+        if total_bucket_percent + form.percent.data > 100 or total_bucket_percent - form.percent.data < 0:
+            flash("Total bucket percent must be between 0 and 100.")
             return redirect(url_for('budget.create_bucket', budget_id=budget_id))
         
         bucket = Bucket(
             budget_id = budget.id,
             title = form.title.data,
-            percent = form.percent.data
+            is_expense_bucket = form.is_expense_bucket
         )
+
+        if bucket.is_expense_bucket:
+            bucket.percent_int = None
+        else:
+            bucket.percent = form.percent.data
+
         db.session.add(bucket)
         db.session.commit()
 
@@ -547,6 +549,7 @@ def get_budget_total_bucket_percent(buckets, budget_id):
 
     return total_bucket_percent
 
+
 @bp.route('/budget/<int:budget_id>/bucket/<int:bucket_id>/update', methods=('GET', 'POST'))
 @auth_required()
 @member_in_budget_required
@@ -558,12 +561,17 @@ def bucket_update(budget_id, bucket_id):
     total_bucket_percent = get_budget_total_bucket_percent(buckets=budget.buckets, budget_id=budget_id)
 
     if request.method == 'POST' and form.validate():
-        if total_bucket_percent + form.percent.data > 100:
-            flash("You can't have a total bucket percent over 100.")
+        if total_bucket_percent + form.percent.data > 100 or total_bucket_percent - form.percent.data < 0:
+            flash("Total bucket percent must be between 0 and 100.")
             return redirect(url_for('budget.bucket_update', budget_id=budget_id, bucket_id=bucket_id))
         
         bucket.title = form.title.data
-        bucket.percent = form.percent.data
+        bucket.is_expense_bucket = form.is_expense_bucket.data
+
+        if bucket.is_expense_bucket:
+            bucket.percent_int = None
+        else:
+            bucket.percent = form.percent.data
         
         db.session.add(bucket)
         db.session.commit()
@@ -572,6 +580,7 @@ def bucket_update(budget_id, bucket_id):
     # Pre-populate form data
     form.title.data = bucket.title
     form.percent.data = bucket.percent
+    form.is_expense_bucket = bucket.is_expense_bucket
 
     return render_template('budget/bucket_update.html', budget_id=budget_id, bucket=bucket, form=form, total_bucket_percent=total_bucket_percent)
 

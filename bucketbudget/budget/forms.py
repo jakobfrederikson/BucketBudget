@@ -1,5 +1,6 @@
 from wtforms import (Form, BooleanField, StringField, DecimalField, 
-    SelectField, PasswordField, EmailField, HiddenField, validators)
+    SelectField, PasswordField, EmailField, HiddenField, validators,
+    ValidationError)
 
 class CreateBudgetForm(Form):
     title = StringField('Title', [
@@ -55,7 +56,6 @@ class CreateExpenseItemForm(Form):
             ('FourWeekly', 'Four-Weekly'), 
             ('Yearly', 'Yearly'),
         ])
-    expense_bucket = BooleanField('Expense Bucket')
 
 
 class CreateBucketForm(Form):
@@ -64,10 +64,15 @@ class CreateBucketForm(Form):
         validators.Length(min=3, max=25),
     ])
     percent = DecimalField('Percent',
-        [validators.DataRequired(),
+        [validators.Optional(),
         validators.NumberRange(min=0, max=100)],
         places=2,
     )
+    is_expense_bucket = BooleanField('Is this an expense bucket?')
+
+    def validate_percent(self, field):
+        if not self.is_expense_bucket.data and field.data is None:
+            raise ValidationError('Percentage is required for standard buckets.')
 
 
 class JoinBudgetForm(Form):

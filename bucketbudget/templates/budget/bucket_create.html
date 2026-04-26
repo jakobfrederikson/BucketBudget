@@ -18,7 +18,12 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <dl>
       {{ render_field(form.title) }}
-      {{ render_field(form.percent) }}
+
+      <div id="percent">
+        {{ render_field(form.percent) }}  
+      </div>
+          
+      {{ render_field(form.is_expense_bucket) }}
     </dl>
     
     <div class="field">
@@ -33,4 +38,21 @@
     </div>
 
   </form>
+
+  <script>
+    const expenseBucketCheckbox = document.getElementById('is_expense_bucket');
+    const percentContainer = document.getElementById('percent');
+
+    function togglePercentVisibility() {
+      if (checkbox.checked) {
+        percentContainer.style.display = 'none';
+      } else {
+        percentContainer.style.display = 'block';
+      }
+    }
+
+    expenseBucketCheckbox.addEventListener('change', togglePercentVisibility);
+
+    togglePercentVisibility();
+  </script>
 {% endblock %}
